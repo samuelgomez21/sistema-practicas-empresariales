@@ -19,7 +19,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
                 .email(u.getEmail())
                 .nombre(u.getNombre())
                 .activo(u.isActivo())
-                .rol(u.getRol() != null ? u.getRol().getNombre().name() : null)
+                .rol(u.getRol() != null ? u.getRol().getNombre() : null)
                 .build();
     }
 

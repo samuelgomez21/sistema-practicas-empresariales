@@ -10,6 +10,7 @@ import co.edu.sistema_practicas_empresariales.security.JwtTokenProvider;
 import co.edu.sistema_practicas_empresariales.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.CustomUserDetailsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;

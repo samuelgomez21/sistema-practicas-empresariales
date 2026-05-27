@@ -1,7 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.model;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
-import co.edu.sistema_practicas_empresariales.modules.empresa.model.TutorEmpresarial;
+
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaFactory;
@@ -52,17 +51,15 @@ public class Practica {
     @Column(nullable = false, length = 50)
     private EstadoPracticaTipo estado = EstadoPracticaTipo.ASIGNADA_PENDIENTE_INICIO;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empresa_id")
-    private Empresa empresa;
+    @Column(name = "empresa_id")
+    private Long empresaId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "docente_asesor_id")
     private Usuario docenteAsesor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tutor_empresarial_id")
-    private TutorEmpresarial tutorEmpresarial;
+    @Column(name = "tutor_empresarial_id")
+    private Long tutorEmpresarialId;
 
     @Column(name = "nota_final", precision = 3, scale = 2)
     private BigDecimal notaFinal;

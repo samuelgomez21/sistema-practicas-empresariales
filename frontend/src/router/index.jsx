@@ -20,6 +20,15 @@ import DashboardTutor                  from '@/features/dashboard/pages/Dashboar
 import DashboardEstudiante             from '@/features/dashboard/pages/DashboardEstudiante'
 import DashboardDireccion              from '@/features/dashboard/pages/DashboardDireccion'
 
+import ConfiguracionLayout from '@/features/configuracion/pages/ConfiguracionLayout'
+import FacultadesPage      from '@/features/configuracion/pages/FacultadesPage'
+import ProgramasPage       from '@/features/configuracion/pages/ProgramasPage'
+import ParametrosPage      from '@/features/configuracion/pages/ParametrosPage'
+import CatalogoPracticasPage from '@/features/configuracion/pages/CatalogoPracticasPage'
+import PlantillasCorreoPage  from '@/features/configuracion/pages/PlantillasCorreoPage'
+import CatalogosMaestrosPage from '@/features/configuracion/pages/CatalogosMaestrosPage'
+
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -74,7 +83,28 @@ const router = createBrowserRouter([
         element: <ProtectedRoute roles={[ROLES.ESTUDIANTE]}><DashboardEstudiante /></ProtectedRoute> },
       { path: '/dashboard/direccion',
         element: <ProtectedRoute roles={[ROLES.DIRECCION]}><DashboardDireccion /></ProtectedRoute> },
+      { path: '/configuracion',
+        element: (
+          <ProtectedRoute roles={[
+            ROLES.ADMINISTRADOR,
+            ROLES.COORDINACION_ACADEMICA,
+            ROLES.COORDINADOR_PRACTICA,
+          ]}>
+            <ConfiguracionLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <Navigate to="/configuracion/facultades" replace /> },
+          { path: 'facultades', element: <FacultadesPage /> },
+          { path: 'programas',  element: <ProgramasPage /> },
+          { path: 'parametros', element: <ParametrosPage /> },
+          { path: 'catalogo',   element: <CatalogoPracticasPage /> },
+          { path: 'plantillas', element: <PlantillasCorreoPage /> },
+          { path: 'catalogos',  element: <CatalogosMaestrosPage /> },
+        ],
+      },
     ],
+    
   },
 
   { path: '*', element: <Navigate to="/" replace /> },

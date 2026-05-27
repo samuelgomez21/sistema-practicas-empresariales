@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: practicas-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/practicas_uah?useSSL=false&serverTimezone=America/Bogota&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate           # Flyway maneja el esquema
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    open-in-view: false            # evitar sesiones largas
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USER}
+    password: ${MAIL_PASS}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 50MB
+
+# JWT
+app:
+  jwt:
+    secret: ${JWT_SECRET:practicas-uah-secret-key-2024-very-long-secure}
+    expiration-ms: 86400000       # 24 horas
+
+  firebase:
+    config-path: ${FIREBASE_CONFIG:classpath:firebase-service-account.json}
+    storage-bucket: ${FIREBASE_BUCKET:practicas-uah.appspot.com}
+
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui

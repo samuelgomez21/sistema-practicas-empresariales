@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 import LoginPage from '@/features/auth/pages/LoginPage'
 import CambiarPasswordPage from '@/features/auth/pages/CambiarPasswordPage'
+import RecuperarPasswordPage from '@/features/auth/pages/RecuperarPasswordPage'
 
 // Rutas protegidas — redirige al login si no hay sesión
 function ProtectedRoute({ children }) {
@@ -18,6 +19,12 @@ const router = createBrowserRouter([
   {
     path: '/cambiar-password',
     element: <CambiarPasswordPage />,
+  },
+  {
+    path: '/recuperar-password/*',
+    element: (
+      <RecuperarPasswordPage />
+    ),
   },
   {
     path: '/',

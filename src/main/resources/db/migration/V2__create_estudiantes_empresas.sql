@@ -28,7 +28,7 @@ CREATE TABLE programa_requisitos (
 
 CREATE TABLE estudiantes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
+    usuario_id BIGINT NOT NULL UNIQUE,
     identificacion VARCHAR(50) NOT NULL UNIQUE,
     telefono VARCHAR(20) NULL,
     contacto_emergencia VARCHAR(100) NULL,
@@ -94,6 +94,7 @@ CREATE TABLE instancias_practica (
     fecha_fin DATE NULL,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_instancia_estudiante FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id),
+    CONSTRAINT uq_instancia_estudiante_num UNIQUE (estudiante_id, numero_practica),
     CONSTRAINT fk_instancia_empresa FOREIGN KEY (empresa_id) REFERENCES empresas(id),
     CONSTRAINT fk_instancia_docente FOREIGN KEY (docente_asesor_id) REFERENCES usuarios(id),
     CONSTRAINT fk_instancia_tutor FOREIGN KEY (tutor_empresarial_id) REFERENCES tutores_empresariales(id)

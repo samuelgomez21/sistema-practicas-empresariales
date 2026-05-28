@@ -28,6 +28,13 @@ import CatalogoPracticasPage from '@/features/configuracion/pages/CatalogoPracti
 import PlantillasCorreoPage  from '@/features/configuracion/pages/PlantillasCorreoPage'
 import CatalogosMaestrosPage from '@/features/configuracion/pages/CatalogosMaestrosPage'
 
+import UsuariosLayout         from '@/features/usuarios/pages/UsuariosLayout'
+import CoordinadoresPage      from '@/features/usuarios/pages/CoordinadoresPage'
+import EstudiantesPage        from '@/features/usuarios/pages/EstudiantesPage'
+import DocentesPage           from '@/features/usuarios/pages/DocentesPage'
+import DetalleEstudiantePage  from '@/features/usuarios/pages/DetalleEstudiantePage'
+
+
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -101,6 +108,27 @@ const router = createBrowserRouter([
           { path: 'catalogo',   element: <CatalogoPracticasPage /> },
           { path: 'plantillas', element: <PlantillasCorreoPage /> },
           { path: 'catalogos',  element: <CatalogosMaestrosPage /> },
+        ],
+      },
+      {  path: '/usuarios',
+        element: (
+          <ProtectedRoute roles={[ROLES.ADMINISTRADOR, ROLES.COORDINACION_ACADEMICA]}>
+            <UsuariosLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <Navigate to="/usuarios/estudiantes" replace /> },
+          {
+            path: 'coordinadores',
+            element: (
+              <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}>
+                <CoordinadoresPage />
+              </ProtectedRoute>
+            ),
+          },
+          { path: 'estudiantes',       element: <EstudiantesPage /> },
+          { path: 'estudiantes/:id',   element: <DetalleEstudiantePage /> },
+          { path: 'docentes',          element: <DocentesPage /> },
         ],
       },
     ],

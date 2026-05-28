@@ -32,6 +32,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
         }
+        usuario.setDebeCambiarPassword(true);
         return usuarioRepository.save(usuario);
     }
 

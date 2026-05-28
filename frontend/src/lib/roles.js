@@ -160,18 +160,19 @@ export const MENU_POR_ROL = {
   ],
 
   [ROLES.ESTUDIANTE]: [
-    { section: 'Principal',
+    { section: 'Mi espacio',
       items: [
-        { label: 'Dashboard',   icon: 'layout-dashboard', path: '/dashboard/estudiante' },
-        { label: 'Mi práctica', icon: 'briefcase',        path: '/estudiante/practica' },
-        { label: 'Mi perfil',   icon: 'user',             path: '/estudiante/perfil' },
-        { label: 'Documentos',  icon: 'file',             path: '/estudiante/documentos' },
+        { label: 'Dashboard',   icon: 'layout-dashboard', path: '/estudiante/dashboard' },
+        { label: 'Mi práctica', icon: 'briefcase',         path: '/estudiante/practica'  },
+        { label: 'Mi perfil',   icon: 'user',              path: '/estudiante/perfil'    },
+        { label: 'Documentos',  icon: 'file',              path: '/estudiante/documentos'},
       ],
     },
     { section: 'Seguimiento',
       items: [
-        { label: 'Avances',    icon: 'clipboard-list',   path: '/estudiante/avances' },
-        { label: 'Encuestas',  icon: 'forms',            path: '/estudiante/encuestas' },
+        { label: 'Avances',    icon: 'clipboard-list',  path: '/estudiante/avances'   },
+        { label: 'Encuestas',  icon: 'forms',           path: '/estudiante/encuestas' },
+        { label: 'Paz y salvo', icon: 'shield-check',   path: '/estudiante/paz-salvo' },
       ],
     },
   ],

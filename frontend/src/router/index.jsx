@@ -45,6 +45,15 @@ import MiPerfilEmpresaPage    from '@/features/empresas/pages/MiPerfilEmpresaPag
 import MisPracticantesPage    from '@/features/empresas/pages/MisPracticantesPage'
 
 
+import EstudianteLayout          from '@/features/estudiante/pages/EstudianteLayout'
+import EstudianteDashboardPage   from '@/features/estudiante/pages/EstudianteDashboardPage'
+import MiPracticaPage            from '@/features/estudiante/pages/MiPracticaPage'
+import MiPerfilEstudiantePage    from '@/features/estudiante/pages/MiPerfilEstudiantePage'
+import DocumentosPage            from '@/features/estudiante/pages/DocumentosPage'
+import AvancesPage               from '@/features/estudiante/pages/AvancesPage'
+import EncuestasPage             from '@/features/estudiante/pages/EncuestasPage'
+import PazYSalvoPage             from '@/features/estudiante/pages/PazYSalvoPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -95,7 +104,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute roles={[ROLES.EMPRESA]}><DashboardEmpresa /></ProtectedRoute> },
       { path: '/dashboard/tutor',
         element: <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}><DashboardTutor /></ProtectedRoute> },
-      { path: '/dashboard/estudiante',
+      { path: '/estudiante/dashboard',
         element: <ProtectedRoute roles={[ROLES.ESTUDIANTE]}><DashboardEstudiante /></ProtectedRoute> },
       { path: '/dashboard/direccion',
         element: <ProtectedRoute roles={[ROLES.DIRECCION]}><DashboardDireccion /></ProtectedRoute> },
@@ -178,6 +187,27 @@ const router = createBrowserRouter([
             </ProtectedRoute>
           },
         ],
+      },
+      {  path: '/estudiante',
+        element: (
+          <ProtectedRoute roles={[ROLES.ESTUDIANTE]}>
+            <EstudianteLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true,         element: <Navigate to="/estudiante/dashboard" replace /> },
+          { path: 'dashboard',   element: <EstudianteDashboardPage /> },
+          { path: 'practica',    element: <MiPracticaPage /> },
+          { path: 'perfil',      element: <MiPerfilEstudiantePage /> },
+          { path: 'documentos',  element: <DocumentosPage /> },
+          { path: 'avances',     element: <AvancesPage /> },
+          { path: 'encuestas',   element: <EncuestasPage /> },
+          { path: 'paz-salvo',   element: <PazYSalvoPage /> },
+        ],
+      },
+      {
+        path: '/dashboard/estudiante',
+        element: <Navigate to="/estudiante/dashboard" replace />,
       },
     ],
     

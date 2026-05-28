@@ -38,7 +38,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
         
         Usuario usuario = usuarioRepository.findByEmail(request.getContactoPrincipalEmail())
                 .orElseGet(() -> {
-                    Rol rolEmpresa = rolRepository.findByNombre(Rol.Nombre.EMPRESA_VINCULADA)
+                    Rol rolEmpresa = rolRepository.findByNombre(Rol.Nombre.EMPRESA_VINCULADA.name())
                             .orElseThrow(() -> new IllegalStateException("Rol EMPRESA_VINCULADA no encontrado"));
                     
                     Usuario nuevoUsuario = Usuario.builder()

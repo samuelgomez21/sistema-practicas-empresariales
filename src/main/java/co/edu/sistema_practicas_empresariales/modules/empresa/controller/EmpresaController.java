@@ -19,7 +19,7 @@ public class EmpresaController {
     private final EmpresaFacade empresaFacade;
 
     @PostMapping
-    @PreAuthorize("hasRole('COORDINADOR_EMPRESARIAL')")
+    @PreAuthorize("hasRole('COORDINADOR_PRACTICA')")
     public ResponseEntity<EmpresaResponse> registrarEmpresa(@RequestBody EmpresaRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(empresaFacade.registrarEmpresa(request));
     }

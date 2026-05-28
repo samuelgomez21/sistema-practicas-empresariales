@@ -18,5 +18,5 @@ public class EmpresaRequest {
     private String telefono;
     private String contactoPrincipalNombre;
     private String contactoPrincipalEmail;
-    private Long usuarioId;
+
 }

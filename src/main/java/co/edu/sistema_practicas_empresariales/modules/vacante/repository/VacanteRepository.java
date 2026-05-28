@@ -1,7 +1,7 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.repository;
+package co.edu.sistema_practicas_empresariales.modules.vacante.repository;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.model.Vacante;
-import co.edu.sistema_practicas_empresariales.modules.empresa.state.EstadoVacanteTipo;
+import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
+import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

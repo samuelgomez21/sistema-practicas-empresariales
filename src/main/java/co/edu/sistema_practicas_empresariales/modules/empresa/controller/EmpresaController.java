@@ -8,6 +8,7 @@ import co.edu.sistema_practicas_empresariales.modules.empresa.service.EmpresaFac
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class EmpresaController {
     private final EmpresaFacade empresaFacade;
 
     @PostMapping
+    @PreAuthorize("hasRole('COORDINADOR_EMPRESARIAL')")
     public ResponseEntity<EmpresaResponse> registrarEmpresa(@RequestBody EmpresaRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(empresaFacade.registrarEmpresa(request));
     }

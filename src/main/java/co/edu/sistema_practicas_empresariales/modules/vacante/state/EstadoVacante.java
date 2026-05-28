@@ -1,6 +1,6 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.state;
+package co.edu.sistema_practicas_empresariales.modules.vacante.state;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.model.Vacante;
+import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 
 public interface EstadoVacante {
     

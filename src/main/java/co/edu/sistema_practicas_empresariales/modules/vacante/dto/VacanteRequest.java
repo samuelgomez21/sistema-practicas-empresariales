@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.dto;
+package co.edu.sistema_practicas_empresariales.modules.vacante.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

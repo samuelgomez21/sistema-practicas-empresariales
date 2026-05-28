@@ -1,11 +1,12 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.model;
+package co.edu.sistema_practicas_empresariales.modules.vacante.model;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.state.EstadoVacanteTipo;
+import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import java.time.LocalDateTime;
 
 @Entity

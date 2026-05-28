@@ -35,6 +35,15 @@ import DocentesPage           from '@/features/usuarios/pages/DocentesPage'
 import DetalleEstudiantePage  from '@/features/usuarios/pages/DetalleEstudiantePage'
 
 
+import EmpresasLayout         from '@/features/empresas/pages/EmpresasLayout'
+import EmpresasListadoPage    from '@/features/empresas/pages/EmpresasListadoPage'
+import DetalleEmpresaPage     from '@/features/empresas/pages/DetalleEmpresaPage'
+import ValidarDocumentosPage  from '@/features/empresas/pages/ValidarDocumentosPage'
+import VisitasPage            from '@/features/empresas/pages/VisitasPage'
+import TutoresAdminPage       from '@/features/empresas/pages/TutoresAdminPage'
+import MiPerfilEmpresaPage    from '@/features/empresas/pages/MiPerfilEmpresaPage'
+import MisPracticantesPage    from '@/features/empresas/pages/MisPracticantesPage'
+
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -129,6 +138,45 @@ const router = createBrowserRouter([
           { path: 'estudiantes',       element: <EstudiantesPage /> },
           { path: 'estudiantes/:id',   element: <DetalleEstudiantePage /> },
           { path: 'docentes',          element: <DocentesPage /> },
+        ],
+      },
+      {  path: '/empresas',
+        element: (
+          <ProtectedRoute roles={[
+            ROLES.ADMINISTRADOR,
+            ROLES.COORDINADOR_PRACTICA,
+            ROLES.SECRETARIA,
+            ROLES.EMPRESA,
+            ROLES.ESTUDIANTE,
+          ]}>
+            <EmpresasLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <Navigate to="/empresas/listado" replace /> },
+          // Admin / Coordinadora / Secretaria
+          { path: 'listado',        element: <EmpresasListadoPage /> },
+          { path: ':id',            element: <DetalleEmpresaPage /> },
+          { path: ':id/editar',     element: <DetalleEmpresaPage editMode /> },
+          { path: 'validar',        element: <ValidarDocumentosPage /> },
+          { path: 'visitas',        element: <VisitasPage /> },
+          { path: 'tutores-admin',  element: <TutoresAdminPage /> },
+          // Portal empresa
+          { path: 'mi-perfil',      element:
+            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+              <MiPerfilEmpresaPage />
+            </ProtectedRoute>
+          },
+          { path: 'practicantes',   element:
+            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+              <MisPracticantesPage />
+            </ProtectedRoute>
+          },
+          { path: 'tutores',        element:
+            <ProtectedRoute roles={[ROLES.EMPRESA, ROLES.ADMINISTRADOR, ROLES.COORDINADOR_PRACTICA, ROLES.SECRETARIA]}>
+              <TutoresAdminPage />
+            </ProtectedRoute>
+          },
         ],
       },
     ],

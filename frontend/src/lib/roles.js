@@ -59,12 +59,12 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinacion-academica' },
-        { label: 'Estudiantes',  icon: 'users',            path: '/academica/estudiantes' },
-        { label: 'Docentes',     icon: 'school',           path: '/academica/docentes' },
-        { label: 'Catálogo de prácticas', icon: 'books',   path: '/academica/catalogo' },
-        { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
         { label: 'Estudiantes',       icon: 'school',       path: '/usuarios/estudiantes' },
         { label: 'Docentes asesores', icon: 'chalkboard',   path: '/usuarios/docentes' },
+        { label: 'Catálogo de prácticas', icon: 'books',   path: '/academica/catalogo' },
+        { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
+        
+        
       ],
     },
     { section: 'Gestión',
@@ -79,17 +79,19 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinador-practica' },
-        { label: 'Empresas',     icon: 'building',         path: '/practica/empresas' },
+        { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
         { label: 'Vacantes',     icon: 'briefcase',        path: '/practica/vacantes' },
         { label: 'Estudiantes',  icon: 'users',            path: '/practica/estudiantes' },
         { label: 'Asignaciones', icon: 'transfer',         path: '/practica/asignaciones' },
         { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
+        
       ],
     },
     { section: 'Seguimiento',
       items: [
         { label: 'Prácticas activas', icon: 'clipboard-list', path: '/practica/activas' },
         { label: 'Reportes',          icon: 'chart-bar',       path: '/practica/reportes' },
+        { label: 'Visitas',     icon: 'map-pin',     path: '/empresas/visitas' },
       ],
     },
   ],
@@ -102,6 +104,8 @@ export const MENU_POR_ROL = {
         { label: 'Vacantes',     icon: 'briefcase',        path: '/secretaria/vacantes' },
         { label: 'Estudiantes',  icon: 'users',            path: '/secretaria/estudiantes' },
         { label: 'Asignaciones', icon: 'transfer',         path: '/secretaria/asignaciones' },
+        { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
+        { label: 'Visitas',     icon: 'map-pin',     path: '/empresas/visitas' },
       ],
     },
     { section: 'Seguimiento',
@@ -131,15 +135,16 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',  icon: 'layout-dashboard', path: '/dashboard/empresa' },
-        { label: 'Mi perfil',  icon: 'building',         path: '/empresa/perfil' },
+        { label: 'Mi perfil',  icon: 'building',         path: '/empresas/mi-perfil' },
         { label: 'Vacantes',   icon: 'briefcase',        path: '/empresa/vacantes' },
-        { label: 'Practicantes', icon: 'users',          path: '/empresa/practicantes' },
+        { label: 'Practicantes',   icon: 'users',        path: '/empresas/practicantes' },
+        
       ],
     },
     { section: 'Gestión',
       items: [
         { label: 'Documentos', icon: 'file',             path: '/empresa/documentos' },
-        { label: 'Tutores',    icon: 'user-check',       path: '/empresa/tutores' },
+        { label: 'Tutores',        icon: 'user-check',   path: '/empresas/tutores' },
       ],
     },
   ],

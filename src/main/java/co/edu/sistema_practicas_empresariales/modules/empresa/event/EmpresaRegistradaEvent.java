@@ -9,11 +9,14 @@ import org.springframework.context.ApplicationEvent;
  */
 public class EmpresaRegistradaEvent extends ApplicationEvent {
     private final Empresa empresa;
+    private final String passwordTemporal;
 
-    public EmpresaRegistradaEvent(Object source, Empresa empresa) {
+    public EmpresaRegistradaEvent(Object source, Empresa empresa, String passwordTemporal) {
         super(source);
         this.empresa = empresa;
+        this.passwordTemporal = passwordTemporal;
     }
 
     public Empresa getEmpresa() { return empresa; }
+    public String getPasswordTemporal() { return passwordTemporal; }
 }

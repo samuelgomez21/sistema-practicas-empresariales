@@ -1,8 +1,8 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.controller;
+package co.edu.sistema_practicas_empresariales.modules.vacante.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.VacanteRequest;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.VacanteResponse;
-import co.edu.sistema_practicas_empresariales.modules.empresa.service.EmpresaFacade;
+import co.edu.sistema_practicas_empresariales.modules.vacante.dto.VacanteRequest;
+import co.edu.sistema_practicas_empresariales.modules.vacante.dto.VacanteResponse;
+import co.edu.sistema_practicas_empresariales.modules.vacante.service.VacanteFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,26 +16,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VacanteController {
 
-    private final EmpresaFacade empresaFacade;
+    private final VacanteFacade vacanteFacade;
 
     @PostMapping
     public ResponseEntity<VacanteResponse> crearVacante(@RequestBody VacanteRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(empresaFacade.crearVacante(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(vacanteFacade.crearVacante(request));
     }
 
     @GetMapping("/empresa/{empresaId}")
     public ResponseEntity<List<VacanteResponse>> listarVacantesPorEmpresa(@PathVariable Long empresaId) {
-        return ResponseEntity.ok(empresaFacade.listarVacantesPorEmpresa(empresaId));
+        return ResponseEntity.ok(vacanteFacade.listarVacantesPorEmpresa(empresaId));
     }
 
     @GetMapping("/pendientes")
     public ResponseEntity<List<VacanteResponse>> listarVacantesPendientes() {
-        return ResponseEntity.ok(empresaFacade.listarVacantesPendientes());
+        return ResponseEntity.ok(vacanteFacade.listarVacantesPendientes());
     }
 
     @PutMapping("/{vacanteId}/aprobar")
     public ResponseEntity<VacanteResponse> aprobarVacante(@PathVariable Long vacanteId) {
-        return ResponseEntity.ok(empresaFacade.aprobarVacante(vacanteId));
+        return ResponseEntity.ok(vacanteFacade.aprobarVacante(vacanteId));
     }
 
     @PutMapping("/{vacanteId}/rechazar")
@@ -44,11 +44,11 @@ public class VacanteController {
             @RequestBody Map<String, String> body) {
         
         String motivo = body.getOrDefault("motivo", "No especificado");
-        return ResponseEntity.ok(empresaFacade.rechazarVacante(vacanteId, motivo));
+        return ResponseEntity.ok(vacanteFacade.rechazarVacante(vacanteId, motivo));
     }
 
     @PutMapping("/{vacanteId}/cerrar")
     public ResponseEntity<VacanteResponse> cerrarVacante(@PathVariable Long vacanteId) {
-        return ResponseEntity.ok(empresaFacade.cerrarVacante(vacanteId));
+        return ResponseEntity.ok(vacanteFacade.cerrarVacante(vacanteId));
     }
 }

@@ -1,11 +1,12 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.event;
+package co.edu.sistema_practicas_empresariales.modules.vacante.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class VacanteAprobadaEvent {
+public class VacanteCreadaEvent {
     private final Long vacanteId;
     private final Long empresaId;
+    private final String tituloVacante;
 }

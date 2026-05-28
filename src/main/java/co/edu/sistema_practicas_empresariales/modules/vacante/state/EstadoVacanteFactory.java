@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.state;
+package co.edu.sistema_practicas_empresariales.modules.vacante.state;
 
 import org.springframework.stereotype.Component;
 

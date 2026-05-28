@@ -1,6 +1,6 @@
-package co.edu.sistema_practicas_empresariales.modules.empresa.dto;
+package co.edu.sistema_practicas_empresariales.modules.vacante.dto;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.state.EstadoVacanteTipo;
+import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

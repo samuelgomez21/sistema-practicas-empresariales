@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.model;
 
 
+import co.edu.sistema_practicas_empresariales.modules.estudiante.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaFactory;
@@ -73,9 +74,17 @@ public class Practica {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
+    @Column(name="fecha_sustentacion")
+    private LocalDate fechaSustentacion;
+
     @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "catalogo_practica_id")
+    private CatalogoPractica catalogoPractica;
+
 
     @Transient
     private EstadoPractica estadoComportamiento;

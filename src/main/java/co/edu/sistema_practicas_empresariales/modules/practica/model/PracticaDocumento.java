@@ -7,6 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+
+/**
+ * Documento asociado a una práctica.
+ * Almacena la URL de Firebase Storage y metadatos del archivo.
+ * Patrón Adapter: la URL apunta al archivo en Firebase Storage,
+ * el dominio no conoce los detalles de Firebase.
+ */
 @Entity
 @Table(name = "practica_documentos")
 @Data

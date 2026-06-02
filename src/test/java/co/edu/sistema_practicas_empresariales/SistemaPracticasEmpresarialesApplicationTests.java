@@ -20,6 +20,7 @@ class SistemaPracticasEmpresarialesApplicationTests {
 
     @Test
     void contextLoads() {
+        // Empty method to verify that the Spring ApplicationContext loads successfully.
     }
 
 }

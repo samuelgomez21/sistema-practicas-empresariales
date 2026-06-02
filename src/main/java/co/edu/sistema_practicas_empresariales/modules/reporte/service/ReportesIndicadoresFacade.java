@@ -38,6 +38,7 @@ public class ReportesIndicadoresFacade {
     private static final String FILTRO_PROGRAMA = "Programa";
     private static final String FILTRO_PERIODO = "Periodo Académico";
     private static final String PENDIENTE_LABEL = "Pendiente";
+    private static final String PENDIENTE_ESTADO = "PENDIENTE";
 
     private final PracticaRepository practicaRepository;
     private final EvaluacionRepository evaluacionRepository;
@@ -218,10 +219,10 @@ public class ReportesIndicadoresFacade {
             Optional<Encuesta> estEnc = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(p.getId(), Encuesta.TipoActor.ESTUDIANTE);
             Optional<Encuesta> tutEnc = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(p.getId(), Encuesta.TipoActor.TUTOR_EMPRESARIAL);
 
-            String estadoEst = estEnc.map(e -> e.getEstado().name()).orElse("PENDIENTE");
+            String estadoEst = estEnc.map(e -> e.getEstado().name()).orElse(PENDIENTE_ESTADO);
             String comentarioEst = estEnc.map(Encuesta::getComentarios).orElse("");
 
-            String estadoTut = tutEnc.map(e -> e.getEstado().name()).orElse("PENDIENTE");
+            String estadoTut = tutEnc.map(e -> e.getEstado().name()).orElse(PENDIENTE_ESTADO);
             String comentarioTut = tutEnc.map(Encuesta::getComentarios).orElse("");
 
             builder.fila(Arrays.asList(
@@ -287,12 +288,7 @@ public class ReportesIndicadoresFacade {
         long practicasCerradas = completadas + reprobadas;
 
         // 2. porcentajePrácticasConSeguimiento (porcentaje de prácticas activas que tienen al menos un avance registrado)
-        long activasConSeguimiento = 0;
-        for (Practica p : practicasActivas) {
-            if (!avanceRepository.findByPracticaIdOrderByCreatedAtDesc(p.getId()).isEmpty()) {
-                activasConSeguimiento++;
-            }
-        }
+        long activasConSeguimiento = calcularActivasConSeguimiento(practicasActivas);
         double porcentajePracticasConSeguimiento = 0.0;
         if (activos > 0) {
             porcentajePracticasConSeguimiento = BigDecimal.valueOf(activasConSeguimiento)
@@ -302,16 +298,10 @@ public class ReportesIndicadoresFacade {
         }
 
         // 3. porcentajePrácticasConEvaluacionFinal (porcentaje de prácticas cerradas que tienen la evaluación final registrada)
-        long conEvaluacionFinal = 0;
         List<Practica> practicasCerradasList = practicas.stream()
                 .filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA || p.getEstado() == EstadoPracticaTipo.REPROBADA)
                 .collect(Collectors.toList());
-        for (Practica p : practicasCerradasList) {
-            Optional<Evaluacion> eval = evaluacionRepository.findByPracticaIdAndActivoTrue(p.getId());
-            if (eval.isPresent() && eval.get().getNotaFinal() != null) {
-                conEvaluacionFinal++;
-            }
-        }
+        long conEvaluacionFinal = calcularConEvaluacionFinal(practicasCerradasList);
         double porcentajePracticasConEvaluacionFinal = 0.0;
         if (practicasCerradas > 0) {
             porcentajePracticasConEvaluacionFinal = BigDecimal.valueOf(conEvaluacionFinal)
@@ -321,32 +311,10 @@ public class ReportesIndicadoresFacade {
         }
 
         // 4. documentosPendientes (cantidad de documentos en estado "PENDIENTE" en el repositorio)
-        long documentosPendientes = 0;
-        for (Practica p : practicas) {
-            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
-            documentosPendientes += docs.stream()
-                    .filter(d -> "PENDIENTE".equalsIgnoreCase(d.getEstado()))
-                    .count();
-        }
+        long documentosPendientes = calcularDocumentosPendientes(practicas);
 
         // 5. porcentajeDocumentacionCompleta (porcentaje promedio de documentación cargada sobre el total requerido)
-        double sumaPorcentajes = 0.0;
-        List<String> obligatorios = List.of("ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION", "DOCUMENTO_FINAL");
-        for (Practica p : practicas) {
-            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
-            long uploadedUniqueCategories = docs.stream()
-                    .map(d -> d.getCategoria().toUpperCase())
-                    .filter(obligatorios::contains)
-                    .distinct()
-                    .count();
-            sumaPorcentajes += (uploadedUniqueCategories * 100.0) / 5.0;
-        }
-        double porcentajeDocumentacionCompleta = 0.0;
-        if (!practicas.isEmpty()) {
-            porcentajeDocumentacionCompleta = BigDecimal.valueOf(sumaPorcentajes)
-                    .divide(BigDecimal.valueOf(practicas.size()), 2, RoundingMode.HALF_UP)
-                    .doubleValue();
-        }
+        double porcentajeDocumentacionCompleta = calcularPorcentajeDocumentacionCompleta(practicas);
 
         Map<String, Object> metrics = new HashMap<>();
         metrics.put("practicantesActivos", activos);
@@ -372,6 +340,58 @@ public class ReportesIndicadoresFacade {
         metrics.put("distribucionPorFacultad", porFacultad);
 
         return metrics;
+    }
+
+    private long calcularActivasConSeguimiento(List<Practica> practicasActivas) {
+        long count = 0;
+        for (Practica p : practicasActivas) {
+            if (!avanceRepository.findByPracticaIdOrderByCreatedAtDesc(p.getId()).isEmpty()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private long calcularConEvaluacionFinal(List<Practica> practicasCerradas) {
+        long count = 0;
+        for (Practica p : practicasCerradas) {
+            Optional<Evaluacion> eval = evaluacionRepository.findByPracticaIdAndActivoTrue(p.getId());
+            if (eval.isPresent() && eval.get().getNotaFinal() != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private long calcularDocumentosPendientes(List<Practica> practicas) {
+        long count = 0;
+        for (Practica p : practicas) {
+            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
+            count += docs.stream()
+                    .filter(d -> PENDIENTE_ESTADO.equalsIgnoreCase(d.getEstado()))
+                    .count();
+        }
+        return count;
+    }
+
+    private double calcularPorcentajeDocumentacionCompleta(List<Practica> practicas) {
+        double sumaPorcentajes = 0.0;
+        List<String> obligatorios = List.of("ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION", "DOCUMENTO_FINAL");
+        for (Practica p : practicas) {
+            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
+            long uploadedUniqueCategories = docs.stream()
+                    .map(d -> d.getCategoria().toUpperCase())
+                    .filter(obligatorios::contains)
+                    .distinct()
+                    .count();
+            sumaPorcentajes += (uploadedUniqueCategories * 100.0) / 5.0;
+        }
+        if (practicas.isEmpty()) {
+            return 0.0;
+        }
+        return BigDecimal.valueOf(sumaPorcentajes)
+                .divide(BigDecimal.valueOf(practicas.size()), 2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     private List<Object> mapEvaluacionFila(Evaluacion e) {

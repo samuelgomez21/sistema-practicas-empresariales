@@ -47,8 +47,9 @@ public class ChecklistCierreService {
 
     @Transactional(readOnly = true)
     public ChecklistResponse obtenerChecklistCierre(Long practicaId) {
-        Practica practica = practicaRepository.findById(practicaId)
-                .orElseThrow(() -> new BusinessException("No se encontró la práctica con ID: " + practicaId));
+        if (!practicaRepository.existsById(practicaId)) {
+            throw new BusinessException("No se encontró la práctica con ID: " + practicaId);
+        }
 
         Optional<Evaluacion> evalOpt = evaluacionRepository.findByPracticaIdAndActivoTrue(practicaId);
         boolean notaDocenteRegistrada = evalOpt.map(e -> e.getNotaDocente() != null).orElse(false);

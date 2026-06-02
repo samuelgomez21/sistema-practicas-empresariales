@@ -12,7 +12,7 @@ import java.util.Map;
 public class ExcelExportAdapter implements ExportadorReporte {
 
     @Override
-    public byte[] exportarExcel(Reporte reporte) {
+    public byte[] exportar(Reporte reporte) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet(reporte.getTitulo());
 
@@ -120,12 +120,7 @@ public class ExcelExportAdapter implements ExportadorReporte {
             workbook.write(out);
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Error al exportar reporte a Excel: " + e.getMessage(), e);
+            throw new IllegalStateException("Error al exportar reporte a Excel: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public byte[] exportarPdf(Reporte reporte) {
-        throw new UnsupportedOperationException("ExcelExportAdapter no soporta exportación a PDF. Utilice el PdfExportAdapter.");
     }
 }

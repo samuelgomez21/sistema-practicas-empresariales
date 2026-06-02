@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -66,10 +65,9 @@ public class ReporteController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> obtenerDashboard(
-            @RequestParam(required = false) String periodo,
-            Principal principal) {
+            @RequestParam(required = false) String periodo) {
         
-        Map<String, Object> data = reportesIndicadoresFacade.obtenerDashboardGerencial(periodo, null, principal.getName());
+        Map<String, Object> data = reportesIndicadoresFacade.obtenerDashboardGerencial(periodo);
         return ResponseEntity.ok(data);
     }
 

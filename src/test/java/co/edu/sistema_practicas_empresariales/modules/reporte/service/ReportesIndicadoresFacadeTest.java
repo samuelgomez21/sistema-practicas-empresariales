@@ -76,7 +76,7 @@ class ReportesIndicadoresFacadeTest {
                 .build();
 
         when(evaluacionRepository.findAll()).thenReturn(List.of(activa, inactiva));
-        when(excelExportAdapter.exportarExcel(any(Reporte.class))).thenReturn(new byte[]{1, 2, 3});
+        when(excelExportAdapter.exportar(any(Reporte.class))).thenReturn(new byte[]{1, 2, 3});
 
         byte[] result = facade.generarReporteNotas(null, null, "excel");
 
@@ -84,7 +84,7 @@ class ReportesIndicadoresFacadeTest {
         assertEquals(3, result.length);
         
         // Verificar que excelExportAdapter fue llamado con un reporte que contiene solo la fila activa
-        verify(excelExportAdapter).exportarExcel(argThat(reporte -> {
+        verify(excelExportAdapter).exportar(argThat(reporte -> {
             assertEquals(1, reporte.getFilas().size());
             assertEquals("Pepito Perez", reporte.getFilas().get(0).get(0));
             return true;
@@ -108,12 +108,12 @@ class ReportesIndicadoresFacadeTest {
         when(empresaRepository.findAll()).thenReturn(List.of(activa, inactiva));
         when(vacanteRepository.findByEmpresaId(1L)).thenReturn(Collections.emptyList());
         when(practicaRepository.findByEmpresaId(1L)).thenReturn(Collections.emptyList());
-        when(excelExportAdapter.exportarExcel(any(Reporte.class))).thenReturn(new byte[]{4, 5});
+        when(excelExportAdapter.exportar(any(Reporte.class))).thenReturn(new byte[]{4, 5});
 
         byte[] result = facade.generarReporteEmpresasVacantes(null, null);
 
         assertNotNull(result);
-        verify(excelExportAdapter).exportarExcel(argThat(reporte -> {
+        verify(excelExportAdapter).exportar(argThat(reporte -> {
             assertEquals(1, reporte.getFilas().size());
             assertEquals("Empresa Activa", reporte.getFilas().get(0).get(1));
             return true;

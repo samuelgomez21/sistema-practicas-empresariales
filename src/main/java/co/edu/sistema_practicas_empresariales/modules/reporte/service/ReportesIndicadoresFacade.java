@@ -8,8 +8,7 @@ import co.edu.sistema_practicas_empresariales.modules.encuesta.model.Encuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRepository;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.repository.EvaluacionRepository;
-import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.ExcelExportAdapter;
-import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.PdfExportAdapter;
+import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.ExportadorReporte;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
@@ -39,8 +38,8 @@ public class ReportesIndicadoresFacade {
     private final VacanteRepository vacanteRepository;
     private final ProgramaRepository programaRepository;
 
-    private final ExcelExportAdapter excelExportAdapter;
-    private final PdfExportAdapter pdfExportAdapter;
+    private final ExportadorReporte excelExportAdapter;
+    private final ExportadorReporte pdfExportAdapter;
 
     @Transactional(readOnly = true)
     public byte[] generarReporteEstadoProceso(Long programaId, String periodo, String format) {
@@ -93,9 +92,9 @@ public class ReportesIndicadoresFacade {
 
         Reporte reporte = builder.build();
         if ("pdf".equalsIgnoreCase(format)) {
-            return pdfExportAdapter.exportarPdf(reporte);
+            return pdfExportAdapter.exportar(reporte);
         } else {
-            return excelExportAdapter.exportarExcel(reporte);
+            return excelExportAdapter.exportar(reporte);
         }
     }
 
@@ -142,9 +141,9 @@ public class ReportesIndicadoresFacade {
 
         Reporte reporte = builder.build();
         if ("pdf".equalsIgnoreCase(format)) {
-            return pdfExportAdapter.exportarPdf(reporte);
+            return pdfExportAdapter.exportar(reporte);
         } else {
-            return excelExportAdapter.exportarExcel(reporte);
+            return excelExportAdapter.exportar(reporte);
         }
     }
 
@@ -195,7 +194,7 @@ public class ReportesIndicadoresFacade {
             ));
         }
 
-        return excelExportAdapter.exportarExcel(builder.build());
+        return excelExportAdapter.exportar(builder.build());
     }
 
     @Transactional(readOnly = true)
@@ -234,11 +233,11 @@ public class ReportesIndicadoresFacade {
             ));
         }
 
-        return excelExportAdapter.exportarExcel(builder.build());
+        return excelExportAdapter.exportar(builder.build());
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> obtenerDashboardGerencial(String periodo, String userRole, String userEmail) {
+    public Map<String, Object> obtenerDashboardGerencial(String periodo) {
         List<Practica> practicas = practicaRepository.findAll();
 
         if (periodo != null) {

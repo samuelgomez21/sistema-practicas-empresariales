@@ -17,12 +17,7 @@ import java.util.Map;
 public class PdfExportAdapter implements ExportadorReporte {
 
     @Override
-    public byte[] exportarExcel(Reporte reporte) {
-        throw new UnsupportedOperationException("PdfExportAdapter no soporta exportación a Excel. Utilice el ExcelExportAdapter.");
-    }
-
-    @Override
-    public byte[] exportarPdf(Reporte reporte) {
+    public byte[] exportar(Reporte reporte) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);
             PdfDocument pdf = new PdfDocument(writer);
@@ -75,7 +70,7 @@ public class PdfExportAdapter implements ExportadorReporte {
             doc.close();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Error al exportar reporte a PDF: " + e.getMessage(), e);
+            throw new IllegalStateException("Error al exportar reporte a PDF: " + e.getMessage(), e);
         }
     }
 }

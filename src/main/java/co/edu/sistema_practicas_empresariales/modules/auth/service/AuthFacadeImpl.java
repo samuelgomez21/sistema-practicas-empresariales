@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.auth.service;
 
+// PR update – full file content
 import co.edu.sistema_practicas_empresariales.modules.auth.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
@@ -62,15 +63,21 @@ public class AuthFacadeImpl implements AuthFacade {
         if (usuarioRepository.existsByEmail(adminEmail)) {
             return;
         }
+        // Find role enum ADMINISTRADOR; if not present, create it.
         Rol adminRole = rolRepository.findByNombre(Rol.Nombre.ADMINISTRADOR)
-                .orElseThrow(() -> new IllegalStateException("Rol ADMINISTRADOR no encontrado"));
+                .orElseGet(() -> {
+                    Rol newRole = Rol.builder()
+                            .nombre(Rol.Nombre.ADMINISTRADOR)
+                            .build();
+                    return rolRepository.save(newRole);
+                });
         Usuario admin = Usuario.builder()
                 .email(adminEmail)
                 .password(passwordEncoder.encode("admin123"))
                 .nombre("Administrador del Sistema")
                 .activo(true)
                 .rol(adminRole)
-                .debeCambiarPassword(false) // El admin semilla no se fuerza
+                .debeCambiarPassword(false)
                 .build();
         usuarioRepository.save(admin);
     }
@@ -131,3 +138,4 @@ public class AuthFacadeImpl implements AuthFacade {
         usuarioRepository.save(usuario);
     }
 }
+// Force PR update

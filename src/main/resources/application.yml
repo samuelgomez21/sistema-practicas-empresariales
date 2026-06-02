@@ -3,20 +3,25 @@ spring:
     name: practicas-backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/practicas_uah?useSSL=false&serverTimezone=America/Bogota&allowPublicKeyRetrieval=true
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:practicas_uah;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate           # Flyway maneja el esquema
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
-    open-in-view: false            # evitar sesiones largas
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
   flyway:
     enabled: true
@@ -54,7 +59,7 @@ app:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 
 server:
-  port: 8080
+  port: 0
 
 springdoc:
   api-docs:

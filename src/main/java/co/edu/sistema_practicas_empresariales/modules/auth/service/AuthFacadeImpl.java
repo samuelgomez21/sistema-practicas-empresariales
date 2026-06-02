@@ -10,6 +10,7 @@ import co.edu.sistema_practicas_empresariales.security.JwtTokenProvider;
 import co.edu.sistema_practicas_empresariales.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.CustomUserDetailsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,12 +53,9 @@ public class AuthFacadeImpl implements AuthFacade {
     @Transactional
     public void registerSemillaAdmin() {
         String adminEmail = "admin@example.com";
-        if (usuarioRepository.existsByEmail(adminEmail)) {
-            return; // admin already present, nothing to do
-        }
-        // Obtain ADMIN role (enum name matches the enum defined in Rol)
-        Rol adminRole = rolRepository.findByNombre(Rol.Nombre.ADMINISTRADOR)
-                .orElseThrow(() -> new IllegalStateException("Rol ADMINISTRADOR no encontrado"));
+        if (!usuarioRepository.existsByEmail(adminEmail)) {
+            Rol adminRole = rolRepository.findByNombre(Rol.Nombre.ADMINISTRADOR.name())
+                    .orElseThrow(() -> new IllegalStateException("Rol ADMINISTRADOR no encontrado"));
         Usuario admin = Usuario.builder()
                 .email(adminEmail)
                 .password(passwordEncoder.encode("admin123"))
@@ -65,6 +63,21 @@ public class AuthFacadeImpl implements AuthFacade {
                 .activo(true)
                 .rol(adminRole)
                 .build();
-        usuarioRepository.save(admin);
+            usuarioRepository.save(admin);
+        }
+
+        String coordEmail = "coordinador@example.com";
+        if (!usuarioRepository.existsByEmail(coordEmail)) {
+            Rol coordRole = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_PRACTICA.name())
+                    .orElseThrow(() -> new IllegalStateException("Rol COORDINADOR_PRACTICA no encontrado"));
+            Usuario coord = Usuario.builder()
+                    .email(coordEmail)
+                    .password(passwordEncoder.encode("coord123"))
+                    .nombre("Coordinador Empresarial")
+                    .activo(true)
+                    .rol(coordRole)
+                    .build();
+            usuarioRepository.save(coord);
+        }
     }
 }

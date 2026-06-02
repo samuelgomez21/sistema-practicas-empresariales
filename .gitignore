@@ -31,6 +31,8 @@ build/
 !**/src/main/**/build/
 src/main/resources/application-prod.yml
 src/main/resources/firebase-service-account.json
+gestion-de-practicas-48ac4-firebase-adminsdk-fbsvc-19bbcc6975.json
+*.json
 !**/src/test/**/build/
 
 ### VS Code ###

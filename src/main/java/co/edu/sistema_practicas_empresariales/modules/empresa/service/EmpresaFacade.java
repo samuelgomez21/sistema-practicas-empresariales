@@ -5,8 +5,6 @@ import co.edu.sistema_practicas_empresariales.modules.empresa.dto.EmpresaRespons
 import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialRequest;
 import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialResponse;
 
-import java.util.List;
-
 public interface EmpresaFacade {
     EmpresaResponse registrarEmpresa(EmpresaRequest request);
     TutorEmpresarialResponse registrarTutor(TutorEmpresarialRequest request);

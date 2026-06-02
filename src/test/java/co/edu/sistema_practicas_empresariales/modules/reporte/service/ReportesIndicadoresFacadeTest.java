@@ -6,8 +6,8 @@ import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.repository.EvaluacionRepository;
-import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.ExcelExportAdapter;
-import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.PdfExportAdapter;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRepository;
+import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.ExportadorReporte;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
@@ -16,8 +16,8 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.reporte.builder.ReporteBuilder.Reporte;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,14 +34,28 @@ class ReportesIndicadoresFacadeTest {
 
     @Mock private PracticaRepository practicaRepository;
     @Mock private EvaluacionRepository evaluacionRepository;
+    @Mock private EncuestaRepository encuestaRepository;
     @Mock private EmpresaRepository empresaRepository;
-    @Mock private ProgramaRepository programaRepository;
-    @Mock private ExcelExportAdapter excelExportAdapter;
-    @Mock private PdfExportAdapter pdfExportAdapter;
     @Mock private VacanteRepository vacanteRepository;
+    @Mock private ProgramaRepository programaRepository;
+    @Mock private ExportadorReporte excelExportAdapter;
+    @Mock private ExportadorReporte pdfExportAdapter;
 
-    @InjectMocks
     private ReportesIndicadoresFacade facade;
+
+    @BeforeEach
+    void setUp() {
+        facade = new ReportesIndicadoresFacade(
+                practicaRepository,
+                evaluacionRepository,
+                encuestaRepository,
+                empresaRepository,
+                vacanteRepository,
+                programaRepository,
+                excelExportAdapter,
+                pdfExportAdapter
+        );
+    }
 
     @Test
     void generarReporteNotas_FiltraSoloEvaluacionesActivas() {

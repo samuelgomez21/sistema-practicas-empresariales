@@ -15,6 +15,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReporteController {
 
+    private static final String GENERAL_LABEL = "General";
+
     private final ReportesIndicadoresFacade reportesIndicadoresFacade;
 
     @GetMapping("/estado-proceso")
@@ -24,7 +26,7 @@ public class ReporteController {
             @RequestParam(defaultValue = "excel") String format) {
 
         byte[] data = reportesIndicadoresFacade.generarReporteEstadoProceso(programaId, periodo, format);
-        String filename = "EstadoProceso_" + (periodo != null ? periodo : "General") + "_" + getFechaActualStr();
+        String filename = "EstadoProceso_" + (periodo != null ? periodo : GENERAL_LABEL) + "_" + getFechaActualStr();
         
         return construirFileResponse(data, format, filename);
     }
@@ -36,7 +38,7 @@ public class ReporteController {
             @RequestParam(defaultValue = "excel") String format) {
 
         byte[] data = reportesIndicadoresFacade.generarReporteNotas(programaId, periodo, format);
-        String filename = "ReporteNotas_" + (periodo != null ? periodo : "General") + "_" + getFechaActualStr();
+        String filename = "ReporteNotas_" + (periodo != null ? periodo : GENERAL_LABEL) + "_" + getFechaActualStr();
 
         return construirFileResponse(data, format, filename);
     }
@@ -47,7 +49,7 @@ public class ReporteController {
             @RequestParam(required = false) String periodo) {
 
         byte[] data = reportesIndicadoresFacade.generarReporteEmpresasVacantes(programaId, periodo);
-        String filename = "EmpresasVacantes_" + (periodo != null ? periodo : "General") + "_" + getFechaActualStr();
+        String filename = "EmpresasVacantes_" + (periodo != null ? periodo : GENERAL_LABEL) + "_" + getFechaActualStr();
 
         return construirFileResponse(data, "excel", filename);
     }
@@ -58,7 +60,7 @@ public class ReporteController {
             @RequestParam(required = false) String periodo) {
 
         byte[] data = reportesIndicadoresFacade.generarReporteEncuestas(programaId, periodo);
-        String filename = "ReporteEncuestas_" + (periodo != null ? periodo : "General") + "_" + getFechaActualStr();
+        String filename = "ReporteEncuestas_" + (periodo != null ? periodo : GENERAL_LABEL) + "_" + getFechaActualStr();
 
         return construirFileResponse(data, "excel", filename);
     }

@@ -26,6 +26,11 @@ public class EstadoCancelada implements EstadoPractica {
     }
 
     @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        throw new IllegalStateException("No se puede realizar el cierre formal de una práctica cancelada.");
+    }
+
+    @Override
     public void cancelar(Practica practica, String motivo) {
         throw new IllegalStateException("La práctica ya se encuentra cancelada.");
     }

@@ -51,6 +51,9 @@ public class Encuesta {
     @Column(name = "fecha_completada")
     private LocalDateTime fechaCompletada;
 
+    @Column(name = "fecha_ultimo_recordatorio")
+    private LocalDateTime fechaUltimoRecordatorio;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean activo = true;

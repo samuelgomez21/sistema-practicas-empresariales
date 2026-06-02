@@ -26,6 +26,11 @@ public class EstadoAsignada implements EstadoPractica {
     }
 
     @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        throw new IllegalStateException("No se puede realizar el cierre formal en estado ASIGNADA.");
+    }
+
+    @Override
     public void cancelar(Practica practica, String motivo) {
         practica.setEstado(EstadoPracticaTipo.CANCELADA);
         // Opcional: guardar motivo de cancelación en la práctica o auditoría

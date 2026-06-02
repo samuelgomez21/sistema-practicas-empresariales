@@ -8,6 +8,7 @@ public interface EstadoPractica {
     void registrarConvenio(Practica practica);
     void activarPractica(Practica practica);
     void registrarNotaFinal(Practica practica, BigDecimal nota, BigDecimal notaMinima);
+    void ejecutarCierre(Practica practica, BigDecimal notaMinima);
     void cancelar(Practica practica, String motivo);
     EstadoPracticaTipo getTipo();
 }

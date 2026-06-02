@@ -17,6 +17,9 @@ import co.edu.sistema_practicas_empresariales.modules.reporte.builder.ReporteBui
 import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
+import co.edu.sistema_practicas_empresariales.modules.practica.repository.AvanceRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaDocumentoRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.model.PracticaDocumento;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +34,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReportesIndicadoresFacade {
 
+    private static final String HEADER_ESTUDIANTE = "Estudiante";
+    private static final String FILTRO_PROGRAMA = "Programa";
+    private static final String FILTRO_PERIODO = "Periodo Académico";
+    private static final String PENDIENTE_LABEL = "Pendiente";
+
     private final PracticaRepository practicaRepository;
     private final EvaluacionRepository evaluacionRepository;
     private final EncuestaRepository encuestaRepository;
     private final EmpresaRepository empresaRepository;
     private final VacanteRepository vacanteRepository;
     private final ProgramaRepository programaRepository;
+    private final AvanceRepository avanceRepository;
+    private final PracticaDocumentoRepository practicaDocumentoRepository;
 
     private final ExportadorReporte excelExportAdapter;
     private final ExportadorReporte pdfExportAdapter;
@@ -61,13 +71,13 @@ public class ReportesIndicadoresFacade {
         }
 
         ReporteBuilder builder = new ReporteBuilder("Reporte de Estado del Proceso de Prácticas");
-        builder.headers(Arrays.asList("ID Práctica", "Estudiante", "Programa", "Número Práctica", "Estado", "Fecha Creación"));
+        builder.headers(List.of("ID Práctica", HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Número Práctica", "Estado", "Fecha Creación"));
 
         if (programaId != null) {
-            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro("Programa", prog.getNombre()));
+            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro(FILTRO_PROGRAMA, prog.getNombre()));
         }
         if (periodo != null) {
-            builder.filtro("Periodo Académico", periodo);
+            builder.filtro(FILTRO_PERIODO, periodo);
         }
 
         for (Practica p : practicas) {
@@ -118,25 +128,17 @@ public class ReportesIndicadoresFacade {
         }
 
         ReporteBuilder builder = new ReporteBuilder("Reporte de Calificaciones de Prácticas");
-        builder.headers(Arrays.asList("Estudiante", "Programa", "Número Práctica", "Nota Docente", "Nota Tutor", "Nota Final", "Resultado"));
+        builder.headers(List.of(HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Número Práctica", "Nota Docente", "Nota Tutor", "Nota Final", "Resultado"));
 
         if (programaId != null) {
-            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro("Programa", prog.getNombre()));
+            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro(FILTRO_PROGRAMA, prog.getNombre()));
         }
         if (periodo != null) {
-            builder.filtro("Periodo Académico", periodo);
+            builder.filtro(FILTRO_PERIODO, periodo);
         }
 
         for (Evaluacion e : evaluaciones) {
-            builder.fila(Arrays.asList(
-                    e.getPractica().getEstudiante().getUsuario().getNombre(),
-                    e.getPractica().getEstudiante().getPrograma().getNombre(),
-                    e.getPractica().getNumeroPractica(),
-                    e.getNotaDocente() != null ? e.getNotaDocente() : "Pendiente",
-                    e.getNotaTutor() != null ? e.getNotaTutor() : "Pendiente",
-                    e.getNotaFinal() != null ? e.getNotaFinal() : "Pendiente",
-                    e.getPractica().getResultado() != null ? e.getPractica().getResultado() : "En Proceso"
-            ));
+            builder.fila(mapEvaluacionFila(e));
         }
 
         Reporte reporte = builder.build();
@@ -154,10 +156,10 @@ public class ReportesIndicadoresFacade {
                 .collect(Collectors.toList());
 
         ReporteBuilder builder = new ReporteBuilder("Reporte de Empresas y Vacantes");
-        builder.headers(Arrays.asList("NIT", "Razón Social", "Sector", "Vacantes Pendientes", "Vacantes Activas", "Vacantes Cerradas", "Practicantes Activos", "Practicantes Históricos", "Tasa Finalización Exitosa (%)"));
+        builder.headers(List.of("NIT", "Razón Social", "Sector", "Vacantes Pendientes", "Vacantes Activas", "Vacantes Cerradas", "Practicantes Activos", "Practicantes Históricos", "Tasa Finalización Exitosa (%)"));
 
         if (periodo != null) {
-            builder.filtro("Periodo Académico", periodo);
+            builder.filtro(FILTRO_PERIODO, periodo);
         }
 
         for (Empresa e : empresas) {
@@ -210,7 +212,7 @@ public class ReportesIndicadoresFacade {
         }
 
         ReporteBuilder builder = new ReporteBuilder("Reporte Consolidado de Encuestas de Satisfacción");
-        builder.headers(Arrays.asList("ID Práctica", "Estudiante", "Programa", "Estado Encuesta Estudiante", "Comentarios Estudiante", "Estado Encuesta Tutor", "Comentarios Tutor"));
+        builder.headers(List.of("ID Práctica", HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Estado Encuesta Estudiante", "Comentarios Estudiante", "Estado Encuesta Tutor", "Comentarios Tutor"));
 
         for (Practica p : practicas) {
             Optional<Encuesta> estEnc = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(p.getId(), Encuesta.TipoActor.ESTUDIANTE);
@@ -248,11 +250,12 @@ public class ReportesIndicadoresFacade {
         }
 
         // Indicador 1: Total de practicantes activos (no cerradas ni canceladas)
-        long activos = practicas.stream()
+        List<Practica> practicasActivas = practicas.stream()
                 .filter(p -> p.getEstado() != EstadoPracticaTipo.COMPLETADA 
                         && p.getEstado() != EstadoPracticaTipo.REPROBADA 
                         && p.getEstado() != EstadoPracticaTipo.CANCELADA)
-                .count();
+                .collect(Collectors.toList());
+        long activos = practicasActivas.size();
 
         // Indicador 2: Tasa de aprobación global
         long completadas = practicas.stream().filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA).count();
@@ -279,12 +282,88 @@ public class ReportesIndicadoresFacade {
                 .average()
                 .orElse(14.5); // Fallback si no hay datos
 
+        // Nuevos Indicadores Requeridos:
+        // 1. practicasCerradas (total de prácticas completadas y reprobadas)
+        long practicasCerradas = completadas + reprobadas;
+
+        // 2. porcentajePrácticasConSeguimiento (porcentaje de prácticas activas que tienen al menos un avance registrado)
+        long activasConSeguimiento = 0;
+        for (Practica p : practicasActivas) {
+            if (!avanceRepository.findByPracticaIdOrderByCreatedAtDesc(p.getId()).isEmpty()) {
+                activasConSeguimiento++;
+            }
+        }
+        double porcentajePracticasConSeguimiento = 0.0;
+        if (activos > 0) {
+            porcentajePracticasConSeguimiento = BigDecimal.valueOf(activasConSeguimiento)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(activos), 2, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
+        // 3. porcentajePrácticasConEvaluacionFinal (porcentaje de prácticas cerradas que tienen la evaluación final registrada)
+        long conEvaluacionFinal = 0;
+        List<Practica> practicasCerradasList = practicas.stream()
+                .filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA || p.getEstado() == EstadoPracticaTipo.REPROBADA)
+                .collect(Collectors.toList());
+        for (Practica p : practicasCerradasList) {
+            Optional<Evaluacion> eval = evaluacionRepository.findByPracticaIdAndActivoTrue(p.getId());
+            if (eval.isPresent() && eval.get().getNotaFinal() != null) {
+                conEvaluacionFinal++;
+            }
+        }
+        double porcentajePracticasConEvaluacionFinal = 0.0;
+        if (practicasCerradas > 0) {
+            porcentajePracticasConEvaluacionFinal = BigDecimal.valueOf(conEvaluacionFinal)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(practicasCerradas), 2, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
+        // 4. documentosPendientes (cantidad de documentos en estado "PENDIENTE" en el repositorio)
+        long documentosPendientes = 0;
+        for (Practica p : practicas) {
+            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
+            documentosPendientes += docs.stream()
+                    .filter(d -> "PENDIENTE".equalsIgnoreCase(d.getEstado()))
+                    .count();
+        }
+
+        // 5. porcentajeDocumentacionCompleta (porcentaje promedio de documentación cargada sobre el total requerido)
+        double sumaPorcentajes = 0.0;
+        List<String> obligatorios = List.of("ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION", "DOCUMENTO_FINAL");
+        for (Practica p : practicas) {
+            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
+            long uploadedUniqueCategories = docs.stream()
+                    .map(d -> d.getCategoria().toUpperCase())
+                    .filter(obligatorios::contains)
+                    .distinct()
+                    .count();
+            sumaPorcentajes += (uploadedUniqueCategories * 100.0) / 5.0;
+        }
+        double porcentajeDocumentacionCompleta = 0.0;
+        if (!practicas.isEmpty()) {
+            porcentajeDocumentacionCompleta = BigDecimal.valueOf(sumaPorcentajes)
+                    .divide(BigDecimal.valueOf(practicas.size()), 2, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
         Map<String, Object> metrics = new HashMap<>();
         metrics.put("practicantesActivos", activos);
         metrics.put("tasaAprobacion", tasaAprobacion.doubleValue());
         metrics.put("empresasActivas", empresasActivas);
         metrics.put("tiempoPromedioPlacementDias", Math.round(tiempoPromedio * 10.0) / 10.0);
+        metrics.put("tiempoPromedioRespuesta", Math.round(tiempoPromedio * 10.0) / 10.0);
         metrics.put("periodo", periodo);
+
+        // Agregamos con y sin acentos para mayor compatibilidad con llamadas frontend o pruebas
+        metrics.put("practicasCerradas", practicasCerradas);
+        metrics.put("porcentajePracticasConSeguimiento", porcentajePracticasConSeguimiento);
+        metrics.put("porcentajePrácticasConSeguimiento", porcentajePracticasConSeguimiento);
+        metrics.put("porcentajePracticasConEvaluacionFinal", porcentajePracticasConEvaluacionFinal);
+        metrics.put("porcentajePrácticasConEvaluacionFinal", porcentajePracticasConEvaluacionFinal);
+        metrics.put("documentosPendientes", documentosPendientes);
+        metrics.put("porcentajeDocumentacionCompleta", porcentajeDocumentacionCompleta);
 
         // Agrupación por Facultad para gráficos
         Map<String, Long> porFacultad = practicas.stream()
@@ -293,6 +372,18 @@ public class ReportesIndicadoresFacade {
         metrics.put("distribucionPorFacultad", porFacultad);
 
         return metrics;
+    }
+
+    private List<Object> mapEvaluacionFila(Evaluacion e) {
+        return List.of(
+                e.getPractica().getEstudiante().getUsuario().getNombre(),
+                e.getPractica().getEstudiante().getPrograma().getNombre(),
+                e.getPractica().getNumeroPractica(),
+                e.getNotaDocente() != null ? e.getNotaDocente() : PENDIENTE_LABEL,
+                e.getNotaTutor() != null ? e.getNotaTutor() : PENDIENTE_LABEL,
+                e.getNotaFinal() != null ? e.getNotaFinal() : PENDIENTE_LABEL,
+                e.getPractica().getResultado() != null ? e.getPractica().getResultado() : "En Proceso"
+        );
     }
 
     private LocalDateTime[] parsePeriodo(String periodo) {

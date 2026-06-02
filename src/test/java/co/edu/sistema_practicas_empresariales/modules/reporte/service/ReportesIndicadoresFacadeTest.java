@@ -58,7 +58,7 @@ class ReportesIndicadoresFacadeTest {
     }
 
     @Test
-    void generarReporteNotas_FiltraSoloEvaluacionesActivas() {
+    void generarReporteNotasFiltraSoloEvaluacionesActivas() {
         Practica practica = new Practica();
         practica.setId(1L);
         practica.setEstado(EstadoPracticaTipo.COMPLETADA);
@@ -106,7 +106,7 @@ class ReportesIndicadoresFacadeTest {
     }
 
     @Test
-    void generarReporteEmpresasVacantes_FiltraSoloEmpresasActivas() {
+    void generarReporteEmpresasVacantesFiltraSoloEmpresasActivas() {
         Empresa activa = new Empresa();
         activa.setId(1L);
         activa.setNit("12345");

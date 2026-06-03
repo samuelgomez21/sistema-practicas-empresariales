@@ -33,6 +33,7 @@ public class Postulacion {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @Builder.Default
     @Column(name = "fecha_postulacion", nullable = false, updatable = false)
     private LocalDateTime fechaPostulacion = LocalDateTime.now();
 

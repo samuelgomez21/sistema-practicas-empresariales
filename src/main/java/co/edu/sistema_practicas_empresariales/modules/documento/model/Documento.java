@@ -29,6 +29,7 @@ public class Documento {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 

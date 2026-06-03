@@ -80,11 +80,10 @@ public class AuthFacadeImpl implements AuthFacade {
                 .debeCambiarPassword(false)
                 .build();
             usuarioRepository.save(admin);
-        }
 
         String coordEmail = "coordinador@example.com";
         if (!usuarioRepository.existsByEmail(coordEmail)) {
-            Rol coordRole = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_PRACTICA.name())
+            Rol coordRole = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_PRACTICA)
                     .orElseThrow(() -> new IllegalStateException("Rol COORDINADOR_PRACTICA no encontrado"));
             Usuario coord = Usuario.builder()
                     .email(coordEmail)

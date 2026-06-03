@@ -152,9 +152,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
-        if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue();
-        if (cell.getCellType() == CellType.NUMERIC) return String.valueOf((long)cell.getNumericCellValue());
-        return null;
+        String value = new DataFormatter().formatCellValue(cell).trim();
+        return value.isEmpty() ? null : value;
     }
 
     @Override

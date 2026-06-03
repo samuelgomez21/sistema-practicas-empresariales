@@ -18,8 +18,8 @@ public class VinculacionCreateDto {
     private String cargo;
     private String descripcion;
     private String requisitosEstudiante;
-    private int numeroCupos;
-    private int cuposDisponibles;
+    private Integer numeroCupos;
+    private Integer cuposDisponibles;
     private String area;
     private String modalidad;
     private EstadoVinculacionTipo estado; // opcional, si no se envía se usará PENDIENTE

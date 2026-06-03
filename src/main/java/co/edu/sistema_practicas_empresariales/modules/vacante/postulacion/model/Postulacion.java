@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /**
@@ -33,12 +34,14 @@ public class Postulacion {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @Builder.Default
     @Column(name = "fecha_postulacion", nullable = false, updatable = false)
     private LocalDateTime fechaPostulacion = LocalDateTime.now();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private EstadoPostulacionTipo estado;
+    private EstadoPostulacionTipo estado = EstadoPostulacionTipo.PENDIENTE;
 
     @Builder.Default
     @Column(nullable = false)

@@ -72,7 +72,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
     @Transactional
     public void softDeleteVinculacion(Long id) {
         // Verificar existencia antes de marcar eliminado
-        Vinculacion vinculacion = vinculacionRepository.findByIdAndEliminadoFalse(id)
+        vinculacionRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vinculación no encontrada o ya eliminada"));
         vinculacionRepository.softDelete(id);
     }

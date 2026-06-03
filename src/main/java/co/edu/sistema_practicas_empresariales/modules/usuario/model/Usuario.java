@@ -32,6 +32,10 @@ public class Usuario {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean eliminado = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
@@ -43,6 +47,16 @@ public class Usuario {
 
     @Column(name = "scope_valor_id", length = 100)
     private String scopeValorId;
+
+    @Builder.Default
+    @Column(name = "debe_cambiar_password", nullable = false)
+    private boolean debeCambiarPassword = false;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_expires")
+    private LocalDateTime resetPasswordExpires;
 
     @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

@@ -29,6 +29,7 @@ CREATE TABLE programa_requisitos (
 CREATE TABLE estudiantes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     usuario_id BIGINT NOT NULL UNIQUE,
+    tipo_identificacion VARCHAR(20) NOT NULL,
     identificacion VARCHAR(50) NOT NULL UNIQUE,
     telefono VARCHAR(20) NULL,
     contacto_emergencia VARCHAR(100) NULL,

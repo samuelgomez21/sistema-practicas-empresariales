@@ -1,0 +1,341 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+		"name": "Sistema de Prácticas Empresariales",
+		"description": "Colección de pruebas para los módulos: Panel de Inicio (Auth), Gestión de Usuarios y Gestión del Sistema.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Módulo Panel de Inicio (Auth)",
+			"item": [
+				{
+					"name": "Registrar Admin Semilla",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/register-admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register-admin"
+							]
+						},
+						"description": "Endpoint para crear el primer usuario administrador del sistema si no existe."
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Obtener JWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.token) {",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@universidad.edu.co\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión y guarda el token JWT en la variable de entorno 'jwt_token'."
+					},
+					"response": []
+				},
+				{
+					"name": "Solicitar Recuperación Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@universidad.edu.co\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/recuperar-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"recuperar-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resetear Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"AQUI_VA_EL_TOKEN_DEL_CORREO\",\n    \"newPassword\": \"nuevaClave123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar Password Primer Ingreso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"estudiante@universidad.edu.co\",\n    \"currentPassword\": \"temporal123\",\n    \"newPassword\": \"segura123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/cambiar-password-inicial",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"cambiar-password-inicial"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Módulo Gestión de Usuarios",
+			"item": [
+				{
+					"name": "Obtener Todos los Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"estudiante@universidad.edu.co\",\n    \"nombre\": \"Estudiante Prueba\",\n    \"activo\": true,\n    \"rol\": \"ESTUDIANTE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"estudiante_actualizado@universidad.edu.co\",\n    \"nombre\": \"Estudiante Actualizado\",\n    \"activo\": false,\n    \"rol\": \"ESTUDIANTE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

@@ -2,6 +2,7 @@ package co.edu.sistema_practicas_empresariales;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(properties = {
     "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL",
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
     "app.firebase.config-path=classpath:firebase-service-account.json",
     "app.firebase.storage-bucket=practicas-uah.appspot.com"
 })
+@ActiveProfiles("test")
 class SistemaPracticasEmpresarialesApplicationTests {
 
     @Test

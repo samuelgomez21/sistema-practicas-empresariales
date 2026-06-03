@@ -12,7 +12,6 @@ import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import co.edu.sistema_practicas_empresariales.modules.usuario.service.CustomUserDetailsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ public class AuthFacadeImpl implements AuthFacade {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final CustomUserDetailsService userDetailsService;
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;

@@ -436,16 +436,4 @@ public class PracticaServiceImpl implements PracticaService {
                 .build();
     }
 
-    private AvanceDto toAvanceDto(Avance a) {
-        return AvanceDto.builder()
-                .id(a.getId())
-                .titulo(a.getTitulo())
-                .descripcion(a.getDescripcion())
-                .archivoUrl(a.getArchivoUrl())
-                .archivoFechaCarga(a.getArchivoFechaCarga())
-                .comentarioDocente(a.getComentarioDocente())
-                .estado(a.getEstado())
-                .createdAt(a.getCreatedAt())
-                .build();
-    }
 }

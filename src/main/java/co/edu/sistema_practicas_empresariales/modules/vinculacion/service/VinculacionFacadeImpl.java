@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementación del facade para Vinculación.
@@ -91,7 +90,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
         return vinculacionRepository.findAllByEliminadoFalse()
                 .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -101,7 +100,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
                 .stream()
                 .filter(v -> v.getVacante() != null && v.getVacante().getId().equals(vacanteId))
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private VinculacionResponse mapToResponse(Vinculacion v) {

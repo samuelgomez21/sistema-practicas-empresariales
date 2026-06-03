@@ -29,7 +29,7 @@ import java.util.List;
  *
  * Patrones aplicados:
  * - State:                el modelo Practica delega comportamiento según su estado
- * - Factory Method:       crearCortesAutomaticos y crearChecklistInicial
+ * - estrategia:       crearCortesAutomaticos y crearChecklistInicial
  * - Chain of Responsibility: checklist de paz y salvo
  * - Observer:             actualización automática del checklist por eventos
  * - Adapter:              Firebase a través de ArchivoStorageService
@@ -93,13 +93,13 @@ public class PracticaServiceImpl implements PracticaService {
 
     // ─────────────────────────────────────────────────────────────────
     // CREACIÓN AUTOMÁTICA
-    // Patrón Factory Method
+    // Patrón estrategia
     // ─────────────────────────────────────────────────────────────────
 
     /**
      * Crea la instancia de práctica automáticamente cuando el coordinador
      * académico marca al estudiante como APTO y asigna número de práctica.
-     * Patrón Factory Method: inicializa cortes y checklist automáticamente.
+     * Patrón estrategia: inicializa cortes y checklist automáticamente.
      */
     public PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId) {
 
@@ -133,7 +133,7 @@ public class PracticaServiceImpl implements PracticaService {
         practica = practicaRepository.save(practica);
 
 
-        // Factory Method: checklist inicial
+        // estrategia: checklist inicial
         crearChecklistInicial(practica);
 
         log.info("Práctica creada — estudianteId={} catalogoId={}", estudianteId, catalogoId);
@@ -320,7 +320,7 @@ public class PracticaServiceImpl implements PracticaService {
 
 
     /**
-     * Patrón Factory Method: crea el checklist inicial.
+     * Patrón estrategia: crea el checklist inicial.
      * Patrón Chain of Responsibility: cada ítem es un eslabón.
      */
     private void crearChecklistInicial(Practica practica) {

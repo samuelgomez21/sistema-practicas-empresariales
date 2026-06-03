@@ -8,7 +8,7 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.event.VacanteCread
 import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacante;
-import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteFactory;
+import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteResolver;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +33,7 @@ public class VacanteFacadeImplTest {
     private EmpresaRepository empresaRepository;
 
     @Mock
-    private EstadoVacanteFactory estadoVacanteFactory;
+    private EstadoVacanteResolver EstadoVacanteResolver;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -76,7 +76,7 @@ public class VacanteFacadeImplTest {
         EstadoVacante estadoMock = mock(EstadoVacante.class);
 
         when(vacanteRepository.findById(1L)).thenReturn(Optional.of(vacante));
-        when(estadoVacanteFactory.getEstado(EstadoVacanteTipo.PENDIENTE)).thenReturn(estadoMock);
+        when(EstadoVacanteResolver.getEstado(EstadoVacanteTipo.PENDIENTE)).thenReturn(estadoMock);
         when(vacanteRepository.save(any(Vacante.class))).thenReturn(vacante);
 
         vacanteFacade.aprobarVacante(1L);

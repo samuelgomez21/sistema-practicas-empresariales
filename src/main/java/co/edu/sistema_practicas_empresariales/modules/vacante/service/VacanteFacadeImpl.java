@@ -7,7 +7,7 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.event.VacanteCread
 import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacante;
-import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteFactory;
+import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteResolver;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
@@ -26,7 +26,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
 
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
-    private final EstadoVacanteFactory estadoVacanteFactory;
+    private final EstadoVacanteResolver EstadoVacanteResolver;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -58,7 +58,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
         Vacante vacante = vacanteRepository.findById(vacanteId)
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
 
-        EstadoVacante estado = estadoVacanteFactory.getEstado(vacante.getEstado());
+        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
         estado.aprobar(vacante);
         
         vacante = vacanteRepository.save(vacante);
@@ -74,7 +74,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
         Vacante vacante = vacanteRepository.findById(vacanteId)
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
 
-        EstadoVacante estado = estadoVacanteFactory.getEstado(vacante.getEstado());
+        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
         estado.rechazar(vacante, motivo);
         
         vacante = vacanteRepository.save(vacante);
@@ -87,7 +87,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
         Vacante vacante = vacanteRepository.findById(vacanteId)
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
 
-        EstadoVacante estado = estadoVacanteFactory.getEstado(vacante.getEstado());
+        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
         estado.cerrar(vacante);
         
         vacante = vacanteRepository.save(vacante);

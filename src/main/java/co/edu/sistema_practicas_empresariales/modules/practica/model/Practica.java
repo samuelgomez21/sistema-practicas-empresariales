@@ -4,7 +4,7 @@ package co.edu.sistema_practicas_empresariales.modules.practica.model;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
-import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaFactory;
+import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaResolver;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import jakarta.persistence.*;
@@ -98,14 +98,14 @@ public class Practica {
 
     public EstadoPractica getEstadoComportamiento() {
         if (estadoComportamiento == null) {
-            estadoComportamiento = EstadoPracticaFactory.getEstado(this.estado);
+            estadoComportamiento = EstadoPracticaResolver.getEstado(this.estado);
         }
         return estadoComportamiento;
     }
 
     public void setEstado(EstadoPracticaTipo nuevoEstado) {
         this.estado = nuevoEstado;
-        this.estadoComportamiento = EstadoPracticaFactory.getEstado(nuevoEstado);
+        this.estadoComportamiento = EstadoPracticaResolver.getEstado(nuevoEstado);
     }
 
     // Delegación de comportamiento de estado

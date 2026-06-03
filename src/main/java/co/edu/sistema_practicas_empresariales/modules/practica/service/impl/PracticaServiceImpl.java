@@ -409,19 +409,6 @@ public class PracticaServiceImpl implements PracticaService {
                         .build())
                 .toList();
 
-        List<DocumentoPracticaDto> docs = documentoRepository
-                .findByPracticaId(p.getId())
-                .stream()
-                .map(d -> DocumentoPracticaDto.builder()
-                        .id(d.getId())
-                        .nombre(d.getNombre())
-                        .url(d.getUrl())
-                        .categoria(d.getCategoria())
-                        .fechaCarga(d.getFechaCarga())
-                        .cargadoPorEmail(d.getCargadoPorEmail())
-                        .estado(d.getEstado())
-                        .build())
-                .toList();
 
         return PracticaDetalleDto.builder()
                 .id(p.getId())

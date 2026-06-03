@@ -49,8 +49,13 @@ public class ReportesIndicadoresFacade {
     private final AvanceRepository avanceRepository;
     private final PracticaDocumentoRepository practicaDocumentoRepository;
 
-    private final ExportadorReporte excelExportAdapter;
-    private final ExportadorReporte pdfExportAdapter;
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.beans.factory.annotation.Qualifier("excelExportAdapter")
+    private ExportadorReporte excelExportAdapter;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.beans.factory.annotation.Qualifier("pdfExportAdapter")
+    private ExportadorReporte pdfExportAdapter;
 
     @Transactional(readOnly = true)
     public byte[] generarReporteEstadoProceso(Long programaId, String periodo, String format) {

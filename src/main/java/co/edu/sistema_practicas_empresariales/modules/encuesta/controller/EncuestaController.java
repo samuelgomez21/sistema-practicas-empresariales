@@ -64,6 +64,7 @@ public class EncuestaController {
         return ResponseEntity.ok().build();
     }
 
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     @PostMapping("/recordatorios")
     public ResponseEntity<Void> enviarRecordatorios() {
         encuestaService.enviarRecordatoriosPendientes();

@@ -175,6 +175,13 @@ public class ReportesIndicadoresFacade {
             long cerradas = vacantes.stream().filter(v -> v.getEstado() == EstadoVacanteTipo.CERRADA).count();
 
             List<Practica> practicas = practicaRepository.findByEmpresaId(e.getId());
+            if (programaId != null) {
+                practicas = practicas.stream()
+                        .filter(p -> p.getEstudiante() != null
+                                && p.getEstudiante().getPrograma() != null
+                                && programaId.equals(p.getEstudiante().getPrograma().getId()))
+                        .collect(Collectors.toList());
+            }
             long activos = practicas.stream().filter(p -> p.getEstado() != EstadoPracticaTipo.COMPLETADA && p.getEstado() != EstadoPracticaTipo.REPROBADA && p.getEstado() != EstadoPracticaTipo.CANCELADA).count();
             long historicos = practicas.size();
 

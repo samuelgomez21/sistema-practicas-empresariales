@@ -118,7 +118,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 // Columnas esperadas: 
                 // 0: Nombre, 1: Email, 2: TipoIdentificacion, 3: Identificacion, 4: Telefono, 
                 // 5: ContactoEmergencia, 6: ProgramaId, 7: Semestre, 8: Creditos, 9: Promedio
-                if (row.getCell(0) == null || row.getCell(1) == null || row.getCell(3) == null) {
+                if (row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null || row.getCell(3) == null ||
+                        row.getCell(6) == null || row.getCell(7) == null || row.getCell(8) == null || row.getCell(9) == null) {
                     continue; // Saltar filas vacías o inválidas
                 }
                 

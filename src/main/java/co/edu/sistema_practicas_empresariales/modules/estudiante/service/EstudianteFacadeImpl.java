@@ -79,11 +79,14 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                     return usuarioRepository.save(nuevoUsuario);
                 });
 
+        if (request.getTipoIdentificacion() == null || request.getTipoIdentificacion().isBlank()) {
+            throw new IllegalArgumentException("tipoIdentificacion es obligatorio");
+        }
+
         Estudiante estudiante = Estudiante.builder()
                 .usuario(usuario)
                 .tipoIdentificacion(request.getTipoIdentificacion())
                 .identificacion(request.getIdentificacion())
-                .telefono(request.getTelefono())
                 .contactoEmergencia(request.getContactoEmergencia())
                 .programa(programa)
                 .semestre(request.getSemestre())

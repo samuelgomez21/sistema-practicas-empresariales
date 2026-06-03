@@ -1,5 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.vinculacion.service;
 
+import java.util.Objects;
+
 import co.edu.sistema_practicas_empresariales.modules.vinculacion.dto.VinculacionCreateDto;
 import co.edu.sistema_practicas_empresariales.modules.vinculacion.dto.VinculacionUpdateDto;
 import co.edu.sistema_practicas_empresariales.modules.vinculacion.dto.VinculacionResponse;
@@ -15,9 +17,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Implementación del facade para Vinculación.
- * Aplica principios SOLID: la lógica de negocio está en este servicio (SRP),
- * usa inyección de dependencias (DIP) y delega a los repositorios.
+ * Implementación del facade para la gestión de vinculaciones.
+ *
+ * <p>Se añaden validaciones de nulidad y JavaDoc a los métodos para
+ * cumplir con las reglas de Sonar (evitar NullPointerException y mejorar la
+ * legibilidad).</p>
+ *
+ * - Usa soft‑delete exclusivamente (no se elimina físicamente).
+ * - Aplica los principios SOLID (SRP, DIP) y el patrón Facade.
+ * - Todas las consultas excluyen registros marcados como eliminados.
  */
 @Service
 @RequiredArgsConstructor
@@ -29,6 +37,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
     @Override
     @Transactional
     public VinculacionResponse crearVinculacion(VinculacionCreateDto dto) {
+        Objects.requireNonNull(dto, "VinculacionCreateDto no puede ser null");
         // Obtener la vacante asociada y validar existencia
         Vacante vacante = vacanteRepository.findByIdAndEliminadoFalse(dto.getVacanteId())
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada o eliminada"));
@@ -38,8 +47,8 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
                 .cargo(dto.getCargo())
                 .descripcion(dto.getDescripcion())
                 .requisitosEstudiante(dto.getRequisitosEstudiante())
-                .numeroCupos(dto.getNumeroCupos())
-                .cuposDisponibles(dto.getCuposDisponibles())
+                .numeroCupos(dto.getNumeroCupos() != null ? dto.getNumeroCupos() : 0)
+                .cuposDisponibles(dto.getCuposDisponibles() != null ? dto.getCuposDisponibles() : 0)
                 .area(dto.getArea())
                 .modalidad(dto.getModalidad())
                 .estado(dto.getEstado() != null ? dto.getEstado() : EstadoVinculacionTipo.PENDIENTE)
@@ -52,14 +61,16 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
     @Override
     @Transactional
     public VinculacionResponse actualizarVinculacion(Long id, VinculacionUpdateDto dto) {
+        Objects.requireNonNull(id, "Id de Vinculación no puede ser null");
+        Objects.requireNonNull(dto, "VinculacionUpdateDto no puede ser null");
         Vinculacion vinculacion = vinculacionRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vinculación no encontrada o eliminada"));
         // Actualizar campos (solo los que llegan en el DTO)
         if (dto.getCargo() != null) vinculacion.setCargo(dto.getCargo());
         if (dto.getDescripcion() != null) vinculacion.setDescripcion(dto.getDescripcion());
         if (dto.getRequisitosEstudiante() != null) vinculacion.setRequisitosEstudiante(dto.getRequisitosEstudiante());
-        if (dto.getNumeroCupos() > 0) vinculacion.setNumeroCupos(dto.getNumeroCupos());
-        if (dto.getCuposDisponibles() >= 0) vinculacion.setCuposDisponibles(dto.getCuposDisponibles());
+        if (dto.getNumeroCupos() != null && dto.getNumeroCupos() > 0) vinculacion.setNumeroCupos(dto.getNumeroCupos());
+        if (dto.getCuposDisponibles() != null && dto.getCuposDisponibles() >= 0) vinculacion.setCuposDisponibles(dto.getCuposDisponibles());
         if (dto.getArea() != null) vinculacion.setArea(dto.getArea());
         if (dto.getModalidad() != null) vinculacion.setModalidad(dto.getModalidad());
         if (dto.getEstado() != null) vinculacion.setEstado(dto.getEstado());
@@ -71,8 +82,9 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
     @Override
     @Transactional
     public void softDeleteVinculacion(Long id) {
+        Objects.requireNonNull(id, "Id de Vinculación no puede ser null");
         // Verificar existencia antes de marcar eliminado
-        Vinculacion vinculacion = vinculacionRepository.findByIdAndEliminadoFalse(id)
+        vinculacionRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vinculación no encontrada o ya eliminada"));
         vinculacionRepository.softDelete(id);
     }

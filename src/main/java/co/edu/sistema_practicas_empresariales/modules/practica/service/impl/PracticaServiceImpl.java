@@ -41,7 +41,6 @@ import java.util.List;
 public class PracticaServiceImpl implements PracticaService {
 
     private final PracticaRepository         practicaRepository;
-    private final AvanceRepository           avanceRepository;
     private final ChecklistItemRepository    checklistRepository;
     private final PracticaDocumentoRepository documentoRepository;
     private final CatalogoPracticaRepository catalogoRepository;
@@ -86,7 +85,7 @@ public class PracticaServiceImpl implements PracticaService {
     @Transactional(readOnly = true)
     public PracticaDetalleDto obtenerPracticaActivaEstudiante(Long estudianteId) {
         Practica p = practicaRepository.findPracticaActivaByEstudiante(estudianteId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new IllegalArgumentException(
                         "No hay práctica activa para el estudiante " + estudianteId));
         return toDetalle(p);
     }
@@ -104,9 +103,9 @@ public class PracticaServiceImpl implements PracticaService {
     public PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId) {
 
         Estudiante      estudiante = estudianteRepository.findById(estudianteId)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
         CatalogoPractica catalogo  = catalogoRepository.findById(catalogoId)
-                .orElseThrow(() -> new RuntimeException("Catálogo no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Catálogo no encontrado"));
 
         // Verificar que no haya práctica activa del mismo número
         boolean existe = practicaRepository.existsByEstudianteIdAndEstadoNotIn(
@@ -116,7 +115,7 @@ public class PracticaServiceImpl implements PracticaService {
                         EstadoPracticaTipo.CANCELADA)
         );
         if (existe) {
-            throw new RuntimeException("El estudiante ya tiene una práctica activa");
+            throw new IllegalStateException("El estudiante ya tiene una práctica activa");
         }
 
         // Patrón State: estado inicial ASIGNADA_PENDIENTE_INICIO
@@ -172,7 +171,7 @@ public class PracticaServiceImpl implements PracticaService {
     public PracticaDetalleDto activarPractica(Long practicaId) {
         Practica p = buscar(practicaId);
         if (p.getDocenteAsesor() == null) {
-            throw new RuntimeException("No se puede activar sin docente asesor asignado");
+            throw new IllegalStateException("No se puede activar sin docente asesor asignado");
         }
         p.activarPractica(); // Patrón State
         return toDetalle(practicaRepository.save(p));
@@ -195,7 +194,7 @@ public class PracticaServiceImpl implements PracticaService {
     public PracticaDetalleDto asignarDocente(Long practicaId, Long docenteId) {
         Practica p  = buscar(practicaId);
         Usuario doc = usuarioRepository.findById(docenteId)
-                .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Docente no encontrado"));
         p.setDocenteAsesor(doc);
         return toDetalle(practicaRepository.save(p));
     }
@@ -276,7 +275,7 @@ public class PracticaServiceImpl implements PracticaService {
 
         // Obtener nota mínima del programa (desde parámetros)
         BigDecimal notaMinima = BigDecimal.valueOf(3.0); // valor por defecto
-        // TODO: obtener del programa_parametros cuando esté disponible el repo
+        // Nota: obtener del programa_parametros cuando esté disponible el repo
 
         p.registrarNotaFinal(req.getNota(), notaMinima); // Patrón State
         actualizarChecklist(practicaId, CK_NOTA_FINAL);
@@ -409,20 +408,6 @@ public class PracticaServiceImpl implements PracticaService {
                         .build())
                 .toList();
 
-        List<DocumentoPracticaDto> docs = documentoRepository
-                .findByPracticaId(p.getId())
-                .stream()
-                .map(d -> DocumentoPracticaDto.builder()
-                        .id(d.getId())
-                        .nombre(d.getNombre())
-                        .url(d.getUrl())
-                        .categoria(d.getCategoria())
-                        .fechaCarga(d.getFechaCarga())
-                        .cargadoPorEmail(d.getCargadoPorEmail())
-                        .estado(d.getEstado())
-                        .build())
-                .toList();
-
         return PracticaDetalleDto.builder()
                 .id(p.getId())
                 .estado(p.getEstado())
@@ -449,16 +434,5 @@ public class PracticaServiceImpl implements PracticaService {
                 .build();
     }
 
-    private AvanceDto toAvanceDto(Avance a) {
-        return AvanceDto.builder()
-                .id(a.getId())
-                .titulo(a.getTitulo())
-                .descripcion(a.getDescripcion())
-                .archivoUrl(a.getArchivoUrl())
-                .archivoFechaCarga(a.getArchivoFechaCarga())
-                .comentarioDocente(a.getComentarioDocente())
-                .estado(a.getEstado())
-                .createdAt(a.getCreatedAt())
-                .build();
-    }
+
 }

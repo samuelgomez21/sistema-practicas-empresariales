@@ -15,6 +15,7 @@ public class EstudianteResponse {
     private Long id;
     private String nombre;
     private String email;
+    private String tipoIdentificacion;
     private String identificacion;
     private String telefono;
     private String contactoEmergencia;

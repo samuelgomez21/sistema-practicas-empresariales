@@ -57,9 +57,15 @@ public class Vinculacion {
     @Column(nullable = false)
     private boolean eliminado = false;
 
+    @Builder.Default
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
     @PrePersist
     protected void onCreate() {
-        // lógica de creación, por ahora no se necesita nada especial
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
     }
 
     public enum EstadoVinculacionTipo {

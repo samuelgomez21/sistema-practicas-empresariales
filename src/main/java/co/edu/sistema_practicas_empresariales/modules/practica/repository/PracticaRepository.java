@@ -1,0 +1,44 @@
+package co.edu.sistema_practicas_empresariales.modules.practica.repository;
+
+import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
+import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
+import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface PracticaRepository extends JpaRepository<Practica, Long> {
+    List<Practica> findByEstudianteIdOrderByNumeroPracticaAsc(Long estudianteId);
+    Optional<Practica> findByEstudianteIdAndNumeroPractica(Long estudianteId, int numeroPractica);
+    List<Practica> findByEstudianteId(Long estudianteId);
+
+    List<Practica> findByDocenteAsesorId(Long docenteId);
+
+    List<Practica> findByEmpresaId(Long empresaId);
+
+    List<Practica> findByEstado(EstadoPracticaTipo estado);
+
+    Optional<Practica> findByEstudianteIdAndEstadoNot(Long estudianteId, EstadoPractica estado);
+
+    @Query("""
+        SELECT p FROM Practica p
+        WHERE p.estudiante.id = :estudianteId
+        AND p.estado NOT IN ('CERRADA', 'CANCELADA')
+        ORDER BY p.createdAt DESC
+    """)
+    Optional<Practica> findPracticaActivaByEstudiante(@Param("estudianteId") Long estudianteId);
+    @Query("""
+        SELECT p FROM Practica p
+        WHERE p.docenteAsesor.id = :docenteId
+        AND p.estado = 'EN_CURSO'
+    """)
+    List<Practica> findPracticasActivasByDocente(@Param("docenteId") Long docenteId);
+
+
+    // Buscar si el estudiante tiene alguna práctica activa (en curso, asignada, vinculación, etc.)
+    boolean existsByEstudianteIdAndEstadoNotIn(Long estudianteId, List<co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo> estadosCerrados);
+}

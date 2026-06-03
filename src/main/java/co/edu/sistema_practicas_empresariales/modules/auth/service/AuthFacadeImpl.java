@@ -79,7 +79,22 @@ public class AuthFacadeImpl implements AuthFacade {
                 .rol(adminRole)
                 .debeCambiarPassword(false)
                 .build();
-        usuarioRepository.save(admin);
+            usuarioRepository.save(admin);
+        }
+
+        String coordEmail = "coordinador@example.com";
+        if (!usuarioRepository.existsByEmail(coordEmail)) {
+            Rol coordRole = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_PRACTICA.name())
+                    .orElseThrow(() -> new IllegalStateException("Rol COORDINADOR_PRACTICA no encontrado"));
+            Usuario coord = Usuario.builder()
+                    .email(coordEmail)
+                    .password(passwordEncoder.encode("coord123"))
+                    .nombre("Coordinador Empresarial")
+                    .activo(true)
+                    .rol(coordRole)
+                    .build();
+            usuarioRepository.save(coord);
+        }
     }
 
     @Override

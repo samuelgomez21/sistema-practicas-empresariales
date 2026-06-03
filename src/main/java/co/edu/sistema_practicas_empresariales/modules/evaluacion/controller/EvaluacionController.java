@@ -37,8 +37,8 @@ public class EvaluacionController {
         return ResponseEntity.ok(response);
     }
 
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     @PostMapping("/coordinador/practica/{practicaId}")
-    public ResponseEntity<EvaluacionResponse> registrarNotaFinal(
             @PathVariable Long practicaId,
             @RequestBody EvaluacionRequest request,
             Principal principal) {

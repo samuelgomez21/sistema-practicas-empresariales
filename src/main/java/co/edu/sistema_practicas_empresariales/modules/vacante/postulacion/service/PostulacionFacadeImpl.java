@@ -35,8 +35,8 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
         // Validar existencia de la vacante y del usuario (solo si no están eliminados)
         var vacante = vacanteRepository.findByIdAndEliminadoFalse(dto.getVacanteId())
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada o eliminada"));
-        var usuario = usuarioRepository.findByIdAndEliminadoFalse(dto.getUsuarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado o eliminado"));
+        var usuario = usuarioRepository.findByIdAndActivoTrue(dto.getUsuarioId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado o inactivo"));
 
         Postulacion postulacion = Postulacion.builder()
                 .vacante(vacante)

@@ -52,6 +52,10 @@ public class Vacante {
     private String motivoRechazo;
 
     @Builder.Default
+    @Column(name = "eliminado", nullable = false)
+    private boolean eliminado = false;
+
+    @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 

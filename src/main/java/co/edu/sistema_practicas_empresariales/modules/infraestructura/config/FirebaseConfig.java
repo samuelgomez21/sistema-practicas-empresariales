@@ -16,6 +16,7 @@ import java.io.InputStream;
  */
 @Slf4j
 @Configuration
+@org.springframework.context.annotation.Profile("!test")
 public class FirebaseConfig {
 
     @Value("${app.firebase.config-path}")

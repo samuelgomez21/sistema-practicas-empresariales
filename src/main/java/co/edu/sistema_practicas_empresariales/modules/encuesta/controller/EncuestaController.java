@@ -55,8 +55,8 @@ public class EncuestaController {
         return ResponseEntity.ok(response);
     }
 
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     @PostMapping("/invitar/practica/{practicaId}/actor/{tipoActor}")
-    public ResponseEntity<Void> enviarInvitacion(
             @PathVariable Long practicaId,
             @PathVariable String tipoActor) {
         

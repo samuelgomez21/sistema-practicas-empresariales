@@ -14,7 +14,11 @@ public class ExcelExportAdapter implements ExportadorReporte {
     @Override
     public byte[] exportar(Reporte reporte) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet(reporte.getTitulo());
+            String safeSheetName = org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName(reporte.getTitulo());
+            if (safeSheetName.length() > 31) {
+                safeSheetName = safeSheetName.substring(0, 31);
+            }
+            Sheet sheet = workbook.createSheet(safeSheetName);
 
             // Estilos
             Font titleFont = workbook.createFont();

@@ -21,7 +21,7 @@ public class EstudianteController {
     private final EstudianteFacade estudianteFacade;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINACION_ACADEMICA')")
     public ResponseEntity<EstudianteResponse> registrar(@RequestBody EstudianteRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(estudianteFacade.registrarEstudiante(request));
     }

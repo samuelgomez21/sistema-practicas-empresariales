@@ -224,6 +224,13 @@ public class ReportesIndicadoresFacade {
                     .collect(Collectors.toList());
         }
 
+        if (periodo != null) {
+            LocalDateTime[] rango = parsePeriodo(periodo);
+            practicas = practicas.stream()
+                    .filter(p -> p.getFechaCreacion().isAfter(rango[0]) && p.getFechaCreacion().isBefore(rango[1]))
+                    .collect(Collectors.toList());
+        }
+
         ReporteBuilder builder = new ReporteBuilder("Reporte Consolidado de Encuestas de Satisfacción");
         builder.headers(List.of("ID Práctica", HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Estado Encuesta Estudiante", "Comentarios Estudiante", "Estado Encuesta Tutor", "Comentarios Tutor"));
 

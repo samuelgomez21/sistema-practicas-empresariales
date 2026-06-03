@@ -45,6 +45,9 @@ public class AuthFacadeImpl implements AuthFacade {
         );
         String token = tokenProvider.generateToken(authentication);
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        if (principal == null) {
+            throw new IllegalStateException("Principal no puede ser nulo");
+        }
         return JwtResponse.builder()
                 .token(token)
                 .type("Bearer")

@@ -420,9 +420,27 @@ public class ReportesIndicadoresFacade {
 
     private LocalDateTime[] parsePeriodo(String periodo) {
         // Formato esperado: "YYYY-1" o "YYYY-2"
+        if (periodo == null) {
+            throw new IllegalArgumentException("El periodo no puede ser null");
+        }
+
         String[] parts = periodo.split("-");
-        int year = Integer.parseInt(parts[0]);
-        int semester = Integer.parseInt(parts[1]);
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Periodo inválido. Formato esperado: YYYY-1 o YYYY-2");
+        }
+
+        final int year;
+        final int semester;
+        try {
+            year = Integer.parseInt(parts[0]);
+            semester = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Periodo inválido. Formato esperado: YYYY-1 o YYYY-2", ex);
+        }
+
+        if (semester != 1 && semester != 2) {
+            throw new IllegalArgumentException("Periodo inválido. El semestre debe ser 1 o 2");
+        }
 
         LocalDateTime start;
         LocalDateTime end;

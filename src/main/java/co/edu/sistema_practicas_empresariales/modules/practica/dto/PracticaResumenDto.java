@@ -1,6 +1,5 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.dto;
 
-import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import lombok.Data;
 import lombok.Builder;

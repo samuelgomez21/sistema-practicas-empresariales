@@ -2,6 +2,7 @@ package co.edu.sistema_practicas_empresariales.modules.vacante.model;
 
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +11,17 @@ import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import java.time.LocalDateTime;
 
 @Entity
+
 @Table(name = "vacantes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Vacante {
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean eliminado = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

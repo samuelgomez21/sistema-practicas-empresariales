@@ -12,7 +12,7 @@ import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import co.edu.sistema_practicas_empresariales.modules.usuario.service.CustomUserDetailsService;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +28,17 @@ public class AuthFacadeImpl implements AuthFacade {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final CustomUserDetailsService userDetailsService;
+
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+
+    @Value("${app.seed.admin.password:admin123}")
+    private String adminPassword;
+
+    @Value("${app.seed.coord.password:coord123}")
+    private String coordPassword;
 
     @Override
     public JwtResponse login(LoginRequest request) {
@@ -47,6 +54,9 @@ public class AuthFacadeImpl implements AuthFacade {
         );
         String token = tokenProvider.generateToken(authentication);
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        if (principal == null) {
+            throw new IllegalStateException("Authentication principal cannot be null");
+        }
         return JwtResponse.builder()
                 .token(token)
                 .type("Bearer")
@@ -73,7 +83,7 @@ public class AuthFacadeImpl implements AuthFacade {
                 });
         Usuario admin = Usuario.builder()
                 .email(adminEmail)
-                .password(passwordEncoder.encode("admin123"))
+                .password(passwordEncoder.encode(adminPassword))
                 .nombre("Administrador del Sistema")
                 .activo(true)
                 .rol(adminRole)
@@ -88,7 +98,7 @@ public class AuthFacadeImpl implements AuthFacade {
                     .orElseThrow(() -> new IllegalStateException("Rol COORDINADOR_PRACTICA no encontrado"));
             Usuario coord = Usuario.builder()
                     .email(coordEmail)
-                    .password(passwordEncoder.encode("coord123"))
+                    .password(passwordEncoder.encode(coordPassword))
                     .nombre("Coordinador Empresarial")
                     .activo(true)
                     .rol(coordRole)

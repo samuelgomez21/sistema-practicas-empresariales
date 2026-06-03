@@ -8,9 +8,9 @@ import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSust
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaService;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.model.CatalogoPractica;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.CatalogoPracticaRepository;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.CatalogoPracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.EstudianteRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;

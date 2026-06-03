@@ -32,6 +32,10 @@ public class Usuario {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean eliminado = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;

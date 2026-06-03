@@ -136,7 +136,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                     responses.add(registrarEstudiante(req));
                 } catch (Exception e) {
                     // Log error and continue with the next row
-                    System.err.println("Error procesando fila " + row.getRowNum() + ": " + e.getMessage());
+                    java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
+                            .log(java.util.logging.Level.WARNING, "Error procesando fila " + row.getRowNum(), e);
                 }
             }
         } catch (Exception e) {

@@ -3,25 +3,24 @@ spring:
     name: practicas-backend
 
   datasource:
-    url: jdbc:h2:mem:practicas_uah;MODE=MySQL;DB_CLOSE_DELAY=-1
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/practicas_uah
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:2404}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+    loggins:
+      level:
+        org.hibernate: DEBUG
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
     open-in-view: false
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
 
   flyway:
     enabled: true

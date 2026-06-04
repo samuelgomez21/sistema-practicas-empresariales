@@ -42,9 +42,11 @@ public class DataSeeder implements CommandLineRunner {
 
         // Mapear Facultad y Programa con SQL directo para asegurar que el Programa ID 1 exista
         try {
-            jdbcTemplate.execute("MERGE INTO facultades (id, nombre, activo) VALUES (1, 'Ingeniería', true)");
-            jdbcTemplate.execute("MERGE INTO programas (id, nombre, facultad_id, activo) VALUES (1, 'Ingeniería de Sistemas', 1, true)");
-        } catch(Exception e) {}
+            jdbcTemplate.execute("MERGE INTO facultades (id, nombre, activo, fecha_creacion) VALUES (1, 'Ingenieria', true, CURRENT_TIMESTAMP)");
+            jdbcTemplate.execute("MERGE INTO programas (id, nombre, facultad_id, activo, fecha_creacion) VALUES (1, 'Ingenieria de Sistemas', 1, true, CURRENT_TIMESTAMP)");
+        } catch(Exception e) {
+            System.err.println("Error insertando Facultad/Programa: " + e.getMessage());
+        }
 
 
         // Crear un usuario para la empresa
@@ -90,18 +92,18 @@ public class DataSeeder implements CommandLineRunner {
         // Sembrar datos dependientes usando JdbcTemplate para asegurar que los IDs 1 existan para las pruebas en Postman
         try {
             // Tutor Empresarial (ID 1, usuario_id 1 que es empresa, empresa_id 1)
-            jdbcTemplate.execute("MERGE INTO tutores_empresariales (id, cargo, empresa_id, usuario_id) VALUES (1, 'Tutor Principal', 1, 1)");
+            jdbcTemplate.execute("MERGE INTO tutores_empresariales (id, cargo, empresa_id, usuario_id, activo, fecha_creacion) VALUES (1, 'Tutor Principal', 1, 1, true, CURRENT_TIMESTAMP)");
             
             // Postulacion (ID 1, estudiante_id 2, vacante_id 1)
-            jdbcTemplate.execute("MERGE INTO postulaciones (id, estado, fecha_postulacion, estudiante_id, vacante_id) VALUES (1, 'PENDIENTE', CURRENT_TIMESTAMP, 2, 1)");
+            jdbcTemplate.execute("MERGE INTO postulaciones (id, estado, fecha_postulacion, estudiante_id, vacante_id, activo, fecha_creacion) VALUES (1, 'PENDIENTE', CURRENT_TIMESTAMP, 2, 1, true, CURRENT_TIMESTAMP)");
             
             // Vinculacion (ID 1, postulacion 1, tutor 1)
-            jdbcTemplate.execute("MERGE INTO vinculaciones (id, estado, fecha_fin, fecha_inicio, postulacion_id, tutor_empresarial_id) VALUES (1, 'ACTIVA', '2026-12-31', '2026-06-01', 1, 1)");
+            jdbcTemplate.execute("MERGE INTO vinculaciones (id, estado, fecha_fin, fecha_inicio, postulacion_id, tutor_empresarial_id, activo, fecha_creacion) VALUES (1, 'ACTIVA', '2026-12-31', '2026-06-01', 1, 1, true, CURRENT_TIMESTAMP)");
             
             // Documento (ID 1, vinculacion 1)
             jdbcTemplate.execute("MERGE INTO documentos (id, estado, fecha_subida, observaciones, tipo_documento, url_archivo, vinculacion_id, activo) VALUES (1, 'APROBADO', CURRENT_TIMESTAMP, 'Validado', 'PLAN_TRABAJO', 'http://ejemplo.com', 1, true)");
         } catch(Exception e) {
-            // Ignorar errores si la tabla no existe o ya est? insertado
+            System.err.println("Error insertando dependencias (Tutor/Postulacion/Vinculacion/Doc): " + e.getMessage());
         }
     }
 }

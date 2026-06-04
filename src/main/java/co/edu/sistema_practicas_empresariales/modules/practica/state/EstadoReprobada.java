@@ -26,6 +26,11 @@ public class EstadoReprobada implements EstadoPractica {
     }
 
     @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        throw new IllegalStateException("La práctica ya se encuentra cerrada y reprobada.");
+    }
+
+    @Override
     public void cancelar(Practica practica, String motivo) {
         throw new IllegalStateException("No se puede cancelar una práctica reprobada.");
     }

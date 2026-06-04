@@ -23,12 +23,19 @@ public class EstadoEnPractica implements EstadoPractica {
     @Override
     public void registrarNotaFinal(Practica practica, BigDecimal nota, BigDecimal notaMinima) {
         practica.setNotaFinal(nota);
-        if (nota.compareTo(notaMinima) >= 0) {
+    }
+
+    @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        if (practica.getNotaFinal() == null) {
+            throw new IllegalStateException("No se puede realizar el cierre formal sin registrar previamente la nota final.");
+        }
+        if (practica.getNotaFinal().compareTo(notaMinima) >= 0) {
             practica.setEstado(EstadoPracticaTipo.COMPLETADA);
-            practica.setResultado("APROBADA");
+            practica.setResultado("APROBADO");
         } else {
             practica.setEstado(EstadoPracticaTipo.REPROBADA);
-            practica.setResultado("REPROBADA");
+            practica.setResultado("REPROBADO");
         }
     }
 

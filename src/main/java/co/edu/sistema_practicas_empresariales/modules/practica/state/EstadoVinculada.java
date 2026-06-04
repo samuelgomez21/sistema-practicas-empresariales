@@ -26,6 +26,11 @@ public class EstadoVinculada implements EstadoPractica {
     }
 
     @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        throw new IllegalStateException("No se puede realizar el cierre formal en estado VINCULADA.");
+    }
+
+    @Override
     public void cancelar(Practica practica, String motivo) {
         // Según RF-05-03: "Una asignación en estado 'Vinculada' no puede volver a estados anteriores."
         // Sin embargo, si se puede cancelar/abortar, depende de la regla de negocio. La regla RF-05-02 dice:

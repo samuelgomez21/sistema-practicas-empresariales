@@ -8,7 +8,10 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,7 +19,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "instancias_practica")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"estudiante", "docenteAsesor"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,6 +30,7 @@ public class Practica {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -130,6 +137,10 @@ public class Practica {
 
     public void registrarNotaFinal(BigDecimal nota, BigDecimal notaMinima) {
         this.getEstadoComportamiento().registrarNotaFinal(this, nota, notaMinima);
+    }
+
+    public void ejecutarCierre(BigDecimal notaMinima) {
+        this.getEstadoComportamiento().ejecutarCierre(this, notaMinima);
     }
 
     public void cancelar(String motivo) {

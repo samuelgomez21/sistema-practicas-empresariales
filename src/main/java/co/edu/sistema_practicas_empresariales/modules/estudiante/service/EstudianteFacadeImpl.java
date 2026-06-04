@@ -18,8 +18,15 @@ import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.P
 import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.ValidadorAptitudHandler;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
+import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
+import co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -43,6 +50,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     private final PracticaRepository practicaRepository;
     private final ProgramaRepository programaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -56,12 +65,28 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado con ID: " + request.getProgramaId()));
 
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con email: " + request.getEmail()));
+                .orElseGet(() -> {
+                    Rol rolEstudiante = rolRepository.findByNombre(Rol.Nombre.ESTUDIANTE)
+                            .orElseThrow(() -> new IllegalStateException("Rol ESTUDIANTE no encontrado"));
+                    
+                    Usuario nuevoUsuario = Usuario.builder()
+                            .email(request.getEmail())
+                            .nombre(request.getNombre())
+                            .password(passwordEncoder.encode(request.getIdentificacion())) // Contraseña por defecto: Identificación
+                            .rol(rolEstudiante)
+                            .activo(true)
+                            .build();
+                    return usuarioRepository.save(nuevoUsuario);
+                });
+
+        if (request.getTipoIdentificacion() == null || request.getTipoIdentificacion().isBlank()) {
+            throw new IllegalArgumentException("tipoIdentificacion es obligatorio");
+        }
 
         Estudiante estudiante = Estudiante.builder()
                 .usuario(usuario)
+                .tipoIdentificacion(request.getTipoIdentificacion())
                 .identificacion(request.getIdentificacion())
-                .telefono(request.getTelefono())
                 .contactoEmergencia(request.getContactoEmergencia())
                 .programa(programa)
                 .semestre(request.getSemestre())
@@ -75,6 +100,60 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         eventPublisher.publishEvent(new EstudianteRegistradoEvent(this, estudiante));
 
         return mapToResponse(estudiante);
+    }
+
+    @Override
+    @Transactional
+    public List<EstudianteResponse> registrarEstudiantesMasivo(MultipartFile file) {
+        List<EstudianteResponse> responses = new ArrayList<>();
+        try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            boolean firstRow = true;
+            for (Row row : sheet) {
+                if (firstRow) {
+                    firstRow = false;
+                    continue; // Saltar cabeceras
+                }
+                
+                // Columnas esperadas: 
+                // 0: Nombre, 1: Email, 2: TipoIdentificacion, 3: Identificacion, 4: Telefono, 
+                // 5: ContactoEmergencia, 6: ProgramaId, 7: Semestre, 8: Creditos, 9: Promedio
+                if (row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null || row.getCell(3) == null ||
+                        row.getCell(6) == null || row.getCell(7) == null || row.getCell(8) == null || row.getCell(9) == null) {
+                    continue; // Saltar filas vacías o inválidas
+                }
+                
+                try {
+                    EstudianteRequest req = EstudianteRequest.builder()
+                        .nombre(getCellValueAsString(row.getCell(0)))
+                        .email(getCellValueAsString(row.getCell(1)))
+                        .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
+                        .identificacion(getCellValueAsString(row.getCell(3)))
+                        .telefono(getCellValueAsString(row.getCell(4)))
+                        .contactoEmergencia(getCellValueAsString(row.getCell(5)))
+                        .programaId((long) row.getCell(6).getNumericCellValue())
+                        .semestre((int) row.getCell(7).getNumericCellValue())
+                        .creditosAprobados((int) row.getCell(8).getNumericCellValue())
+                        .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
+                        .build();
+                        
+                    responses.add(registrarEstudiante(req));
+                } catch (Exception e) {
+                    // Log error and continue with the next row
+                    java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
+                            .log(java.util.logging.Level.WARNING, "Error procesando fila " + row.getRowNum(), e);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al procesar el archivo Excel: " + e.getMessage(), e);
+        }
+        return responses;
+    }
+    
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) return null;
+        String value = new DataFormatter().formatCellValue(cell).trim();
+        return value.isEmpty() ? null : value;
     }
 
     @Override
@@ -221,6 +300,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .id(e.getId())
                 .nombre(e.getUsuario().getNombre())
                 .email(e.getUsuario().getEmail())
+                .tipoIdentificacion(e.getTipoIdentificacion())
                 .identificacion(e.getIdentificacion())
                 .telefono(e.getTelefono())
                 .contactoEmergencia(e.getContactoEmergencia())

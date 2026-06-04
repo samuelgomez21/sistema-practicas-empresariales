@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -18,8 +20,9 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true, length = 50)
-    private String nombre;
+    private Nombre nombre;
 
     public enum Nombre {
         ADMINISTRADOR,

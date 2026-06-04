@@ -3,7 +3,6 @@ package co.edu.sistema_practicas_empresariales.modules.practica.service;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.ChecklistDto;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaDetalleDto;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaResumenDto;
-import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSustentacionRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;

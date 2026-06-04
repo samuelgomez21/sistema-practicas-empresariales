@@ -4,11 +4,14 @@ import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteR
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteResponse;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.PracticaResponse;
 
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface EstudianteFacade {
 
     EstudianteResponse registrarEstudiante(EstudianteRequest request);
+    
+    List<EstudianteResponse> registrarEstudiantesMasivo(MultipartFile file);
 
     EstudianteResponse obtenerPorId(Long id);
 

@@ -29,7 +29,6 @@ public class EstudianteController {
     @PostMapping(value = "/masivo", consumes = "multipart/form-data")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINACION_ACADEMICA')")
     public ResponseEntity<List<EstudianteResponse>> registrarMasivo(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(estudianteFacade.registrarEstudiantesMasivo(file));
     }
 
     @GetMapping

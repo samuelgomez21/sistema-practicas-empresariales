@@ -49,7 +49,7 @@ public class PostulacionFacadeImplTest {
         usuario.setId(1L);
 
         when(vacanteRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.of(vacante));
-        when(usuarioRepository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.of(usuario));
         when(postulacionRepository.save(any(Postulacion.class))).thenAnswer(i -> {
             Postulacion p = i.getArgument(0);
             p.setId(1L);

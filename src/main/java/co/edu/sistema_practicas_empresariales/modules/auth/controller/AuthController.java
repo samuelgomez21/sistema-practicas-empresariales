@@ -1,11 +1,18 @@
 package co.edu.sistema_practicas_empresariales.modules.auth.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.auth.dto.*;
+import co.edu.sistema_practicas_empresariales.modules.auth.dto.CambiarPasswordInicialDto;
+import co.edu.sistema_practicas_empresariales.modules.auth.dto.JwtResponse;
+import co.edu.sistema_practicas_empresariales.modules.auth.dto.LoginRequest;
+import co.edu.sistema_practicas_empresariales.modules.auth.dto.RecuperarPasswordDto;
+import co.edu.sistema_practicas_empresariales.modules.auth.dto.ResetPasswordDto;
 import co.edu.sistema_practicas_empresariales.modules.auth.service.AuthFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")

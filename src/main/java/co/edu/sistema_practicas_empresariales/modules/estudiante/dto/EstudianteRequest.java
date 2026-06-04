@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 public class EstudianteRequest {
     private String nombre;
     private String email;
+    private String tipoIdentificacion;
     private String identificacion;
     private String telefono;
     private String contactoEmergencia;

@@ -26,6 +26,9 @@ public class Estudiante {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    @Column(name = "tipo_identificacion", nullable = false, length = 20)
+    private String tipoIdentificacion;
+
     @Column(nullable = false, unique = true, length = 50)
     private String identificacion;
 

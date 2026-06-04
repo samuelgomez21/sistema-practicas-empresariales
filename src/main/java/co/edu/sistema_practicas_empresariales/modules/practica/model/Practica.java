@@ -3,9 +3,7 @@ package co.edu.sistema_practicas_empresariales.modules.practica.model;
 
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
-import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPractica;
-import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaResolver;
-import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
+import co.edu.sistema_practicas_empresariales.modules.practica.state.*;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -98,14 +96,14 @@ public class Practica {
 
     public EstadoPractica getEstadoComportamiento() {
         if (estadoComportamiento == null) {
-            estadoComportamiento = EstadoPracticaResolver.getEstado(this.estado);
+            estadoComportamiento = instanciarEstado(this.estado);
         }
         return estadoComportamiento;
     }
 
     public void setEstado(EstadoPracticaTipo nuevoEstado) {
         this.estado = nuevoEstado;
-        this.estadoComportamiento = EstadoPracticaResolver.getEstado(nuevoEstado);
+        this.estadoComportamiento = instanciarEstado(nuevoEstado);
     }
 
     // Delegación de comportamiento de estado
@@ -127,5 +125,17 @@ public class Practica {
 
     public void cancelar(String motivo) {
         this.getEstadoComportamiento().cancelar(this, motivo);
+    }
+
+    private EstadoPractica instanciarEstado(EstadoPracticaTipo tipo) {
+        return switch (tipo) {
+            case ASIGNADA_PENDIENTE_INICIO -> new EstadoAsignada();
+            case EN_PROCESO_VINCULACION    -> new EstadoEnProcesoVinculacion();
+            case VINCULADA                 -> new EstadoVinculada();
+            case EN_PRACTICA               -> new EstadoEnPractica();
+            case COMPLETADA                -> new EstadoCompletada();
+            case REPROBADA                 -> new EstadoReprobada();
+            case CANCELADA                 -> new EstadoCancelada();
+        };
     }
 }

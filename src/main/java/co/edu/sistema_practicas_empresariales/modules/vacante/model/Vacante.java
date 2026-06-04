@@ -19,9 +19,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Vacante {
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean eliminado = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -128,14 +128,15 @@ public class Practica {
     }
 
     private EstadoPractica instanciarEstado(EstadoPracticaTipo tipo) {
-        return switch (tipo) {
-            case ASIGNADA_PENDIENTE_INICIO -> new EstadoAsignada();
-            case EN_PROCESO_VINCULACION    -> new EstadoEnProcesoVinculacion();
-            case VINCULADA                 -> new EstadoVinculada();
-            case EN_PRACTICA               -> new EstadoEnPractica();
-            case COMPLETADA                -> new EstadoCompletada();
-            case REPROBADA                 -> new EstadoReprobada();
-            case CANCELADA                 -> new EstadoCancelada();
-        };
+        switch (tipo) {
+            case ASIGNADA_PENDIENTE_INICIO: return new EstadoAsignada();
+            case EN_PROCESO_VINCULACION: return new EstadoEnProcesoVinculacion();
+            case VINCULADA: return new EstadoVinculada();
+            case EN_PRACTICA: return new EstadoEnPractica();
+            case COMPLETADA: return new EstadoCompletada();
+            case REPROBADA: return new EstadoReprobada();
+            case CANCELADA: return new EstadoCancelada();
+            default: throw new IllegalArgumentException("Estado no soportado: " + tipo);
+        }
     }
 }

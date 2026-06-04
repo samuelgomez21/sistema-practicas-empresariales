@@ -23,25 +23,25 @@ public final class Validations {
 
     public static Vacante validarVacante(Long id, VacanteRepository repo) {
         Objects.requireNonNull(id, "Id de Vacante no puede ser null");
-        return repo.findByIdAndEliminadoFalse(id)
+        return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada o eliminada"));
     }
 
     public static Usuario validarUsuario(Long id, UsuarioRepository repo) {
         Objects.requireNonNull(id, "Id de Usuario no puede ser null");
-        return repo.findByIdAndEliminadoFalse(id)
+        return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado o eliminado"));
     }
 
     public static Postulacion validarPostulacion(Long id, PostulacionRepository repo) {
         Objects.requireNonNull(id, "Id de Postulacion no puede ser null");
-        return repo.findByIdAndEliminadoFalse(id)
+        return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Postulación no encontrada o eliminada"));
     }
 
     public static Vinculacion validarVinculacion(Long id, VinculacionRepository repo) {
         Objects.requireNonNull(id, "Id de Vinculacion no puede ser null");
-        return repo.findByIdAndEliminadoFalse(id)
+        return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vinculación no encontrada o eliminada"));
     }
 }

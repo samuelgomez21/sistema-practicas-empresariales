@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.estudiante.model;
+package co.edu.sistema_practicas_empresariales.modules.configuracion.model;
 
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import jakarta.persistence.*;

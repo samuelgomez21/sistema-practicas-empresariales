@@ -1,6 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.state;
 
-public class EstadoPracticaFactory {
+public class EstadoPracticaResolver {
 
     public static EstadoPractica getEstado(EstadoPracticaTipo tipo) {
         if (tipo == null) {

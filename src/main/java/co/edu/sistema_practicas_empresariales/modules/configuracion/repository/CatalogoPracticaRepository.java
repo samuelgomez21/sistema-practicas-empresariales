@@ -1,6 +1,6 @@
-package co.edu.sistema_practicas_empresariales.modules.estudiante.repository;
+package co.edu.sistema_practicas_empresariales.modules.configuracion.repository;
 
-import co.edu.sistema_practicas_empresariales.modules.estudiante.model.CatalogoPractica;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class EstadoVacanteFactory {
+public class EstadoVacanteResolver {
 
     private final Map<EstadoVacanteTipo, EstadoVacante> estadosMap = new EnumMap<>(EstadoVacanteTipo.class);
 
-    public EstadoVacanteFactory(List<EstadoVacante> estados) {
+    public EstadoVacanteResolver(List<EstadoVacante> estados) {
         for (EstadoVacante estado : estados) {
             estadosMap.put(estado.getTipo(), estado);
         }

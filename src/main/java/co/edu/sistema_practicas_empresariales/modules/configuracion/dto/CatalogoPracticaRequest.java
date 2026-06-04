@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.estudiante.dto;
+package co.edu.sistema_practicas_empresariales.modules.configuracion.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

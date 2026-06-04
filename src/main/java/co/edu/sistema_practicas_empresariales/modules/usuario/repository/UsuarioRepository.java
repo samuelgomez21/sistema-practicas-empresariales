@@ -21,7 +21,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     /** Verifica si existe un usuario con el email dado. */
     boolean existsByEmail(String email);
     Optional<Usuario> findByResetPasswordToken(String resetPasswordToken);
-
     /** Soft‑delete: marca el registro como eliminado sin borrarlo físicamente. */
     @Modifying
     @Query("UPDATE Usuario u SET u.eliminado = true WHERE u.id = :id")

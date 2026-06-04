@@ -63,7 +63,9 @@ public class Vinculacion {
 
     @PrePersist
     protected void onCreate() {
-        // lógica de creación, por ahora no se necesita nada especial
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
     }
 
     public enum EstadoVinculacionTipo {

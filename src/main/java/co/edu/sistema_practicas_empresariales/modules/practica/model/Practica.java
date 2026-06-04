@@ -1,7 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.model;
 
 
-import co.edu.sistema_practicas_empresariales.modules.estudiante.model.CatalogoPractica;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.*;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;

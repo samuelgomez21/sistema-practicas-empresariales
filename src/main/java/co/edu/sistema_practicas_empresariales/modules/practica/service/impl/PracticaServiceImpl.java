@@ -8,9 +8,9 @@ import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSust
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaService;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.model.CatalogoPractica;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.CatalogoPracticaRepository;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.CatalogoPracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.EstudianteRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
@@ -29,7 +29,7 @@ import java.util.List;
  *
  * Patrones aplicados:
  * - State:                el modelo Practica delega comportamiento según su estado
- * - Factory Method:       crearCortesAutomaticos y crearChecklistInicial
+ * - estrategia:       crearCortesAutomaticos y crearChecklistInicial
  * - Chain of Responsibility: checklist de paz y salvo
  * - Observer:             actualización automática del checklist por eventos
  * - Adapter:              Firebase a través de ArchivoStorageService
@@ -92,13 +92,13 @@ public class PracticaServiceImpl implements PracticaService {
 
     // ─────────────────────────────────────────────────────────────────
     // CREACIÓN AUTOMÁTICA
-    // Patrón Factory Method
+    // Patrón estrategia
     // ─────────────────────────────────────────────────────────────────
 
     /**
      * Crea la instancia de práctica automáticamente cuando el coordinador
      * académico marca al estudiante como APTO y asigna número de práctica.
-     * Patrón Factory Method: inicializa cortes y checklist automáticamente.
+     * Patrón estrategia: inicializa cortes y checklist automáticamente.
      */
     public PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId) {
 
@@ -132,7 +132,7 @@ public class PracticaServiceImpl implements PracticaService {
         practica = practicaRepository.save(practica);
 
 
-        // Factory Method: checklist inicial
+        // estrategia: checklist inicial
         crearChecklistInicial(practica);
 
         log.info("Práctica creada — estudianteId={} catalogoId={}", estudianteId, catalogoId);
@@ -319,7 +319,7 @@ public class PracticaServiceImpl implements PracticaService {
 
 
     /**
-     * Patrón Factory Method: crea el checklist inicial.
+     * Patrón estrategia: crea el checklist inicial.
      * Patrón Chain of Responsibility: cada ítem es un eslabón.
      */
     private void crearChecklistInicial(Practica practica) {
@@ -408,6 +408,7 @@ public class PracticaServiceImpl implements PracticaService {
                         .build())
                 .toList();
 
+
         return PracticaDetalleDto.builder()
                 .id(p.getId())
                 .estado(p.getEstado())
@@ -433,6 +434,5 @@ public class PracticaServiceImpl implements PracticaService {
                 .tienePazYSalvo(tienePazYSalvo(p.getId()))
                 .build();
     }
-
 
 }

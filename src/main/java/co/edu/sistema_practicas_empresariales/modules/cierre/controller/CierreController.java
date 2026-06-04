@@ -1,34 +1,38 @@
 package co.edu.sistema_practicas_empresariales.modules.cierre.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.cierre.dto.ChecklistResponse;
-import co.edu.sistema_practicas_empresariales.modules.cierre.service.ChecklistCierreService;
+import co.edu.sistema_practicas_empresariales.modules.cierre.dto.CierreDto;
+import co.edu.sistema_practicas_empresariales.modules.cierre.service.CierreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/cierre")
 @RequiredArgsConstructor
 public class CierreController {
 
-    private final ChecklistCierreService checklistCierreService;
+    private final CierreService cierreService;
 
-    @GetMapping("/checklist/{practicaId}")
-    public ResponseEntity<ChecklistResponse> obtenerChecklist(@PathVariable Long practicaId) {
-        ChecklistResponse response = checklistCierreService.obtenerChecklistCierre(practicaId);
-        return ResponseEntity.ok(response);
+    /**
+     * Verifica qué falta para poder cerrar — sin ejecutar el cierre.
+     * El coordinador puede consultar esto antes de ejecutar.
+     */
+    @GetMapping("/practica/{practicaId}/verificar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA')")
+    public ResponseEntity<CierreDto> verificar(@PathVariable Long practicaId) {
+        return ResponseEntity.ok(cierreService.verificarEstadoCierre(practicaId));
     }
 
-    @PostMapping("/ejecutar/{practicaId}")
-    public ResponseEntity<Void> ejecutarCierre(@PathVariable Long practicaId, Principal principal) {
-        checklistCierreService.ejecutarCierreFormal(practicaId, principal != null ? principal.getName() : "coordinador@unihumboldt.edu.co");
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/recordatorio/{practicaId}/actor/{actorType}")
-    public ResponseEntity<Void> enviarRecordatorio(@PathVariable Long practicaId, @PathVariable String actorType) {
-        checklistCierreService.enviarRecordatorio(practicaId, actorType);
-        return ResponseEntity.ok().build();
+    /**
+     * Ejecuta el cierre formal de la práctica.
+     * Patrón Facade: un solo endpoint coordina todo el proceso.
+     * Si falta algún requisito retorna 200 con exitoso=false
+     * y el detalle de qué falta — no lanza excepción.
+     */
+    @PostMapping("/practica/{practicaId}/ejecutar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<CierreDto> ejecutar(@PathVariable Long practicaId) {
+        return ResponseEntity.ok(cierreService.ejecutarCierre(practicaId));
     }
 }

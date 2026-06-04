@@ -1,13 +1,22 @@
 package co.edu.sistema_practicas_empresariales.modules.encuesta.service;
 
-import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EncuestaResponse;
-import java.util.List;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EncuestaPlantillaDto;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EncuestaRespuestaDto;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EnviarEncuestaRequest;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.PreguntaDto;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoPregunta;
 
 public interface EncuestaService {
-    EncuestaResponse guardarBorradorEncuesta(Long practicaId, String respuestasJson, String comentarios, String actorEmail, String tipoActor);
-    EncuestaResponse completarEncuesta(Long practicaId, String respuestasJson, String comentarios, String actorEmail, String tipoActor);
-    EncuestaResponse getEncuestaByPracticaAndActor(Long practicaId, String tipoActor);
-    List<EncuestaResponse> getEncuestasByPractica(Long practicaId);
-    void enviarInvitacionEncuesta(Long practicaId, String tipoActor);
-    void enviarRecordatoriosPendientes();
+    EncuestaPlantillaDto obtenerPlantilla(TipoEncuesta tipo);
+    EncuestaRespuestaDto obtenerRespuesta(Long practicaId, TipoEncuesta tipo);
+    boolean estaCompletada(Long practicaId, TipoEncuesta tipo);
+    EncuestaRespuestaDto enviarEncuesta(Long practicaId,
+                                        TipoEncuesta tipo,
+                                        EnviarEncuestaRequest req,
+                                        String emailRespondiente);
+    PreguntaDto agregarPregunta(Long seccionId,
+                                String texto,
+                                TipoPregunta tipoPregunta);
+
 }

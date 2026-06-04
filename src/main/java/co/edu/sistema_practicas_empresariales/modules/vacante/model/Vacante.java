@@ -19,9 +19,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Vacante {
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean eliminado = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +53,7 @@ public class Vacante {
 
     @Column(name = "motivo_rechazo", columnDefinition = "TEXT")
     private String motivoRechazo;
+
 
     @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

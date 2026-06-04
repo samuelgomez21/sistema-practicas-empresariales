@@ -29,4 +29,6 @@ public interface PracticaService {
     List<ChecklistDto> obtenerChecklist(Long practicaId);
     boolean tienePazYSalvo(Long practicaId);
     PracticaDetalleDto iniciarVinculacion(Long practicaId);
+    void marcarEncuestaEstudianteCompletada(Long practicaId);
+    void marcarEncuestaTutorCompletada(Long practicaId);
 }

@@ -1,13 +1,19 @@
 package co.edu.sistema_practicas_empresariales.modules.encuesta.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EncuestaRequest;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EncuestaResponse;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.*;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EnviarEncuestaRequest;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoPregunta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.service.EncuestaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import java.security.Principal;
-import java.util.List;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/encuestas")
@@ -16,58 +22,56 @@ public class EncuestaController {
 
     private final EncuestaService encuestaService;
 
-    @PostMapping("/borrador/practica/{practicaId}/actor/{tipoActor}")
-    public ResponseEntity<EncuestaResponse> guardarBorrador(
+    // ── Plantillas ─────────────────────────────────────────────────
+
+    @GetMapping("/plantilla/{tipo}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','ESTUDIANTE','TUTOR_EMPRESARIAL')")
+    public ResponseEntity<EncuestaPlantillaDto> obtenerPlantilla(
+            @PathVariable TipoEncuesta tipo) {
+        return ResponseEntity.ok(encuestaService.obtenerPlantilla(tipo));
+    }
+
+    // ── Respuestas ─────────────────────────────────────────────────
+
+    @PostMapping("/practica/{practicaId}/tipo/{tipo}")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE','TUTOR_EMPRESARIAL','ADMINISTRADOR')")
+    public ResponseEntity<EncuestaRespuestaDto> enviar(
             @PathVariable Long practicaId,
-            @PathVariable String tipoActor,
-            @RequestBody EncuestaRequest request,
-            Principal principal) {
-        
-        EncuestaResponse response = encuestaService.guardarBorradorEncuesta(
-                practicaId, request.getRespuestasJson(), request.getComentarios(), principal.getName(), tipoActor);
-        return ResponseEntity.ok(response);
+            @PathVariable TipoEncuesta tipo,
+            @RequestBody @Valid EnviarEncuestaRequest req,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                encuestaService.enviarEncuesta(
+                        practicaId, tipo, req, userDetails.getUsername()));
     }
 
-    @PostMapping("/completar/practica/{practicaId}/actor/{tipoActor}")
-    public ResponseEntity<EncuestaResponse> completarEncuesta(
+    @GetMapping("/practica/{practicaId}/tipo/{tipo}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA')")
+    public ResponseEntity<EncuestaRespuestaDto> obtenerRespuesta(
             @PathVariable Long practicaId,
-            @PathVariable String tipoActor,
-            @RequestBody EncuestaRequest request,
-            Principal principal) {
-        
-        EncuestaResponse response = encuestaService.completarEncuesta(
-                practicaId, request.getRespuestasJson(), request.getComentarios(), principal.getName(), tipoActor);
-        return ResponseEntity.ok(response);
+            @PathVariable TipoEncuesta tipo) {
+        return ResponseEntity.ok(encuestaService.obtenerRespuesta(practicaId, tipo));
     }
 
-    @GetMapping("/practica/{practicaId}/actor/{tipoActor}")
-    public ResponseEntity<EncuestaResponse> obtenerEncuestaByActor(
+    @GetMapping("/practica/{practicaId}/tipo/{tipo}/completada")
+    public ResponseEntity<Map<String, Boolean>> estaCompletada(
             @PathVariable Long practicaId,
-            @PathVariable String tipoActor) {
-        
-        EncuestaResponse response = encuestaService.getEncuestaByPracticaAndActor(practicaId, tipoActor);
-        return ResponseEntity.ok(response);
+            @PathVariable TipoEncuesta tipo) {
+        return ResponseEntity.ok(
+                Map.of("completada", encuestaService.estaCompletada(practicaId, tipo)));
     }
 
-    @GetMapping("/practica/{practicaId}")
-    public ResponseEntity<List<EncuestaResponse>> obtenerEncuestasByPractica(@PathVariable Long practicaId) {
-        List<EncuestaResponse> response = encuestaService.getEncuestasByPractica(practicaId);
-        return ResponseEntity.ok(response);
-    }
+    // ── Gestión de plantillas (coordinador) ───────────────────────
 
-    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
-    @PostMapping("/invitar/practica/{practicaId}/actor/{tipoActor}")
-            @PathVariable Long practicaId,
-            @PathVariable String tipoActor) {
-        
-        encuestaService.enviarInvitacionEncuesta(practicaId, tipoActor);
-        return ResponseEntity.ok().build();
-    }
-
-    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
-    @PostMapping("/recordatorios")
-    public ResponseEntity<Void> enviarRecordatorios() {
-        encuestaService.enviarRecordatoriosPendientes();
-        return ResponseEntity.ok().build();
+    @PostMapping("/secciones/{seccionId}/preguntas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<PreguntaDto> agregarPregunta(
+            @PathVariable Long seccionId,
+            @RequestBody Map<String, String> body) {
+        TipoPregunta tipo = body.containsKey("tipo")
+                ? TipoPregunta.valueOf(body.get("tipo"))
+                : TipoPregunta.ESCALA;
+        return ResponseEntity.ok(
+                encuestaService.agregarPregunta(seccionId, body.get("texto"), tipo));
     }
 }

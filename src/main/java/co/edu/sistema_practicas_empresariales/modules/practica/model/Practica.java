@@ -83,6 +83,15 @@ public class Practica {
     @JoinColumn(name = "catalogo_practica_id")
     private CatalogoPractica catalogoPractica;
 
+    // En Practica.java — campos de documentos finales
+    @Column(name = "informe_ejecutivo_url", length = 500)
+    private String informeEjecutivoUrl;
+
+    @Column(name = "presentacion_url", length = 500)
+    private String presentacionUrl;
+
+    @Column(name = "documento_final_url", length = 500)
+    private String documentoFinalUrl;
 
     @Transient
     private EstadoPractica estadoComportamiento;

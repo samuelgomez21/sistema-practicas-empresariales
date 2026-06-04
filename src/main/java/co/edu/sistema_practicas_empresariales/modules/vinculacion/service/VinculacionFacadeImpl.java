@@ -38,7 +38,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
     public VinculacionResponse crearVinculacion(VinculacionCreateDto dto) {
         Objects.requireNonNull(dto, "VinculacionCreateDto no puede ser null");
         // Obtener la vacante asociada y validar existencia
-        Vacante vacante = vacanteRepository.findByIdAndEliminadoFalse(dto.getVacanteId())
+        Vacante vacante = vacanteRepository.findById(dto.getVacanteId())
                 .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada o eliminada"));
 
         Vinculacion vinculacion = Vinculacion.builder()

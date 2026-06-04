@@ -5,6 +5,7 @@ import co.edu.sistema_practicas_empresariales.modules.evaluacion.dto.EvaluacionR
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.service.EvaluacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
@@ -37,14 +38,19 @@ public class EvaluacionController {
         return ResponseEntity.ok(response);
     }
 
-    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     @PostMapping("/coordinador/practica/{practicaId}")
+    public ResponseEntity<EvaluacionResponse> registrarNotaFinal(
             @PathVariable Long practicaId,
             @RequestBody EvaluacionRequest request,
             Principal principal) {
-        
+
         EvaluacionResponse response = evaluacionService.registrarNotaFinal(
-                practicaId, request.getNotaFinal(), request.getObservacionesFinales(), principal.getName());
+                practicaId,
+                request.getNotaFinal(),
+                request.getObservacionesFinales(),
+                principal.getName());
+
         return ResponseEntity.ok(response);
     }
 

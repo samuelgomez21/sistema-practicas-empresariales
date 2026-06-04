@@ -27,7 +27,7 @@ public class UsuarioServiceImplTest {
     void obtenerPorId_WhenExists_ShouldReturnUsuario() {
         Usuario usuario = new Usuario();
         usuario.setId(1L);
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.of(usuario));
 
         Usuario result = usuarioService.obtenerPorId(1L);
 

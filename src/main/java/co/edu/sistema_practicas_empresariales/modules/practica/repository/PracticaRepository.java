@@ -28,7 +28,7 @@ public interface PracticaRepository extends JpaRepository<Practica, Long> {
         SELECT p FROM Practica p
         WHERE p.estudiante.id = :estudianteId
         AND p.estado NOT IN ('CERRADA', 'CANCELADA')
-        ORDER BY p.createdAt DESC
+        ORDER BY p.fechaCreacion DESC
     """)
     Optional<Practica> findPracticaActivaByEstudiante(@Param("estudianteId") Long estudianteId);
     @Query("""

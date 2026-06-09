@@ -1,26 +1,20 @@
 package co.edu.sistema_practicas_empresariales.modules.evaluacion.dto;
 
-import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.TipoEvaluacion;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EvaluacionRequest {
-    @NotNull
-    private Long practicaId;
-    
-    @NotNull
-    private Long evaluadorId;
-    
-    @NotNull
-    private TipoEvaluacion tipo;
-    
-    private String criteriosJson;
-    
-    @NotNull
-    private BigDecimal puntajeFinal;
-    
-    private String comentarios;
+    private BigDecimal notaDocente;
+    private String observacionesDocente;
+    private BigDecimal notaTutor;
+    private String observacionesTutor;
+    private BigDecimal notaFinal;
+    private String observacionesFinales;
 }

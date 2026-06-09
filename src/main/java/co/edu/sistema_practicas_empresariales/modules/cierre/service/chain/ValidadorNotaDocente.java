@@ -1,27 +1,30 @@
 package co.edu.sistema_practicas_empresariales.modules.cierre.service.chain;
 
+import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
+import co.edu.sistema_practicas_empresariales.modules.evaluacion.repository.EvaluacionRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.exception.BusinessException;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 @Component
-public class ValidadorNotaDocente implements ValidadorCierreHandler {
+public class ValidadorNotaDocente extends BaseValidadorCierre {
 
-    private ValidadorCierreHandler next;
+    private final EvaluacionRepository evaluacionRepository;
 
-    @Override
-    public void setNext(ValidadorCierreHandler next) {
-        this.next = next;
+    public ValidadorNotaDocente(EvaluacionRepository evaluacionRepository, ValidadorNotaTutor validadorNotaTutor) {
+        super(validadorNotaTutor);
+        this.evaluacionRepository = evaluacionRepository;
     }
 
     @Override
     public void validar(Practica practica) {
-        if (practica.getNotaFinal() == null || practica.getNotaFinal().compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalStateException("La práctica no tiene nota final registrada.");
+        Evaluacion evaluacion = evaluacionRepository.findByPracticaIdAndActivoTrue(practica.getId())
+                .orElseThrow(() -> new BusinessException("No se ha registrado ninguna evaluación para esta práctica."));
+
+        if (evaluacion.getNotaDocente() == null) {
+            throw new BusinessException("El docente asesor aún no ha registrado la calificación.");
         }
-        if (next != null) {
-            next.validar(practica);
-        }
+
+        verificarSiguiente(practica);
     }
 }

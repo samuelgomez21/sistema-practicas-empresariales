@@ -26,6 +26,11 @@ public class EstadoEnProcesoVinculacion implements EstadoPractica {
     }
 
     @Override
+    public void ejecutarCierre(Practica practica, BigDecimal notaMinima) {
+        throw new IllegalStateException("No se puede realizar el cierre formal en estado de vinculación.");
+    }
+
+    @Override
     public void cancelar(Practica practica, String motivo) {
         practica.setEstado(EstadoPracticaTipo.CANCELADA);
     }

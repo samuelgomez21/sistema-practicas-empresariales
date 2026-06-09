@@ -1,22 +1,28 @@
 package co.edu.sistema_practicas_empresariales.modules.evaluacion.dto;
 
-import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.TipoEvaluacion;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class EvaluacionResponse {
     private Long id;
     private Long practicaId;
-    private Long evaluadorId;
-    private String nombreEvaluador;
-    private TipoEvaluacion tipo;
-    private String criteriosJson;
-    private BigDecimal puntajeFinal;
-    private String comentarios;
-    private LocalDateTime fechaCreacion;
+    private BigDecimal notaDocente;
+    private String observacionesDocente;
+    private LocalDateTime fechaEvaluacionDocente;
+    private BigDecimal notaTutor;
+    private String observacionesTutor;
+    private LocalDateTime fechaEvaluacionTutor;
+    private BigDecimal notaFinal;
+    private String observacionesFinales;
+    private LocalDateTime fechaEvaluacionFinal;
+    private String resultado;
+    private boolean activo;
 }

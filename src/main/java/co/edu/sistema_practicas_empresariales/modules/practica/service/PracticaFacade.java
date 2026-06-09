@@ -42,9 +42,13 @@ public interface PracticaFacade {
     List<ChecklistDto> obtenerChecklist(Long practicaId);
     boolean tienePazYSalvo(Long practicaId);
     
-    // Generación de Documentos Formales (Builder Pattern)
+    // Encuestas
+    void marcarEncuestaEstudianteCompletada(Long practicaId);
+    void marcarEncuestaTutorCompletada(Long practicaId);
+    
+    // Generacion de Documentos Formales (Builder Pattern)
     co.edu.sistema_practicas_empresariales.modules.documento.builder.ActaCierre generarActaCierre(Long practicaId);
     
-    // Borrado lógico
+    // Borrado logico
     void eliminarPractica(Long practicaId);
 }

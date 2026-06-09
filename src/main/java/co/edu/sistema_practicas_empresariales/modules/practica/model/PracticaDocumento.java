@@ -3,7 +3,10 @@ package co.edu.sistema_practicas_empresariales.modules.practica.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
@@ -16,7 +19,10 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "practica_documentos")
-@Data
+@Getter
+@Setter
+@ToString(exclude = "practica")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,6 +30,7 @@ public class PracticaDocumento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

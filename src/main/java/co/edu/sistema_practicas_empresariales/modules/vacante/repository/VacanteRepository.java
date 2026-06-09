@@ -11,5 +11,5 @@ import java.util.List;
 public interface VacanteRepository extends JpaRepository<Vacante, Long> {
     List<Vacante> findByEmpresaId(Long empresaId);
     List<Vacante> findByEstado(EstadoVacanteTipo estado);
-    Optional<Vacante> findByIdAndEliminadoFalse(Long id);
+    Optional<Vacante> findById(Long id);
 }

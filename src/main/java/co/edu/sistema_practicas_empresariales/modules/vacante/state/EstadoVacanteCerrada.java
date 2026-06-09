@@ -23,6 +23,16 @@ public class EstadoVacanteCerrada implements EstadoVacante {
 
     @Override
     public void cerrar(Vacante vacante) {
-        throw new IllegalStateException("La vacante ya se encuentra cerrada");
+        throw new IllegalStateException("La vacante ya está cerrada.");
+    }
+
+    @Override
+    public boolean permiteAsignaciones() {
+        return false;
+    }
+
+    @Override
+    public void asignarEstudiante(Vacante vacante) {
+        throw new IllegalStateException("No se pueden asignar estudiantes a una vacante cerrada.");
     }
 }

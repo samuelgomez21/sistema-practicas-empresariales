@@ -83,6 +83,10 @@ public class Practica {
     @JoinColumn(name = "catalogo_practica_id")
     private CatalogoPractica catalogoPractica;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
+
 
     @Transient
     private EstadoPractica estadoComportamiento;

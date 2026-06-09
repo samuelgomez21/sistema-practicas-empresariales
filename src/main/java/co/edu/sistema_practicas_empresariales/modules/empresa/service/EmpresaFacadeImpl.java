@@ -36,7 +36,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
         
         Usuario usuario = usuarioRepository.findByEmail(request.getContactoPrincipalEmail())
                 .orElseGet(() -> {
-                    Rol rolEmpresa = rolRepository.findByNombre(Rol.Nombre.EMPRESA_VINCULADA)
+                    Rol rolEmpresa = rolRepository.findByNombre(Rol.Nombre.TUTOR_EMPRESARIAL)
                             .orElseThrow(() -> new IllegalStateException("Rol EMPRESA_VINCULADA no encontrado"));
                     
                     Usuario nuevoUsuario = Usuario.builder()
@@ -86,8 +86,6 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
         return mapToTutorResponse(tutor);
     }
 
-
-
     private EmpresaResponse mapToEmpresaResponse(Empresa empresa) {
         return EmpresaResponse.builder()
                 .id(empresa.getId())
@@ -102,6 +100,66 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .activo(empresa.isActivo())
                 .fechaCreacion(empresa.getFechaCreacion())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<EmpresaResponse> listarTodas() {
+        return empresaRepository.findByActivoTrue().stream()
+                .map(this::mapToEmpresaResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EmpresaResponse obtenerPorId(Long id) {
+        Empresa empresa = empresaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+        return mapToEmpresaResponse(empresa);
+    }
+
+    @Override
+    @Transactional
+    public EmpresaResponse actualizarEmpresa(Long id, EmpresaRequest request) {
+        Empresa empresa = empresaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+                
+        if (request.getRazonSocial() != null) empresa.setRazonSocial(request.getRazonSocial());
+        if (request.getSectorEconomico() != null) empresa.setSectorEconomico(request.getSectorEconomico());
+        if (request.getDireccion() != null) empresa.setDireccion(request.getDireccion());
+        if (request.getMunicipio() != null) empresa.setMunicipio(request.getMunicipio());
+        if (request.getTelefono() != null) empresa.setTelefono(request.getTelefono());
+        if (request.getContactoPrincipalNombre() != null) empresa.setContactoPrincipalNombre(request.getContactoPrincipalNombre());
+        if (request.getContactoPrincipalEmail() != null) empresa.setContactoPrincipalEmail(request.getContactoPrincipalEmail());
+        
+        empresa = empresaRepository.save(empresa);
+        return mapToEmpresaResponse(empresa);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarEmpresa(Long id) {
+        Empresa empresa = empresaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+        empresa.setActivo(false); // Soft delete
+        empresaRepository.save(empresa);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<TutorEmpresarialResponse> listarTutoresPorEmpresa(Long empresaId) {
+        return tutorRepository.findByEmpresaIdAndActivoTrue(empresaId).stream()
+                .map(this::mapToTutorResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTutor(Long id) {
+        TutorEmpresarial tutor = tutorRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
+        tutor.setActivo(false); // Soft delete
+        tutorRepository.save(tutor);
     }
 
     private TutorEmpresarialResponse mapToTutorResponse(TutorEmpresarial tutor) {

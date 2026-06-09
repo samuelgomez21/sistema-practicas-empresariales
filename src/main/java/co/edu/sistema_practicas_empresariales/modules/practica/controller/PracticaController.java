@@ -4,7 +4,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.AsignarDocenteRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSustentacionRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
-import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaService;
+import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,28 +24,28 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PracticaController {
 
-    private final PracticaService practicaService;
+    private final PracticaFacade practicaFacade;
 
     // ── Listados ────────────────────────────────────────────────────
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','SECRETARIA')")
     public ResponseEntity<List<PracticaResumenDto>> listarTodas() {
-        return ResponseEntity.ok(practicaService.listarTodas());
+        return ResponseEntity.ok(practicaFacade.listarTodas());
     }
 
     @GetMapping("/estado/{estado}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA')")
     public ResponseEntity<List<PracticaResumenDto>> listarPorEstado(
             @PathVariable EstadoPracticaTipo estado) {
-        return ResponseEntity.ok(practicaService.listarPorEstado(estado));
+        return ResponseEntity.ok(practicaFacade.listarPorEstado(estado));
     }
 
     @GetMapping("/docente/{docenteId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','DOCENTE_ASESOR')")
     public ResponseEntity<List<PracticaResumenDto>> listarPorDocente(
             @PathVariable Long docenteId) {
-        return ResponseEntity.ok(practicaService.listarPorDocente(docenteId));
+        return ResponseEntity.ok(practicaFacade.listarPorDocente(docenteId));
     }
 
     @GetMapping("/estudiante/{estudianteId}/activa")
@@ -53,13 +53,13 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> practicaActivaEstudiante(
             @PathVariable Long estudianteId) {
         return ResponseEntity.ok(
-                practicaService.obtenerPracticaActivaEstudiante(estudianteId));
+                practicaFacade.obtenerPracticaActivaEstudiante(estudianteId));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA','ESTUDIANTE','EMPRESA_VINCULADA','TUTOR_EMPRESARIAL')")
     public ResponseEntity<PracticaDetalleDto> detalle(@PathVariable Long id) {
-        return ResponseEntity.ok(practicaService.obtenerDetalle(id));
+        return ResponseEntity.ok(practicaFacade.obtenerDetalle(id));
     }
 
     // ── Creación automática ─────────────────────────────────────────
@@ -70,7 +70,7 @@ public class PracticaController {
             @RequestParam Long estudianteId,
             @RequestParam Long catalogoId) {
         return ResponseEntity.ok(
-                practicaService.crearPracticaAutomatica(estudianteId, catalogoId));
+                practicaFacade.crearPracticaAutomatica(estudianteId, catalogoId));
     }
 
     // ── Transiciones de estado ──────────────────────────────────────
@@ -78,19 +78,19 @@ public class PracticaController {
     @PatchMapping("/{id}/iniciar-vinculacion")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     public ResponseEntity<PracticaDetalleDto> iniciarVinculacion(@PathVariable Long id) {
-        return ResponseEntity.ok(practicaService.iniciarVinculacion(id));
+        return ResponseEntity.ok(practicaFacade.iniciarVinculacion(id));
     }
 
     @PatchMapping("/{id}/registrar-convenio")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     public ResponseEntity<PracticaDetalleDto> registrarConvenio(@PathVariable Long id) {
-        return ResponseEntity.ok(practicaService.registrarConvenio(id));
+        return ResponseEntity.ok(practicaFacade.registrarConvenio(id));
     }
 
     @PatchMapping("/{id}/activar")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     public ResponseEntity<PracticaDetalleDto> activar(@PathVariable Long id) {
-        return ResponseEntity.ok(practicaService.activarPractica(id));
+        return ResponseEntity.ok(practicaFacade.activarPractica(id));
     }
 
     @PatchMapping("/{id}/cancelar")
@@ -98,7 +98,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> cancelar(
             @PathVariable Long id,
             @RequestParam(required = false) String motivo) {
-        return ResponseEntity.ok(practicaService.cancelar(id, motivo));
+        return ResponseEntity.ok(practicaFacade.cancelar(id, motivo));
     }
 
     // ── Asignaciones ────────────────────────────────────────────────
@@ -108,7 +108,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> asignarDocente(
             @PathVariable Long id,
             @RequestBody @Valid AsignarDocenteRequest req) {
-        return ResponseEntity.ok(practicaService.asignarDocente(id, req.getDocenteId()));
+        return ResponseEntity.ok(practicaFacade.asignarDocente(id, req.getDocenteId()));
     }
 
     @PatchMapping("/{id}/asignar-empresa")
@@ -116,7 +116,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> asignarEmpresa(
             @PathVariable Long id,
             @RequestBody Map<String, Long> body) {
-        return ResponseEntity.ok(practicaService.asignarEmpresa(id, body.get("empresaId")));
+        return ResponseEntity.ok(practicaFacade.asignarEmpresa(id, body.get("empresaId")));
     }
 
     @PatchMapping("/{id}/asignar-tutor")
@@ -124,7 +124,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> asignarTutor(
             @PathVariable Long id,
             @RequestBody Map<String, Long> body) {
-        return ResponseEntity.ok(practicaService.asignarTutor(id, body.get("tutorId")));
+        return ResponseEntity.ok(practicaFacade.asignarTutor(id, body.get("tutorId")));
     }
 
     @PatchMapping("/{id}/fecha-sustentacion")
@@ -132,7 +132,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> fechaSustentacion(
             @PathVariable Long id,
             @RequestBody @Valid FechaSustentacionRequest req) {
-        return ResponseEntity.ok(practicaService.registrarFechaSustentacion(id, req));
+        return ResponseEntity.ok(practicaFacade.registrarFechaSustentacion(id, req));
     }
 
     // ── Documentos ──────────────────────────────────────────────────
@@ -146,7 +146,7 @@ public class PracticaController {
             @RequestPart("archivo") MultipartFile archivo,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(
-                practicaService.subirDocumento(id, categoria, archivo, userDetails.getUsername()));
+                practicaFacade.subirDocumento(id, categoria, archivo, userDetails.getUsername()));
     }
 
     // ── Nota final ──────────────────────────────────────────────────
@@ -156,7 +156,7 @@ public class PracticaController {
     public ResponseEntity<PracticaDetalleDto> notaFinal(
             @PathVariable Long id,
             @RequestBody @Valid NotaFinalRequest req) {
-        return ResponseEntity.ok(practicaService.registrarNotaFinal(id, req));
+        return ResponseEntity.ok(practicaFacade.registrarNotaFinal(id, req));
     }
 
     // ── Checklist ───────────────────────────────────────────────────
@@ -164,12 +164,20 @@ public class PracticaController {
     @GetMapping("/{id}/checklist")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA','ESTUDIANTE')")
     public ResponseEntity<List<ChecklistDto>> checklist(@PathVariable Long id) {
-        return ResponseEntity.ok(practicaService.obtenerChecklist(id));
+        return ResponseEntity.ok(practicaFacade.obtenerChecklist(id));
     }
 
     @GetMapping("/{id}/paz-y-salvo")
     public ResponseEntity<Map<String, Boolean>> tienePazYSalvo(@PathVariable Long id) {
         return ResponseEntity.ok(
-                Map.of("tienePazYSalvo", practicaService.tienePazYSalvo(id)));
+                Map.of("tienePazYSalvo", practicaFacade.tienePazYSalvo(id)));
+    }
+
+    // ── Acta de Cierre (Builder Pattern) ───────────────────────────────────────────────────
+
+    @PostMapping("/{id}/acta-cierre")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA_COORDINACION','ESTUDIANTE')")
+    public ResponseEntity<?> generarActaCierre(@PathVariable Long id) {
+        return ResponseEntity.ok(practicaFacade.generarActaCierre(id));
     }
 }

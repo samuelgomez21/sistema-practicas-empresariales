@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface TutorEmpresarialRepository extends JpaRepository<TutorEmpresarial, Long> {
     Optional<TutorEmpresarial> findByCorreo(String correo);
     List<TutorEmpresarial> findByEmpresaId(Long empresaId);
+    List<TutorEmpresarial> findByEmpresaIdAndActivoTrue(Long empresaId);
 }

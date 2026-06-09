@@ -6,7 +6,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSustentacionRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
-import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaService;
+import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
@@ -25,20 +25,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Servicio principal de prácticas.
+ * Servicio principal de prÃ¡cticas.
  *
  * Patrones aplicados:
- * - State:                el modelo Practica delega comportamiento según su estado
+ * - State:                el modelo Practica delega comportamiento segÃºn su estado
  * - estrategia:       crearCortesAutomaticos y crearChecklistInicial
  * - Chain of Responsibility: checklist de paz y salvo
- * - Observer:             actualización automática del checklist por eventos
- * - Adapter:              Firebase a través de ArchivoStorageService
+ * - Observer:             actualizaciÃ³n automÃ¡tica del checklist por eventos
+ * - Adapter:              Firebase a travÃ©s de ArchivoStorageService
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class PracticaServiceImpl implements PracticaService {
+public class PracticaFacadeImpl implements PracticaFacade {
 
     private final PracticaRepository         practicaRepository;
     private final ChecklistItemRepository    checklistRepository;
@@ -55,9 +55,9 @@ public class PracticaServiceImpl implements PracticaService {
     private static final String CK_DOCUMENTOS     = "documentos_completos";
     private static final String CK_INFORME        = "informe_final";
 
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // CONSULTAS
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Transactional(readOnly = true)
     public List<PracticaResumenDto> listarTodas() {
@@ -86,28 +86,28 @@ public class PracticaServiceImpl implements PracticaService {
     public PracticaDetalleDto obtenerPracticaActivaEstudiante(Long estudianteId) {
         Practica p = practicaRepository.findPracticaActivaByEstudiante(estudianteId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No hay práctica activa para el estudiante " + estudianteId));
+                        "No hay prÃ¡ctica activa para el estudiante " + estudianteId));
         return toDetalle(p);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // CREACIÓN AUTOMÁTICA
-    // Patrón estrategia
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // CREACIÃ“N AUTOMÃTICA
+    // PatrÃ³n estrategia
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
-     * Crea la instancia de práctica automáticamente cuando el coordinador
-     * académico marca al estudiante como APTO y asigna número de práctica.
-     * Patrón estrategia: inicializa cortes y checklist automáticamente.
+     * Crea la instancia de prÃ¡ctica automÃ¡ticamente cuando el coordinador
+     * acadÃ©mico marca al estudiante como APTO y asigna nÃºmero de prÃ¡ctica.
+     * PatrÃ³n estrategia: inicializa cortes y checklist automÃ¡ticamente.
      */
     public PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId) {
 
         Estudiante      estudiante = estudianteRepository.findById(estudianteId)
                 .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
         CatalogoPractica catalogo  = catalogoRepository.findById(catalogoId)
-                .orElseThrow(() -> new IllegalArgumentException("Catálogo no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("CatÃ¡logo no encontrado"));
 
-        // Verificar que no haya práctica activa del mismo número
+        // Verificar que no haya prÃ¡ctica activa del mismo nÃºmero
         boolean existe = practicaRepository.existsByEstudianteIdAndEstadoNotIn(
                 estudianteId,
                 List.of(EstadoPracticaTipo.COMPLETADA,
@@ -115,10 +115,10 @@ public class PracticaServiceImpl implements PracticaService {
                         EstadoPracticaTipo.CANCELADA)
         );
         if (existe) {
-            throw new IllegalStateException("El estudiante ya tiene una práctica activa");
+            throw new IllegalStateException("El estudiante ya tiene una prÃ¡ctica activa");
         }
 
-        // Patrón State: estado inicial ASIGNADA_PENDIENTE_INICIO
+        // PatrÃ³n State: estado inicial ASIGNADA_PENDIENTE_INICIO
         Practica practica = Practica.builder()
                 .estudiante(estudiante)
                 .catalogoPractica(catalogo)
@@ -135,61 +135,61 @@ public class PracticaServiceImpl implements PracticaService {
         // estrategia: checklist inicial
         crearChecklistInicial(practica);
 
-        log.info("Práctica creada — estudianteId={} catalogoId={}", estudianteId, catalogoId);
+        log.info("PrÃ¡ctica creada â€” estudianteId={} catalogoId={}", estudianteId, catalogoId);
         return toDetalle(practica);
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // TRANSICIONES DE ESTADO
-    // Patrón State: delegado al modelo
-    // ─────────────────────────────────────────────────────────────────
+    // PatrÃ³n State: delegado al modelo
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
-     * Inicia el proceso de vinculación con la empresa.
-     * Patrón State: delega al comportamiento del estado actual.
+     * Inicia el proceso de vinculaciÃ³n con la empresa.
+     * PatrÃ³n State: delega al comportamiento del estado actual.
      */
     public PracticaDetalleDto iniciarVinculacion(Long practicaId) {
         Practica p = buscar(practicaId);
-        p.iniciarVinculacion(); // Patrón State
+        p.iniciarVinculacion(); // PatrÃ³n State
         return toDetalle(practicaRepository.save(p));
     }
 
     /**
      * Registra el convenio con la empresa.
-     * Patrón State: delega al comportamiento del estado actual.
+     * PatrÃ³n State: delega al comportamiento del estado actual.
      */
     public PracticaDetalleDto registrarConvenio(Long practicaId) {
         Practica p = buscar(practicaId);
-        p.registrarConvenio(); // Patrón State
+        p.registrarConvenio(); // PatrÃ³n State
         return toDetalle(practicaRepository.save(p));
     }
 
     /**
-     * Activa la práctica — cambia a EN_PRACTICA.
-     * Patrón State: delega al comportamiento del estado actual.
+     * Activa la prÃ¡ctica â€” cambia a EN_PRACTICA.
+     * PatrÃ³n State: delega al comportamiento del estado actual.
      */
     public PracticaDetalleDto activarPractica(Long practicaId) {
         Practica p = buscar(practicaId);
         if (p.getDocenteAsesor() == null) {
             throw new IllegalStateException("No se puede activar sin docente asesor asignado");
         }
-        p.activarPractica(); // Patrón State
+        p.activarPractica(); // PatrÃ³n State
         return toDetalle(practicaRepository.save(p));
     }
 
     /**
-     * Cancela la práctica.
-     * Patrón State: delega al comportamiento del estado actual.
+     * Cancela la prÃ¡ctica.
+     * PatrÃ³n State: delega al comportamiento del estado actual.
      */
     public PracticaDetalleDto cancelar(Long practicaId, String motivo) {
         Practica p = buscar(practicaId);
-        p.cancelar(motivo); // Patrón State
+        p.cancelar(motivo); // PatrÃ³n State
         return toDetalle(practicaRepository.save(p));
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // ASIGNACIONES
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public PracticaDetalleDto asignarDocente(Long practicaId, Long docenteId) {
         Practica p  = buscar(practicaId);
@@ -218,14 +218,14 @@ public class PracticaServiceImpl implements PracticaService {
         return toDetalle(practicaRepository.save(p));
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // DOCUMENTOS — Firebase Storage
-    // Patrón Adapter
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // DOCUMENTOS â€” Firebase Storage
+    // PatrÃ³n Adapter
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Sube un documento a Firebase Storage y lo registra en BD.
-     * Patrón Adapter: ArchivoStorageService abstrae Firebase.
+     * PatrÃ³n Adapter: ArchivoStorageService abstrae Firebase.
      * @param categoria ARL | PLANEADOR | INFORME_EJECUTIVO | PRESENTACION | DOCUMENTO_FINAL
      */
     public PracticaDetalleDto subirDocumento(Long practicaId,
@@ -250,7 +250,7 @@ public class PracticaServiceImpl implements PracticaService {
 
         documentoRepository.save(doc);
 
-        // Observer: actualizar checklist según la categoría
+        // Observer: actualizar checklist segÃºn la categorÃ­a
         if ("ARL".equals(categoria)) {
             verificarYActualizarDocumentos(p);
         }
@@ -258,35 +258,43 @@ public class PracticaServiceImpl implements PracticaService {
             actualizarChecklist(p.getId(), CK_INFORME);
         }
 
-        log.info("Documento {} subido — practicaId={}", categoria, practicaId);
+        log.info("Documento {} subido â€” practicaId={}", categoria, practicaId);
         return toDetalle(practicaRepository.save(p));
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // NOTA FINAL
-    // ─────────────────────────────────────────────────────────────────
+    @Override
+    @Transactional
+    public void eliminarPractica(Long practicaId) {
+        Practica practica = practicaRepository.findById(practicaId)
+                .orElseThrow(() -> new IllegalArgumentException("Práctica no encontrada con id: " + practicaId));
+        practica.setActivo(false); // Soft delete
+        practicaRepository.save(practica);
+    }
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
     /**
      * Registra la nota final y determina el resultado.
-     * Patrón State: delega al modelo para cambiar estado según nota.
+     * Patr├│n State: delega al modelo para cambiar estado seg├║n nota.
      */
     public PracticaDetalleDto registrarNotaFinal(Long practicaId, NotaFinalRequest req) {
         Practica p = buscar(practicaId);
 
-        // Obtener nota mínima del programa (desde parámetros)
+        // Obtener nota m├¡nima del programa (desde par├ímetros)
         BigDecimal notaMinima = BigDecimal.valueOf(3.0); // valor por defecto
-        // Nota: obtener del programa_parametros cuando esté disponible el repo
+        // Nota: obtener del programa_parametros cuando est├® disponible el repo
 
-        p.registrarNotaFinal(req.getNota(), notaMinima); // Patrón State
+        p.registrarNotaFinal(req.getNota(), notaMinima); // Patr├│n State
         actualizarChecklist(practicaId, CK_NOTA_FINAL);
 
         return toDetalle(practicaRepository.save(p));
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     // CHECKLIST PAZ Y SALVO
-    // Patrón Chain of Responsibility
-    // ─────────────────────────────────────────────────────────────────
+    // Patr├│n Chain of Responsibility
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
     @Transactional(readOnly = true)
     public List<ChecklistDto> obtenerChecklist(Long practicaId) {
@@ -312,15 +320,15 @@ public class PracticaServiceImpl implements PracticaService {
         actualizarChecklist(practicaId, CK_ENCUESTA_TUTOR);
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     // PRIVADOS
-    // ─────────────────────────────────────────────────────────────────
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
 
 
     /**
-     * Patrón estrategia: crea el checklist inicial.
-     * Patrón Chain of Responsibility: cada ítem es un eslabón.
+     * Patr├│n estrategia: crea el checklist inicial.
+     * Patr├│n Chain of Responsibility: cada ├¡tem es un eslab├│n.
      */
     private void crearChecklistInicial(Practica practica) {
         List.of(
@@ -342,7 +350,7 @@ public class PracticaServiceImpl implements PracticaService {
     }
 
     /**
-     * Patrón Observer: actualiza el checklist cuando ocurre un evento.
+     * Patr├│n Observer: actualiza el checklist cuando ocurre un evento.
      */
     private void actualizarChecklist(Long practicaId, String clave) {
         checklistRepository.findByPracticaIdAndClave(practicaId, clave)
@@ -352,7 +360,7 @@ public class PracticaServiceImpl implements PracticaService {
                 });
     }
 
-    /** Verifica si todos los documentos requeridos están cargados */
+    /** Verifica si todos los documentos requeridos est├ín cargados */
     private void verificarYActualizarDocumentos(Practica practica) {
         List<String> categoriasRequeridas = List.of("ARL", "PLANEADOR");
         List<String> categoriasActuales   = documentoRepository
@@ -371,12 +379,12 @@ public class PracticaServiceImpl implements PracticaService {
 
     private Practica buscar(Long id) {
         return practicaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Práctica no encontrada: " + id));
+                .orElseThrow(() -> new RuntimeException("Pr├íctica no encontrada: " + id));
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     // MAPPERS
-    // ─────────────────────────────────────────────────────────────────
+    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
     private PracticaResumenDto toResumen(Practica p) {
         return PracticaResumenDto.builder()
@@ -435,4 +443,29 @@ public class PracticaServiceImpl implements PracticaService {
                 .build();
     }
 
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public co.edu.sistema_practicas_empresariales.modules.documento.builder.ActaCierre generarActaCierre(Long practicaId) {
+        Practica practica = practicaRepository.findById(practicaId)
+                .orElseThrow(() -> new IllegalArgumentException("Practica no encontrada"));
+                
+        int inactividadMaxima = co.edu.sistema_practicas_empresariales.config.ConfiguracionGlobalSingleton.getInstance().getDiasInactividadMaximos();
+                
+        String resolucion = "RES-" + java.time.LocalDate.now().getYear() + "-" + practica.getId();
+        
+        String nombreEmpresa = "Empresa No Asignada";
+        if (practica.getEmpresaId() != null) {
+            nombreEmpresa = "ID Empresa: " + practica.getEmpresaId();
+        }
+
+        return new co.edu.sistema_practicas_empresariales.modules.documento.builder.ActaCierreBuilder()
+                .paraEstudiante(practica.getEstudiante().getIdentificacion())
+                .enEmpresa(nombreEmpresa)
+                .conCalificacion(practica.getNotaFinal() != null ? practica.getNotaFinal().doubleValue() : 0.0)
+                .agregarFirma("Firma Coordinador")
+                .agregarFirma("Firma " + (practica.getDocenteAsesor() != null ? practica.getDocenteAsesor().getNombre() : "Docente"))
+                .establecerResolucion(resolucion)
+                .construir();
+    }
 }

@@ -8,7 +8,10 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepo
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
 import co.edu.sistema_practicas_empresariales.security.JwtTokenProvider;
 import co.edu.sistema_practicas_empresariales.security.UserPrincipal;
-import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
+import co.edu.sistema_practicas_empresariales.shared.email.adapter.EmailPort;
+import co.edu.sistema_practicas_empresariales.shared.email.builder.CorreoInstitucional;
+import co.edu.sistema_practicas_empresariales.shared.email.builder.CorreoInstitucionalBuilder;
+import co.edu.sistema_practicas_empresariales.config.ConfiguracionGlobalSingleton;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +35,7 @@ public class AuthFacadeImpl implements AuthFacade {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    private final EmailPort emailPort;
 
     @Value("${app.seed.admin.password:admin123}")
     private String adminPassword;
@@ -94,7 +97,12 @@ public class AuthFacadeImpl implements AuthFacade {
         String coordEmail = "coordinador@example.com";
         if (!usuarioRepository.existsByEmail(coordEmail)) {
             Rol coordRole = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_PRACTICA)
-                    .orElseThrow(() -> new IllegalStateException("Rol COORDINADOR_PRACTICA no encontrado"));
+                    .orElseGet(() -> {
+                        Rol newRole = Rol.builder()
+                                .nombre(Rol.Nombre.COORDINADOR_PRACTICA)
+                                .build();
+                        return rolRepository.save(newRole);
+                    });
             Usuario coord = Usuario.builder()
                     .email(coordEmail)
                     .password(passwordEncoder.encode(coordPassword))
@@ -117,13 +125,27 @@ public class AuthFacadeImpl implements AuthFacade {
         usuario.setResetPasswordExpires(LocalDateTime.now().plusHours(1));
         usuarioRepository.save(usuario);
 
-        String resetLink = "http://localhost:5173/reset-password?token=" + token;
-        String emailBody = "Hola " + usuario.getNombre() + ",\n\n"
-                + "Has solicitado restablecer tu contraseña. Ingresa al siguiente enlace:\n"
-                + resetLink + "\n\n"
-                + "Este enlace expirará en 1 hora.\nSi no fuiste tú, ignora este correo.";
+        sendPasswordResetEmail(usuario, token);
+    }
 
-        emailService.sendEmail(usuario.getEmail(), "Recuperación de Contraseña", emailBody);
+    private void sendPasswordResetEmail(Usuario usuario, String token) {
+        String resetUrl = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        String emailBody = String.format(
+            ConfiguracionGlobalSingleton.getInstance().getPlantillaCorreoBase(),
+            "<h3>Recuperación de Contraseña</h3>" +
+            "<p>Hola " + usuario.getNombre() + ",</p>" +
+            "<p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace:</p>" +
+            "<p><a href=\"" + resetUrl + "\">Restablecer Contraseña</a></p>" +
+            "<p>Este enlace expirará en 15 minutos.</p>"
+        );
+
+        CorreoInstitucional correo = new CorreoInstitucionalBuilder()
+            .destinatario(usuario.getEmail())
+            .asunto("Recuperación de Contraseña")
+            .cuerpoHtml(emailBody)
+            .build();
+
+        emailPort.enviarCorreo(correo);
     }
 
     @Override

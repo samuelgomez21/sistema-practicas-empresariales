@@ -23,6 +23,16 @@ public class EstadoVacanteRechazada implements EstadoVacante {
 
     @Override
     public void cerrar(Vacante vacante) {
-        throw new IllegalStateException("No se puede cerrar una vacante que ha sido rechazada");
+        throw new IllegalStateException("Una vacante rechazada no se puede cerrar explícitamente.");
+    }
+
+    @Override
+    public boolean permiteAsignaciones() {
+        return false;
+    }
+
+    @Override
+    public void asignarEstudiante(Vacante vacante) {
+        throw new IllegalStateException("No se pueden asignar estudiantes a una vacante rechazada.");
     }
 }

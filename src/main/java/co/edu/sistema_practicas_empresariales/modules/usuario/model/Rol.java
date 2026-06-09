@@ -26,13 +26,11 @@ public class Rol {
 
     public enum Nombre {
         ADMINISTRADOR,
-        DIRECCION,
-        COORDINACION_ACADEMICA,
         COORDINADOR_PRACTICA,
-        SECRETARIA,
+        SECRETARIA_COORDINACION,
+        COORDINADOR_ACADEMICO,
+        ESTUDIANTE,
         DOCENTE_ASESOR,
-        EMPRESA_VINCULADA,
-        TUTOR_EMPRESARIAL,
-        ESTUDIANTE
+        TUTOR_EMPRESARIAL
     }
 }

@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.vinculacion.service;
 
 import java.util.Objects;
+import java.util.List;
 
 import co.edu.sistema_practicas_empresariales.modules.vinculacion.dto.VinculacionCreateDto;
 import co.edu.sistema_practicas_empresariales.modules.vinculacion.dto.VinculacionUpdateDto;
@@ -13,18 +14,23 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.repository.Vacante
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
+import org.springframework.context.ApplicationEventPublisher;
+import co.edu.sistema_practicas_empresariales.modules.vinculacion.event.VinculacionAprobadaEvent;
+import co.edu.sistema_practicas_empresariales.modules.vinculacion.event.VinculacionCreadaEvent;
 
 /**
- * Implementación del facade para la gestión de vinculaciones.
+ * Implementación de la fachada para la gestión de vinculaciones.
  *
- * <p>Se añaden validaciones de nulidad y JavaDoc a los métodos para
- * cumplir con las reglas de Sonar (evitar NullPointerException y mejorar la
- * legibilidad).</p>
+ * <p><b>Patrones de Diseño aplicados:</b></p>
+ * <ul>
+ *   <li><b>Facade:</b> Centraliza la lógica de negocio, validaciones y orquestación,
+ *       ocultando la complejidad a los controladores.</li>
+ *   <li><b>Observer:</b> Publica eventos (ej. VinculacionCreadaEvent, VinculacionAprobadaEvent)
+ *       mediante ApplicationEventPublisher para desacoplar el envío de notificaciones y otras lógicas transversales.</li>
+ * </ul>
  *
- * - Usa soft‑delete exclusivamente (no se elimina físicamente).
- * - Aplica los principios SOLID (SRP, DIP) y el patrón Facade.
- * - Todas las consultas excluyen registros marcados como eliminados.
+ * @author Equipo de Desarrollo
+ * @version 1.0
  */
 @Service
 @RequiredArgsConstructor
@@ -32,6 +38,7 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
 
     private final VinculacionRepository vinculacionRepository;
     private final VacanteRepository vacanteRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -54,6 +61,10 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
                 .build();
 
         vinculacion = vinculacionRepository.save(vinculacion);
+        
+        // Patrón Observer: Disparar evento de creación
+        eventPublisher.publishEvent(new VinculacionCreadaEvent(vinculacion.getId(), vacante.getId()));
+        
         return mapToResponse(vinculacion);
     }
 
@@ -64,6 +75,9 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
         Objects.requireNonNull(dto, "VinculacionUpdateDto no puede ser null");
         Vinculacion vinculacion = vinculacionRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vinculación no encontrada o eliminada"));
+        
+        EstadoVinculacionTipo estadoAnterior = vinculacion.getEstado();
+        
         // Actualizar campos (solo los que llegan en el DTO)
         if (dto.getCargo() != null) vinculacion.setCargo(dto.getCargo());
         if (dto.getDescripcion() != null) vinculacion.setDescripcion(dto.getDescripcion());
@@ -75,6 +89,12 @@ public class VinculacionFacadeImpl implements VinculacionFacade {
         if (dto.getEstado() != null) vinculacion.setEstado(dto.getEstado());
 
         vinculacion = vinculacionRepository.save(vinculacion);
+        
+        // Patrón Observer: Disparar evento si cambia a APROBADA
+        if (estadoAnterior != EstadoVinculacionTipo.APROBADA && vinculacion.getEstado() == EstadoVinculacionTipo.APROBADA) {
+            eventPublisher.publishEvent(new VinculacionAprobadaEvent(vinculacion.getId()));
+        }
+        
         return mapToResponse(vinculacion);
     }
 

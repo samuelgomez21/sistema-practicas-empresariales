@@ -18,15 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class VacanteFacadeImpl implements VacanteFacade {
 
+    private static final String VACANTE_NO_ENCONTRADA = "Vacante no encontrada";
+
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
-    private final EstadoVacanteResolver EstadoVacanteResolver;
+    private final EstadoVacanteResolver estadoVacanteResolver;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -46,9 +47,9 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .build();
 
         vacante = vacanteRepository.save(vacante);
-        
+
         eventPublisher.publishEvent(new VacanteCreadaEvent(vacante.getId(), empresa.getId(), vacante.getTitulo()));
-        
+
         return mapToVacanteResponse(vacante);
     }
 
@@ -56,15 +57,15 @@ public class VacanteFacadeImpl implements VacanteFacade {
     @Transactional
     public VacanteResponse aprobarVacante(Long vacanteId) {
         Vacante vacante = vacanteRepository.findById(vacanteId)
-                .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
+                .orElseThrow(() -> new IllegalArgumentException(VACANTE_NO_ENCONTRADA));
 
-        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
+        EstadoVacante estado = estadoVacanteResolver.getEstado(vacante.getEstado());
         estado.aprobar(vacante);
-        
+
         vacante = vacanteRepository.save(vacante);
-        
+
         eventPublisher.publishEvent(new VacanteAprobadaEvent(vacante.getId(), vacante.getEmpresa().getId()));
-        
+
         return mapToVacanteResponse(vacante);
     }
 
@@ -72,11 +73,11 @@ public class VacanteFacadeImpl implements VacanteFacade {
     @Transactional
     public VacanteResponse rechazarVacante(Long vacanteId, String motivo) {
         Vacante vacante = vacanteRepository.findById(vacanteId)
-                .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
+                .orElseThrow(() -> new IllegalArgumentException(VACANTE_NO_ENCONTRADA));
 
-        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
+        EstadoVacante estado = estadoVacanteResolver.getEstado(vacante.getEstado());
         estado.rechazar(vacante, motivo);
-        
+
         vacante = vacanteRepository.save(vacante);
         return mapToVacanteResponse(vacante);
     }
@@ -85,11 +86,11 @@ public class VacanteFacadeImpl implements VacanteFacade {
     @Transactional
     public VacanteResponse cerrarVacante(Long vacanteId) {
         Vacante vacante = vacanteRepository.findById(vacanteId)
-                .orElseThrow(() -> new IllegalArgumentException("Vacante no encontrada"));
+                .orElseThrow(() -> new IllegalArgumentException(VACANTE_NO_ENCONTRADA));
 
-        EstadoVacante estado = EstadoVacanteResolver.getEstado(vacante.getEstado());
+        EstadoVacante estado = estadoVacanteResolver.getEstado(vacante.getEstado());
         estado.cerrar(vacante);
-        
+
         vacante = vacanteRepository.save(vacante);
         return mapToVacanteResponse(vacante);
     }
@@ -99,7 +100,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
     public List<VacanteResponse> listarVacantesPorEmpresa(Long empresaId) {
         return vacanteRepository.findByEmpresaId(empresaId).stream()
                 .map(this::mapToVacanteResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -107,7 +108,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
     public List<VacanteResponse> listarVacantesPendientes() {
         return vacanteRepository.findByEstado(EstadoVacanteTipo.PENDIENTE).stream()
                 .map(this::mapToVacanteResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private VacanteResponse mapToVacanteResponse(Vacante vacante) {

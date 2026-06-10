@@ -26,4 +26,14 @@ public class EstadoVacantePendiente implements EstadoVacante {
     public void cerrar(Vacante vacante) {
         throw new IllegalStateException("No se puede cerrar una vacante que aún está pendiente de aprobación");
     }
+
+    @Override
+    public boolean permiteAsignaciones() {
+        return false;
+    }
+
+    @Override
+    public void asignarEstudiante(Vacante vacante) {
+        throw new IllegalStateException("No se pueden asignar estudiantes a una vacante pendiente de aprobación.");
+    }
 }

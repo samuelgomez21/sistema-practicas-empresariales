@@ -28,4 +28,10 @@ public interface EstudianteFacade {
     EstudianteResponse evaluarAptitud(Long estudianteId, int numeroPractica);
 
     List<PracticaResponse> obtenerHistorialPracticas(Long estudianteId);
+
+    /**
+     * Realiza el borrado lógico del estudiante.
+     * @param id ID del estudiante.
+     */
+    void eliminarEstudiante(Long id);
 }

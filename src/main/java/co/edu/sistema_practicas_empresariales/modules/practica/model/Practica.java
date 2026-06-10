@@ -90,7 +90,11 @@ public class Practica {
     @JoinColumn(name = "catalogo_practica_id")
     private CatalogoPractica catalogoPractica;
 
-    // En Practica.java — campos de documentos finales
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
+
+    // En Practica.java - campos de documentos finales
     @Column(name = "informe_ejecutivo_url", length = 500)
     private String informeEjecutivoUrl;
 

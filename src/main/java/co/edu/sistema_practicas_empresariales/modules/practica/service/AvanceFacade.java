@@ -9,11 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface AvanceService {
+public interface AvanceFacade {
     List<AvanceDto> listarPorPractica(Long practicaId);
     List<AvanceDto> listarPendientesPorDocente(Long docenteId);
     AvanceDto crearAvance(Long practicaId, CrearAvanceRequest req, MultipartFile archivo);
     AvanceDto agregarComentarioDocente(Long avanceId, ComentarioDocenteRequest req);
     AvanceDto cambiarEstado(Long avanceId, EstadoAvance nuevoEstado);
+    void eliminarAvance(Long avanceId);
     AvanceDto toDto(Avance a);
 }

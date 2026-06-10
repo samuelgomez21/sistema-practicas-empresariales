@@ -278,6 +278,15 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public void eliminarEstudiante(Long id) {
+        Estudiante estudiante = estudianteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado con ID: " + id));
+        estudiante.setActivo(false); // Soft delete
+        estudianteRepository.save(estudiante);
+    }
+
     // ========== Métodos privados ==========
 
     /**

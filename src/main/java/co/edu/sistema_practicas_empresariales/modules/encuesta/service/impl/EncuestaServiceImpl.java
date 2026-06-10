@@ -8,7 +8,7 @@ import co.edu.sistema_practicas_empresariales.modules.encuesta.model.*;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.*;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.service.EncuestaService;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
-import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaService;
+import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class EncuestaServiceImpl implements EncuestaService {
     private final EncuestaPlantillaRepository  plantillaRepository;
     private final EncuestaRespuestaRepository  respuestaRepository;
     private final PracticaRepository           practicaRepository;
-    private final PracticaService              practicaService;
+    private final PracticaFacade               practicaFacade;
 
     // ── Consultas ──────────────────────────────────────────────────
 
@@ -124,9 +124,9 @@ public class EncuestaServiceImpl implements EncuestaService {
         // Patrón Observer: notificar al servicio de práctica para
         // actualizar el checklist correspondiente
         if (tipo == TipoEncuesta.ESTUDIANTE) {
-            practicaService.marcarEncuestaEstudianteCompletada(practicaId);
+            practicaFacade.marcarEncuestaEstudianteCompletada(respuesta.getPracticaId());
         } else {
-            practicaService.marcarEncuestaTutorCompletada(practicaId);
+            practicaFacade.marcarEncuestaTutorCompletada(practicaId);
         }
 
         log.info("Encuesta {} enviada — practicaId={} por={}",

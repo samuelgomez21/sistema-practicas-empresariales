@@ -1,44 +1,36 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * Configuración global del sistema siguiendo el patrón Singleton.
- * Se declara como @Component para que Spring lo gestione como bean único.
+ * Patrón Singleton (Spring DI Framework).
+ * Implementación de la configuración centralizada administrada por el contenedor de Spring.
+ * Garantiza que exista una única instancia controlada que provee parámetros globales
+ * (reglas por defecto, versiones, etc.) a los distintos servicios del sistema.
  */
-@Component
-public class ConfiguracionSistema {
+@Service
+public class ConfiguracionSistema implements ConfiguracionProvider {
 
-    private static ConfiguracionSistema instance;
-
-    // Ejemplo de parámetros de configuración
+    // Parámetros de configuración globales de la aplicación
     private String nombreAplicacion = "Sistema de Prácticas Empresariales";
     private String version = "1.0.0";
 
-    private ConfiguracionSistema() {
-        // Constructor privado para evitar instanciación externa
-    }
-
-    public static synchronized ConfiguracionSistema getInstance() {
-        if (instance == null) {
-            instance = new ConfiguracionSistema();
-        }
-        return instance;
-    }
-
-    // Getters y setters para los parámetros
+    @Override
     public String getNombreAplicacion() {
         return nombreAplicacion;
     }
 
+    @Override
     public void setNombreAplicacion(String nombreAplicacion) {
         this.nombreAplicacion = nombreAplicacion;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public void setVersion(String version) {
         this.version = version;
     }

@@ -7,7 +7,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.request.CrearAvan
 import co.edu.sistema_practicas_empresariales.modules.practica.enums.EstadoAvance;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.*;
-import co.edu.sistema_practicas_empresariales.modules.practica.service.AvanceService;
+import co.edu.sistema_practicas_empresariales.modules.practica.service.AvanceFacade;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AvanceServiceImpl implements AvanceService {
+public class AvanceFacadeImpl implements AvanceFacade {
 
     private final AvanceRepository      avanceRepository;
     private final PracticaRepository    practicaRepository;
@@ -104,6 +104,13 @@ public class AvanceServiceImpl implements AvanceService {
                 .orElseThrow(() -> new RuntimeException("Avance no encontrado"));
         avance.setEstado(nuevoEstado);
         return toDto(avanceRepository.save(avance));
+    }
+
+    public void eliminarAvance(Long avanceId) {
+        Avance avance = avanceRepository.findById(avanceId)
+                .orElseThrow(() -> new RuntimeException("Avance no encontrado"));
+        avance.setActivo(false);
+        avanceRepository.save(avance);
     }
 
     public AvanceDto toDto(Avance a) {

@@ -47,6 +47,10 @@ public class Avance {
     @Builder.Default
     private EstadoAvance estado = EstadoAvance.PENDIENTE;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

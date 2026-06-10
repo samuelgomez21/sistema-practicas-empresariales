@@ -27,6 +27,9 @@ public class VinculacionFacadeImplTest {
     @Mock
     private VacanteRepository vacanteRepository;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private VinculacionFacadeImpl vinculacionFacade;
 

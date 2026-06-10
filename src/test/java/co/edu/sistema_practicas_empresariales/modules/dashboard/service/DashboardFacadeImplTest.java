@@ -9,14 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Map;
-
+import co.edu.sistema_practicas_empresariales.modules.dashboard.dto.DashboardEstadisticasDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DashboardServiceImplTest {
+public class DashboardFacadeImplTest {
 
     @Mock
     private VacanteRepository vacanteRepository;
@@ -24,8 +23,11 @@ public class DashboardServiceImplTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private co.edu.sistema_practicas_empresariales.modules.vinculacion.repository.VinculacionRepository vinculacionRepository;
+
     @InjectMocks
-    private DashboardServiceImpl dashboardService;
+    private DashboardFacadeImpl dashboardService;
 
     @BeforeEach
     void setUp() {
@@ -38,12 +40,11 @@ public class DashboardServiceImplTest {
         when(usuarioRepository.count()).thenReturn(5L);
 
         // Act
-        Map<String, Object> stats = dashboardService.obtenerEstadisticas();
+        DashboardEstadisticasDto stats = dashboardService.obtenerEstadisticas();
 
         // Assert
         assertNotNull(stats);
-        assertEquals(10L, stats.get("totalVacantes"));
-        assertEquals(5L, stats.get("totalUsuarios"));
-        assertEquals(10L, stats.get("vacantesActivas"));
+        assertEquals(10L, stats.getTotalVacantes());
+        assertEquals(5L, stats.getTotalUsuarios());
     }
 }

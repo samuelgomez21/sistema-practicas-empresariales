@@ -54,6 +54,9 @@ public class Vacante {
     @Column(name = "motivo_rechazo", columnDefinition = "TEXT")
     private String motivoRechazo;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean eliminado = false;
 
     @Builder.Default
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

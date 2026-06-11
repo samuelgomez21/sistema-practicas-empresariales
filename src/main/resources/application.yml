@@ -55,6 +55,8 @@ app:
 
 server:
   port: 0
+  error:
+    include-message: always
 
 springdoc:
   api-docs:

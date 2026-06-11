@@ -73,8 +73,8 @@ export const MENU_POR_ROL = {
     },
     { section: 'Gestión',
       items: [
-        { label: 'Validar aptitud',  icon: 'clipboard-check', path: '/academica/aptitud' },
-        { label: 'Asignación docente', icon: 'user-check',    path: '/academica/asignacion-docente' },
+        { label: 'Clasificación',  icon: 'clipboard-check', path: '/coordinacion/clasificacion' },
+        { label: 'Carga docentes', icon: 'users',            path: '/coordinacion/docentes'      },
       ],
     },
   ],

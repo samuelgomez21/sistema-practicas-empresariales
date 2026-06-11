@@ -62,6 +62,9 @@ import MisVacantesPage     from '@/features/vacantes/pages/MisVacantesPage'
 import MisPostulacionesPage    from '@/features/estudiante/pages/MisPostulacionesPage'
 import CandidatosEmpresaPage   from '@/features/vacantes/pages/CandidatosEmpresaPage'
 
+import ClasificacionPage   from '@/features/coordinacion/pages/ClasificacionPage'
+import CargaDocentesPage   from '@/features/coordinacion/pages/CargaDocentesPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -245,6 +248,22 @@ const router = createBrowserRouter([
             </ProtectedRoute>
           },
         ],
+      },
+      {
+        path: '/coordinacion/clasificacion',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA, ROLES.ADMINISTRADOR]}>
+            <ClasificacionPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion/docentes',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA, ROLES.ADMINISTRADOR]}>
+            <CargaDocentesPage />
+          </ProtectedRoute>
+        ),
       },
 
     ],

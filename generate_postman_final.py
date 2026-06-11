@@ -113,14 +113,14 @@ collection = {
         {
             "name": "5. Modulo Vinculaciones",
             "item": [
-                create_request("Crear Vinculacion", "POST", "/api/vinculaciones", {"postulacionId": 1, "tutorEmpresarialId": 1, "fechaInicio": "2026-07-01", "fechaFin": "2026-12-01"}),
+                create_request("Crear Vinculacion", "POST", "/api/vinculaciones", {"vacanteId": 1, "cargo": "Practicante Java", "descripcion": "Desarrollo", "requisitosEstudiante": "Java", "numeroCupos": 1, "cuposDisponibles": 1, "area": "Sistemas", "modalidad": "PRESENCIAL", "estado": "VIGENTE"}),
                 create_request("Listar Vinculaciones", "GET", "/api/vinculaciones")
             ]
         },
         {
             "name": "6. Modulo Documentos",
             "item": [
-                create_request("Subir Documento", "POST", "/api/documentos", {"vinculacionId": 1, "tipoDocumento": "PLAN_TRABAJO", "urlArchivo": "http://ejemplo.com/doc.pdf"}),
+                create_request("Subir Documento", "POST", "/api/documentos", {"titulo": "Plan de Trabajo {{$randomInt}}", "descripcion": "Documento inicial"}),
                 create_request("Listar Documentos", "GET", "/api/documentos")
             ]
         }

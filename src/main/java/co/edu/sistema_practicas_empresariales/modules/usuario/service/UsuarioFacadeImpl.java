@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class UsuarioFacadeImpl implements UsuarioFacade {
 
     private final UsuarioService usuarioService;
+    private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
 
     /**
      * Mapea una entidad Usuario a su correspondiente DTO.
@@ -56,7 +57,16 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         if (dto.getId() != null) {
             builder.id(dto.getId());
         }
-        // El rol se asignará en el servicio mediante búsqueda por nombre.
+        
+        if (dto.getRol() != null) {
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre rolNombre = 
+                    co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.valueOf(dto.getRol());
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol rol = 
+                    rolRepository.findByNombre(rolNombre)
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRol()));
+            builder.rol(rol);
+        }
+
         return builder.build();
     }
 

@@ -6,6 +6,9 @@ import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuest
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoPregunta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.model.*;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.*;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.request.CrearPlantillaRequest;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.request.CrearPreguntaRequest;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.request.CrearSeccionRequest;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.service.EncuestaService;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade;
@@ -135,48 +138,6 @@ public class EncuestaServiceImpl implements EncuestaService {
         return toRespuestaDto(guardada);
     }
 
-    // ── Gestión de plantillas (coordinador) ───────────────────────
-
-    public PreguntaDto agregarPregunta(Long seccionId,
-                                       String texto,
-                                       TipoPregunta tipoPregunta) {
-        // Se busca la sección y se agrega la pregunta
-        // La sección se obtiene a través de las plantillas existentes
-        EncuestaPlantilla plantilla = plantillaRepository.findAll().stream()
-                .flatMap(p -> p.getSecciones().stream())
-                .filter(s -> s.getId().equals(seccionId))
-                .findFirst()
-                .map(EncuestaSeccion::getPlantilla)
-                .orElseThrow(() -> new RuntimeException("Sección no encontrada: " + seccionId));
-
-        EncuestaSeccion seccion = plantilla.getSecciones().stream()
-                .filter(s -> s.getId().equals(seccionId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Sección no encontrada"));
-
-        int maxOrden = seccion.getPreguntas().stream()
-                .mapToInt(EncuestaPregunta::getOrden)
-                .max()
-                .orElse(0);
-
-        EncuestaPregunta nueva = EncuestaPregunta.builder()
-                .seccion(seccion)
-                .orden(maxOrden + 1)
-                .texto(texto)
-                .tipo(tipoPregunta)
-                .activa(true)
-                .build();
-
-        seccion.getPreguntas().add(nueva);
-        plantillaRepository.save(plantilla);
-
-        return PreguntaDto.builder()
-                .id(nueva.getId())
-                .orden(nueva.getOrden())
-                .texto(nueva.getTexto())
-                .tipo(nueva.getTipo())
-                .build();
-    }
 
     // ── Mappers ───────────────────────────────────────────────────
 
@@ -227,5 +188,182 @@ public class EncuestaServiceImpl implements EncuestaService {
                                 .build())
                         .toList())
                 .build();
+    }
+
+    // ── Gestión de plantillas ──────────────────────────────────────
+
+    /**
+     * Crea una nueva plantilla de encuesta.
+     * Si ya existe una plantilla activa del mismo tipo,
+     * la desactiva para que solo haya una activa por tipo.
+     */
+    public EncuestaPlantillaDto crearPlantilla(CrearPlantillaRequest req) {
+        // Desactivar plantilla anterior del mismo tipo si existe
+        plantillaRepository.findByTipoAndActivaTrue(req.getTipo())
+                .ifPresent(p -> {
+                    p.setActiva(false);
+                    plantillaRepository.save(p);
+                });
+
+        EncuestaPlantilla nueva = EncuestaPlantilla.builder()
+                .tipo(req.getTipo())
+                .version(req.getVersion())
+                .nombre(req.getNombre())
+                .activa(true)
+                .build();
+
+        return toPlantillaDto(plantillaRepository.save(nueva));
+    }
+
+    @Transactional(readOnly = true)
+    public List<EncuestaPlantillaDto> listarPlantillas() {
+        return plantillaRepository.findAll().stream()
+                .map(this::toPlantillaDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public EncuestaPlantillaDto obtenerPlantillaPorId(Long id) {
+        return toPlantillaDto(
+                plantillaRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Plantilla no encontrada: " + id))
+        );
+    }
+
+    public void togglePlantilla(Long id) {
+        EncuestaPlantilla p = plantillaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Plantilla no encontrada"));
+        p.setActiva(!p.getActiva());
+        plantillaRepository.save(p);
+    }
+
+// ── Gestión de secciones ───────────────────────────────────────
+
+    /**
+     * Crea una nueva sección dentro de una plantilla existente.
+     */
+    public SeccionDto crearSeccion(CrearSeccionRequest req) {
+        EncuestaPlantilla plantilla = plantillaRepository.findById(req.getPlantillaId())
+                .orElseThrow(() -> new RuntimeException("Plantilla no encontrada"));
+
+        EncuestaSeccion seccion = EncuestaSeccion.builder()
+                .plantilla(plantilla)
+                .codigo(req.getCodigo())
+                .titulo(req.getTitulo())
+                .orden(req.getOrden())
+                .build();
+
+        plantilla.getSecciones().add(seccion);
+        plantillaRepository.save(plantilla);
+
+        return SeccionDto.builder()
+                .id(seccion.getId())
+                .codigo(seccion.getCodigo())
+                .titulo(seccion.getTitulo())
+                .orden(seccion.getOrden())
+                .preguntas(List.of())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public SeccionDto obtenerSeccion(Long seccionId) {
+        EncuestaSeccion seccion = obtenerSeccionById(seccionId);
+        return SeccionDto.builder()
+                .id(seccion.getId())
+                .codigo(seccion.getCodigo())
+                .titulo(seccion.getTitulo())
+                .orden(seccion.getOrden())
+                .preguntas(seccion.getPreguntas().stream()
+                        .filter(EncuestaPregunta::getActiva)
+                        .map(p -> PreguntaDto.builder()
+                                .id(p.getId())
+                                .orden(p.getOrden())
+                                .texto(p.getTexto())
+                                .tipo(p.getTipo())
+                                .build())
+                        .toList())
+                .build();
+    }
+
+    public void eliminarSeccion(Long seccionId) {
+        EncuestaPlantilla plantilla = plantillaRepository.findAll().stream()
+                .flatMap(p -> p.getSecciones().stream())
+                .filter(s -> s.getId().equals(seccionId))
+                .findFirst()
+                .map(EncuestaSeccion::getPlantilla)
+                .orElseThrow(() -> new RuntimeException("Sección no encontrada"));
+
+        plantilla.getSecciones().removeIf(s -> s.getId().equals(seccionId));
+        plantillaRepository.save(plantilla);
+    }
+
+// ── Gestión de preguntas ───────────────────────────────────────
+
+    /**
+     * Método corregido — ahora recibe un DTO en lugar de parámetros sueltos.
+     */
+    public PreguntaDto agregarPregunta(Long seccionId, CrearPreguntaRequest req) {
+        EncuestaSeccion seccion = obtenerSeccionById(seccionId);
+
+        int maxOrden = seccion.getPreguntas().stream()
+                .mapToInt(EncuestaPregunta::getOrden)
+                .max()
+                .orElse(0);
+
+        EncuestaPregunta nueva = EncuestaPregunta.builder()
+                .seccion(seccion)
+                .orden(maxOrden + 1)
+                .texto(req.getTexto())
+                .tipo(req.getTipo() != null ? req.getTipo() : TipoPregunta.ESCALA)
+                .activa(true)
+                .build();
+
+        seccion.getPreguntas().add(nueva);
+        plantillaRepository.save(seccion.getPlantilla());
+
+        return PreguntaDto.builder()
+                .id(nueva.getId())
+                .orden(nueva.getOrden())
+                .texto(nueva.getTexto())
+                .tipo(nueva.getTipo())
+                .build();
+    }
+
+    public PreguntaDto editarPregunta(Long preguntaId, CrearPreguntaRequest req) {
+        EncuestaPregunta pregunta = obtenerPreguntaById(preguntaId);
+        if (req.getTexto() != null)  pregunta.setTexto(req.getTexto());
+        if (req.getTipo()  != null)  pregunta.setTipo(req.getTipo());
+        plantillaRepository.save(pregunta.getSeccion().getPlantilla());
+        return PreguntaDto.builder()
+                .id(pregunta.getId())
+                .orden(pregunta.getOrden())
+                .texto(pregunta.getTexto())
+                .tipo(pregunta.getTipo())
+                .build();
+    }
+
+    public void desactivarPregunta(Long preguntaId) {
+        EncuestaPregunta pregunta = obtenerPreguntaById(preguntaId);
+        pregunta.setActiva(false);
+        plantillaRepository.save(pregunta.getSeccion().getPlantilla());
+    }
+
+// ── Helpers privados ───────────────────────────────────────────
+
+    private EncuestaSeccion obtenerSeccionById(Long seccionId) {
+        return plantillaRepository.findAll().stream()
+                .flatMap(p -> p.getSecciones().stream())
+                .filter(s -> s.getId().equals(seccionId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Sección no encontrada: " + seccionId));
+    }
+
+    private EncuestaPregunta obtenerPreguntaById(Long preguntaId) {
+        return plantillaRepository.findAll().stream()
+                .flatMap(p -> p.getSecciones().stream())
+                .flatMap(s -> s.getPreguntas().stream())
+                .filter(p -> p.getId().equals(preguntaId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Pregunta no encontrada: " + preguntaId));
     }
 }

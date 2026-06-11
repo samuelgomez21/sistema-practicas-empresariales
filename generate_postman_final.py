@@ -1063,6 +1063,129 @@
             }
           }
         }
+        {
+          "name": "Listar todas las plantillas",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/encuestas/plantillas",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Obtener plantilla por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/encuestas/plantillas/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Crear plantilla nueva",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/encuestas/plantillas",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"ESTUDIANTE\",\n  \"version\": \"2026-2\",\n  \"nombre\": \"Satisfacción Estudiantes en Práctica Empresarial 2026-2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activar / desactivar plantilla",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/encuestas/plantillas/1/toggle",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Crear sección en plantilla",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/encuestas/secciones",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plantillaId\": 1,\n  \"codigo\": \"E\",\n  \"titulo\": \"Evaluación del proceso de práctica\",\n  \"orden\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Obtener sección",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/encuestas/secciones/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Eliminar sección",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/encuestas/secciones/5",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Agregar pregunta a sección",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/encuestas/secciones/1/preguntas",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"¿El tutor realizó seguimiento periódico a sus actividades?\",\n  \"tipo\": \"ESCALA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar pregunta tipo texto",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/encuestas/secciones/1/preguntas",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"¿Qué aspectos mejorarías de la empresa?\",\n  \"tipo\": \"TEXTO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar pregunta",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/encuestas/preguntas/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Generación del espacio de inducción a la organización (texto actualizado).\",\n  \"tipo\": \"ESCALA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Desactivar pregunta",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/encuestas/preguntas/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
       ]
     },
     {

@@ -65,6 +65,9 @@ import CandidatosEmpresaPage   from '@/features/vacantes/pages/CandidatosEmpresa
 import ClasificacionPage   from '@/features/coordinacion/pages/ClasificacionPage'
 import CargaDocentesPage   from '@/features/coordinacion/pages/CargaDocentesPage'
 
+import PerfilEstudianteEmpresaPage from '@/features/empresas/pages/PerfilEstudianteEmpresaPage'
+import DetalleEmpresaCoordPage     from '@/features/empresas/pages/DetalleEmpresaPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -194,13 +197,17 @@ const router = createBrowserRouter([
           },
           { path: 'tutores',        element:
             <ProtectedRoute roles={[ROLES.EMPRESA, ROLES.ADMINISTRADOR, ROLES.COORDINADOR_PRACTICA, ROLES.SECRETARIA]}>
-              <TutoresAdminPage />
+              <TutoresAdminPage empresaId={2} />
             </ProtectedRoute>
           },
           { path: 'candidatos', element:
             <ProtectedRoute roles={[ROLES.EMPRESA]}>
               <CandidatosEmpresaPage />
             </ProtectedRoute>
+          },
+          {
+            path: 'estudiante/:id',
+            element: <PerfilEstudianteEmpresaPage />,
           },
         ],
       },

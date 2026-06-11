@@ -49,17 +49,6 @@ export default function ModalTutor({ tutor, empresas, empresaIdFijo, onClose, on
 
         <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
 
-          {/* Empresa — solo si no hay fijo */}
-          {!empresaIdFijo && (
-            <div className="flex flex-col gap-1.5">
-              <label className={lc} style={ls}>Empresa</label>
-              <select {...register('empresaId')} className={ic} style={is}>
-                <option value="">Seleccionar empresa...</option>
-                {empresas.map(e => <option key={e.id} value={e.id}>{e.razonSocial}</option>)}
-              </select>
-              {errors.empresaId && <p className="text-xs" style={{ color: '#D91438' }}>{errors.empresaId.message}</p>}
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5 col-span-2">

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, Download, CheckCircle, XCircle, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { vacantesApi, ESTADO_POSTULACION } from '../api/vacantesApi'
+import { useNavigate } from 'react-router-dom'
 
 // Estado actual → estados posibles a los que puede avanzar
 const TRANSICIONES = {
@@ -50,6 +51,9 @@ export default function CandidatosEmpresaPage() {
     : todosLosCandidatos.filter(c => String(c.vacanteId) === filtroVacante)
 
   const vacantesConCandidatos = vacantes.filter(v => v.postulaciones.length > 0)
+
+  const navigate = useNavigate()
+
 
   if (isLoading) return (
     <div className="flex flex-col gap-3">
@@ -147,6 +151,7 @@ export default function CandidatosEmpresaPage() {
                       {cfg.label}
                     </span>
                     <button
+                      onClick={() => navigate(`/empresas/estudiante/${c.estudianteId}`)}
                       className="flex items-center gap-1 h-7 px-3 rounded-lg text-[10px] font-semibold"
                       style={{ background: '#f4f6f9', color: '#023859', border: '0.5px solid #e2e8f0' }}>
                       <ExternalLink size={11} /> Ver perfil

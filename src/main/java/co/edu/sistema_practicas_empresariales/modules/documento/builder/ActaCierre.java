@@ -2,7 +2,6 @@ package co.edu.sistema_practicas_empresariales.modules.documento.builder;
 
 import lombok.Getter;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

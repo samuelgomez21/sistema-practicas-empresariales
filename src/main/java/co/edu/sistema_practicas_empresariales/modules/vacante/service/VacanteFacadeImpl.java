@@ -11,6 +11,8 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacant
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +29,7 @@ public class VacanteFacadeImpl implements VacanteFacade {
 
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
+    private final ProgramaRepository programaRepository;
     private final EstadoVacanteResolver estadoVacanteResolver;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -36,14 +39,25 @@ public class VacanteFacadeImpl implements VacanteFacade {
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
+        Programa programa = null;
+        if (request.getProgramaId() != null) {
+            programa = programaRepository.findById(request.getProgramaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado"));
+        }
+
         Vacante vacante = Vacante.builder()
                 .empresa(empresa)
+                .programa(programa)
                 .titulo(request.getTitulo())
                 .descripcion(request.getDescripcion())
                 .perfilRequerido(request.getPerfilRequerido())
                 .requisitos(request.getRequisitos())
                 .cuposTotales(request.getCuposTotales())
                 .cuposDisponibles(request.getCuposTotales())
+                .modalidad(request.getModalidad())
+                .salario(request.getSalario())
+                .tipoContrato(request.getTipoContrato())
+                .horario(request.getHorario())
                 .build();
 
         vacante = vacanteRepository.save(vacante);
@@ -116,6 +130,8 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .id(vacante.getId())
                 .empresaId(vacante.getEmpresa().getId())
                 .nombreEmpresa(vacante.getEmpresa().getRazonSocial())
+                .programaId(vacante.getPrograma() != null ? vacante.getPrograma().getId() : null)
+                .nombrePrograma(vacante.getPrograma() != null ? vacante.getPrograma().getNombre() : null)
                 .titulo(vacante.getTitulo())
                 .descripcion(vacante.getDescripcion())
                 .perfilRequerido(vacante.getPerfilRequerido())
@@ -125,6 +141,10 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .estado(vacante.getEstado())
                 .motivoRechazo(vacante.getMotivoRechazo())
                 .fechaCreacion(vacante.getFechaCreacion())
+                .modalidad(vacante.getModalidad())
+                .salario(vacante.getSalario())
+                .tipoContrato(vacante.getTipoContrato())
+                .horario(vacante.getHorario())
                 .build();
     }
 }

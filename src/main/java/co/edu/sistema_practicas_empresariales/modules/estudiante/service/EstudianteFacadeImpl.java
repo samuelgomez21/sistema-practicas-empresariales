@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * Implementación del patrón Facade para el módulo de Estudiante.
@@ -114,44 +114,44 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
             for (Row row : sheet) {
                 if (firstRow) {
                     firstRow = false;
-                    continue; // Saltar cabeceras
-                }
-                
-                // Columnas esperadas: 
-                // 0: Nombre, 1: Email, 2: TipoIdentificacion, 3: Identificacion, 4: Telefono, 
-                // 5: ContactoEmergencia, 6: ProgramaId, 7: Semestre, 8: Creditos, 9: Promedio
-                if (row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null || row.getCell(3) == null ||
-                        row.getCell(6) == null || row.getCell(7) == null || row.getCell(8) == null || row.getCell(9) == null) {
-                    continue; // Saltar filas vacías o inválidas
-                }
-                
-                try {
-                    EstudianteRequest req = EstudianteRequest.builder()
-                        .nombre(getCellValueAsString(row.getCell(0)))
-                        .email(getCellValueAsString(row.getCell(1)))
-                        .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
-                        .identificacion(getCellValueAsString(row.getCell(3)))
-                        .telefono(getCellValueAsString(row.getCell(4)))
-                        .contactoEmergencia(getCellValueAsString(row.getCell(5)))
-                        .programaId((long) row.getCell(6).getNumericCellValue())
-                        .semestre((int) row.getCell(7).getNumericCellValue())
-                        .creditosAprobados((int) row.getCell(8).getNumericCellValue())
-                        .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
-                        .build();
-                        
-                    responses.add(registrarEstudiante(req));
-                } catch (Exception e) {
-                    // Log error and continue with the next row
-                    java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
-                            .log(java.util.logging.Level.WARNING, "Error procesando fila " + row.getRowNum(), e);
+                } else if (esFilaValida(row)) {
+                    procesarFila(row, responses);
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error al procesar el archivo Excel: " + e.getMessage(), e);
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("Error al leer el archivo Excel: " + e.getMessage(), e);
         }
         return responses;
     }
+
+    private boolean esFilaValida(Row row) {
+        return row.getCell(0) != null && row.getCell(1) != null && row.getCell(2) != null && row.getCell(3) != null &&
+               row.getCell(6) != null && row.getCell(7) != null && row.getCell(8) != null && row.getCell(9) != null;
+    }
+
+    private void procesarFila(Row row, List<EstudianteResponse> responses) {
+        try {
+            EstudianteRequest req = EstudianteRequest.builder()
+                .nombre(getCellValueAsString(row.getCell(0)))
+                .email(getCellValueAsString(row.getCell(1)))
+                .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
+                .identificacion(getCellValueAsString(row.getCell(3)))
+                .telefono(getCellValueAsString(row.getCell(4)))
+                .contactoEmergencia(getCellValueAsString(row.getCell(5)))
+                .programaId((long) row.getCell(6).getNumericCellValue())
+                .semestre((int) row.getCell(7).getNumericCellValue())
+                .creditosAprobados((int) row.getCell(8).getNumericCellValue())
+                .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
+                .build();
+                
+            responses.add(((EstudianteFacade)org.springframework.aop.framework.AopContext.currentProxy()).registrarEstudiante(req));
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
+                    .log(java.util.logging.Level.WARNING, e, () -> "Error procesando fila " + row.getRowNum());
+        }
+    }
     
+
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
         String value = new DataFormatter().formatCellValue(cell).trim();
@@ -179,7 +179,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarTodos() {
         return estudianteRepository.findByActivoTrue().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -187,7 +187,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarPorPrograma(Long programaId) {
         return estudianteRepository.findByProgramaIdAndActivoTrue(programaId).stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -195,7 +195,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarAptos() {
         return estudianteRepository.findAptos().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -275,14 +275,14 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
         return practicaRepository.findByEstudianteIdOrderByNumeroPracticaAsc(estudianteId).stream()
                 .map(this::mapToPracticaResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional
     public void eliminarEstudiante(Long id) {
         Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado con ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(ESTUDIANTE_NO_ENCONTRADO_MSG + id));
         estudiante.setActivo(false); // Soft delete
         estudianteRepository.save(estudiante);
     }

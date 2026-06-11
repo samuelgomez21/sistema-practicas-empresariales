@@ -450,8 +450,6 @@ public class PracticaFacadeImpl implements PracticaFacade {
         Practica practica = practicaRepository.findById(practicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Practica no encontrada"));
                 
-        int inactividadMaxima = co.edu.sistema_practicas_empresariales.config.ConfiguracionGlobalSingleton.getInstance().getDiasInactividadMaximos();
-                
         String resolucion = "RES-" + java.time.LocalDate.now().getYear() + "-" + practica.getId();
         
         String nombreEmpresa = "Empresa No Asignada";

@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.usuario.dto;
+package co.edu.sistema_practicas_empresariales.modules.configuracion.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,14 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class UsuarioDto {
+public class ProgramaDto {
     private Long id;
-    private String email;
-    private String password;
     private String nombre;
+    private Long facultadId;
+    private String nombreFacultad;
     private boolean activo;
-    private String rol;
 }

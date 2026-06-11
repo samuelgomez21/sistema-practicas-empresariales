@@ -16,4 +16,9 @@ public class VacanteRequest {
     private String perfilRequerido;
     private String requisitos;
     private int cuposTotales;
+    private Long programaId;
+    private String modalidad;
+    private java.math.BigDecimal salario;
+    private String tipoContrato;
+    private String horario;
 }

@@ -2,7 +2,6 @@ package co.edu.sistema_practicas_empresariales.modules.encuesta.request;
 
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoPregunta;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

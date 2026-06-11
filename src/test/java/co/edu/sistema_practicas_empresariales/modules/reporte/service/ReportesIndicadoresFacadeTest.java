@@ -21,6 +21,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.model.PracticaDoc
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -47,23 +48,13 @@ class ReportesIndicadoresFacadeTest {
     @Mock private PracticaDocumentoRepository practicaDocumentoRepository;
     @Mock private ExportadorReporte excelExportAdapter;
     @Mock private ExportadorReporte pdfExportAdapter;
-
+    @InjectMocks
     private ReportesIndicadoresFacade facade;
 
     @BeforeEach
-    void setUp() {
-        facade = new ReportesIndicadoresFacade(
-                practicaRepository,
-                evaluacionRepository,
-                encuestaRepository,
-                empresaRepository,
-                vacanteRepository,
-                programaRepository,
-                avanceRepository,
-                practicaDocumentoRepository,
-                excelExportAdapter,
-                pdfExportAdapter
-        );
+    void setup() {
+        org.springframework.test.util.ReflectionTestUtils.setField(facade, "excelExportAdapter", excelExportAdapter);
+        org.springframework.test.util.ReflectionTestUtils.setField(facade, "pdfExportAdapter", pdfExportAdapter);
     }
 
     @Test

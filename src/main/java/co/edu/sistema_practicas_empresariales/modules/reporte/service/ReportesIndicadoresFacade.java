@@ -1,6 +1,5 @@
 package co.edu.sistema_practicas_empresariales.modules.reporte.service;
 
-import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;

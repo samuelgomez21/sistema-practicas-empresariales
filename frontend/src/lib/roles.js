@@ -66,7 +66,6 @@ export const MENU_POR_ROL = {
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinacion-academica' },
         { label: 'Estudiantes',       icon: 'school',       path: '/usuarios/estudiantes' },
         { label: 'Docentes asesores', icon: 'chalkboard',   path: '/usuarios/docentes' },
-        { label: 'Catálogo de prácticas', icon: 'books',   path: '/academica/catalogo' },
         { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
         
         

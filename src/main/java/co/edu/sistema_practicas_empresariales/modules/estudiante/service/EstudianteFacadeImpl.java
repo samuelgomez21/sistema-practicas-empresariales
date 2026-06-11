@@ -99,9 +99,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         estudiante = estudianteRepository.save(estudiante);
 
         // Patrón Observer: publicar evento de registro
-        eventPublisher.publishEvent(new EstudianteRegistradoEvent(this, estudiante));
-
-        return mapToResponse(estudiante);
+        eventPublisher.publishEvent(new EstudianteRegistradoEvent(this, estudia        return mapToResponse(estudiante);
     }
 
     @Override
@@ -114,42 +112,42 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
             for (Row row : sheet) {
                 if (firstRow) {
                     firstRow = false;
-                    continue; // Saltar cabeceras
-                }
-                
-                // Columnas esperadas: 
-                // 0: Nombre, 1: Email, 2: TipoIdentificacion, 3: Identificacion, 4: Telefono, 
-                // 5: ContactoEmergencia, 6: ProgramaId, 7: Semestre, 8: Creditos, 9: Promedio
-                if (row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null || row.getCell(3) == null ||
-                        row.getCell(6) == null || row.getCell(7) == null || row.getCell(8) == null || row.getCell(9) == null) {
-                    continue; // Saltar filas vacías o inválidas
-                }
-                
-                try {
-                    EstudianteRequest req = EstudianteRequest.builder()
-                        .nombre(getCellValueAsString(row.getCell(0)))
-                        .email(getCellValueAsString(row.getCell(1)))
-                        .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
-                        .identificacion(getCellValueAsString(row.getCell(3)))
-                        .telefono(getCellValueAsString(row.getCell(4)))
-                        .contactoEmergencia(getCellValueAsString(row.getCell(5)))
-                        .programaId((long) row.getCell(6).getNumericCellValue())
-                        .semestre((int) row.getCell(7).getNumericCellValue())
-                        .creditosAprobados((int) row.getCell(8).getNumericCellValue())
-                        .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
-                        .build();
-                        
-                    responses.add(registrarEstudiante(req));
-                } catch (Exception e) {
-                    // Log error and continue with the next row
-                    java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
-                            .log(java.util.logging.Level.WARNING, "Error procesando fila " + row.getRowNum(), e);
+                } else if (esFilaValida(row)) {
+                    procesarFila(row, responses);
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error al procesar el archivo Excel: " + e.getMessage(), e);
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("Error al leer el archivo Excel: " + e.getMessage(), e);
         }
         return responses;
+    }
+
+    private boolean esFilaValida(Row row) {
+        return row.getCell(0) != null && row.getCell(1) != null && row.getCell(2) != null && row.getCell(3) != null &&
+               row.getCell(6) != null && row.getCell(7) != null && row.getCell(8) != null && row.getCell(9) != null;
+    }
+
+    private void procesarFila(Row row, List<EstudianteResponse> responses) {
+        try {
+            EstudianteRequest req = EstudianteRequest.builder()
+                .nombre(getCellValueAsString(row.getCell(0)))
+                .email(getCellValueAsString(row.getCell(1)))
+                .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
+                .identificacion(getCellValueAsString(row.getCell(3)))
+                .telefono(getCellValueAsString(row.getCell(4)))
+                .contactoEmergencia(getCellValueAsString(row.getCell(5)))
+                .programaId((long) row.getCell(6).getNumericCellValue())
+                .semestre((int) row.getCell(7).getNumericCellValue())
+                .creditosAprobados((int) row.getCell(8).getNumericCellValue())
+                .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
+                .build();
+                
+            responses.add(((EstudianteFacade)org.springframework.aop.framework.AopContext.currentProxy()).registrarEstudiante(req));
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
+                    .log(java.util.logging.Level.WARNING, e, () -> "Error procesando fila " + row.getRowNum());
+        }
+    }
     }
     
     private String getCellValueAsString(Cell cell) {

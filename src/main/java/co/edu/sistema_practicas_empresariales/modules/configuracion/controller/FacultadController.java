@@ -1,6 +1,5 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.FacultadDto;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.FacultadRequest;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.service.ConfiguracionFacade;
 import lombok.RequiredArgsConstructor;

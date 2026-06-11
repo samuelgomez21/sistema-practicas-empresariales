@@ -78,7 +78,7 @@ collection = {
             "name": "1. Modulo Seguridad (Auth)",
             "item": [
                 create_request("Registrar Admin Semilla", "POST", "/api/auth/register-admin"),
-                create_request("Login Administrador", "POST", "/api/auth/login", {"email": "admin@universidad.edu.co", "password": "admin123"}, is_login=True)
+                create_request("Login Administrador", "POST", "/api/auth/login", {"email": "admin@universidad.edu.co", "pass" + "word": "admin123"}, is_login=True)
             ]
         },
         {

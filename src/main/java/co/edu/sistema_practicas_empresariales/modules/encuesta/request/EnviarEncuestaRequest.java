@@ -1,6 +1,5 @@
 package co.edu.sistema_practicas_empresariales.modules.encuesta.request;
 
-import co.edu.sistema_practicas_empresariales.modules.encuesta.request.ItemRespuestaRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

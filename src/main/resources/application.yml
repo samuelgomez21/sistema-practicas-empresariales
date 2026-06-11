@@ -3,9 +3,9 @@ spring:
     name: practicas-backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/practicas_uah
+    url: jdbc:mysql://localhost:3306/practicas_uah?createDatabaseIfNotExist=true
     username: ${DB_USER:root}
-    password: ${DB_PASSWORD:2404}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

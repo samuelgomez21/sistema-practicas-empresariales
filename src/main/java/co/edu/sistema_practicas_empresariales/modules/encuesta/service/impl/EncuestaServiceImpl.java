@@ -1,7 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.encuesta.service.impl;
 
 import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.*;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.dto.EnviarEncuestaRequest;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.request.EnviarEncuestaRequest;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoPregunta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.model.*;

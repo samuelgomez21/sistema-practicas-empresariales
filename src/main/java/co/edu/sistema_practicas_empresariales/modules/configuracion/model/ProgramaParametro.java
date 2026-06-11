@@ -42,4 +42,8 @@ public class ProgramaParametro {
     @Builder.Default
     @Column(name = "umbral_inactividad_dias", nullable = false)
     private int umbralInactividadDias = 5;
+
+    @Builder.Default
+    @Column(name = "documentos_requeridos", nullable = false, length = 500)
+    private String documentosRequeridos = "ARL,PLANEADOR,INFORME_EJECUTIVO,PRESENTACION,DOCUMENTO_FINAL";
 }

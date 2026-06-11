@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 /**
  * Servicio para la entidad {@link Usuario}.
  *
@@ -21,6 +23,7 @@ import java.util.List;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     /**
@@ -58,6 +61,13 @@ public Usuario crear(Usuario usuario) {
     Objects.requireNonNull(usuario, "Usuario no puede ser null");
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
+        }
+        if (usuario.getPassword() != null) {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        } else {
+            // Generate a random default password if not provided
+            String generated = java.util.UUID.randomUUID().toString().substring(0, 8);
+            usuario.setPassword(passwordEncoder.encode(generated));
         }
         usuario.setDebeCambiarPassword(true);
         return usuarioRepository.save(usuario);

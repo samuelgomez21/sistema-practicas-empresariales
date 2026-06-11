@@ -42,7 +42,7 @@ public class VinculacionFacadeImplTest {
         Vacante vacante = new Vacante();
         vacante.setId(1L);
 
-        when(vacanteRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.of(vacante));
+        when(vacanteRepository.findById(1L)).thenReturn(Optional.of(vacante));
         when(vinculacionRepository.save(any(Vinculacion.class))).thenAnswer(i -> {
             Vinculacion v = i.getArgument(0);
             v.setId(1L);

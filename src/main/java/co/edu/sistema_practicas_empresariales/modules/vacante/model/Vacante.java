@@ -8,7 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
 
@@ -45,6 +47,22 @@ public class Vacante {
 
     @Column(name = "cupos_disponibles", nullable = false)
     private int cuposDisponibles;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "programa_id")
+    private Programa programa;
+
+    @Column(length = 50)
+    private String modalidad;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal salario;
+
+    @Column(name = "tipo_contrato", length = 100)
+    private String tipoContrato;
+
+    @Column(length = 100)
+    private String horario;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

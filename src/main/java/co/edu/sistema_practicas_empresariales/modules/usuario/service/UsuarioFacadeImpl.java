@@ -51,6 +51,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         Usuario.UsuarioBuilder builder = Usuario.builder()
                 .email(dto.getEmail())
                 .nombre(dto.getNombre())
+                .password(dto.getPassword())
                 .activo(dto.isActivo());
         if (dto.getId() != null) {
             builder.id(dto.getId());

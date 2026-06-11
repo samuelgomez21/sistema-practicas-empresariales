@@ -24,4 +24,10 @@ public class VacanteResponse {
     private EstadoVacanteTipo estado;
     private String motivoRechazo;
     private LocalDateTime fechaCreacion;
+    private Long programaId;
+    private String nombrePrograma;
+    private String modalidad;
+    private java.math.BigDecimal salario;
+    private String tipoContrato;
+    private String horario;
 }

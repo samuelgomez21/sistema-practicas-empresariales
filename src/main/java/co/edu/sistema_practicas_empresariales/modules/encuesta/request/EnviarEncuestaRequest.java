@@ -1,4 +1,4 @@
-package co.edu.sistema_practicas_empresariales.modules.encuesta.dto;
+package co.edu.sistema_practicas_empresariales.modules.encuesta.request;
 
 import co.edu.sistema_practicas_empresariales.modules.encuesta.request.ItemRespuestaRequest;
 import jakarta.validation.constraints.NotEmpty;

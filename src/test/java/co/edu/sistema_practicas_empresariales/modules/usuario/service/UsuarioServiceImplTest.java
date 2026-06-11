@@ -14,11 +14,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @ExtendWith(MockitoExtension.class)
 public class UsuarioServiceImplTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
@@ -49,12 +54,14 @@ public class UsuarioServiceImplTest {
         Usuario usuario = new Usuario();
         usuario.setEmail("new@test.com");
         when(usuarioRepository.existsByEmail("new@test.com")).thenReturn(false);
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encoded_password");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Usuario result = usuarioService.crear(usuario);
 
         assertNotNull(result);
         assertTrue(result.isDebeCambiarPassword());
+        assertEquals("encoded_password", result.getPassword());
         verify(usuarioRepository).save(usuario);
     }
 }

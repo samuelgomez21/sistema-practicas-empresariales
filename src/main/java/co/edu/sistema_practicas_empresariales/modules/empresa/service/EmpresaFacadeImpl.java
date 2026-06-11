@@ -74,7 +74,25 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
+        String passwordTemporal = UUID.randomUUID().toString().substring(0, 8);
+
+        Usuario usuarioTutor = usuarioRepository.findByEmail(request.getCorreo())
+                .orElseGet(() -> {
+                    Rol rolTutor = rolRepository.findByNombre(Rol.Nombre.TUTOR_EMPRESARIAL)
+                            .orElseThrow(() -> new IllegalStateException("Rol TUTOR_EMPRESARIAL no encontrado"));
+
+                    Usuario nuevoUsuario = Usuario.builder()
+                            .email(request.getCorreo())
+                            .nombre(request.getNombre())
+                            .password(passwordEncoder.encode(passwordTemporal))
+                            .rol(rolTutor)
+                            .activo(true)
+                            .build();
+                    return usuarioRepository.save(nuevoUsuario);
+                });
+
         TutorEmpresarial tutor = TutorEmpresarial.builder()
+                .usuario(usuarioTutor)
                 .empresa(empresa)
                 .nombreCompleto(request.getNombre())
                 .correo(request.getCorreo())

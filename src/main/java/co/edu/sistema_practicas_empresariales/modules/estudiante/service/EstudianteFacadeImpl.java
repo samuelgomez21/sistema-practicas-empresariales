@@ -99,7 +99,9 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         estudiante = estudianteRepository.save(estudiante);
 
         // Patrón Observer: publicar evento de registro
-        eventPublisher.publishEvent(new EstudianteRegistradoEvent(this, estudia        return mapToResponse(estudiante);
+        eventPublisher.publishEvent(new EstudianteRegistradoEvent(this, estudiante));
+
+        return mapToResponse(estudiante);
     }
 
     @Override

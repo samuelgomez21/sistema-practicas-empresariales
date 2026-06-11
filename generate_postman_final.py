@@ -84,22 +84,22 @@ collection = {
         {
             "name": "2. Modulo Configuracion",
             "item": [
-                create_request("Crear Facultad", "POST", "/api/facultades", {"nombre": "Ingenieria", "codigo": "ING01"}),
+                create_request("Crear Facultad", "POST", "/api/facultades", {"nombre": "Ingenieria {{$randomInt}}", "codigo": "ING01"}),
                 create_request("Listar Facultades", "GET", "/api/facultades"),
                 create_request("Actualizar Facultad", "PUT", "/api/facultades/1", {"nombre": "Ingenieria y Sistemas", "codigo": "ING01"}),
                 create_request("Eliminar Facultad", "DELETE", "/api/facultades/1"),
-                create_request("Crear Programa", "POST", "/api/programas", {"facultadId": 1, "nombre": "Sistemas", "codigo": "SIS01"}),
+                create_request("Crear Programa", "POST", "/api/programas", {"facultadId": 1, "nombre": "Sistemas {{$randomInt}}", "codigo": "SIS01"}),
                 create_request("Listar Programas", "GET", "/api/programas"),
                 create_request("Actualizar Programa", "PUT", "/api/programas/1", {"facultadId": 1, "nombre": "Sistemas Computacionales", "codigo": "SIS01"}),
                 create_request("Eliminar Programa", "DELETE", "/api/programas/1"),
-                create_request("Crear Catalogo", "POST", "/api/configuracion/catalogos", {"numeroPractica": 1, "nombre": "Practica Empresarial", "materiaNucleo": "Ingenieria", "materiaNucleoCodigo": "ING-101", "programaId": 1, "cortesPorPractica": 3, "duracionSemanas": 16, "documentosRequeridos": "Hoja de Vida"}),
+                create_request("Crear Catalogo", "POST", "/api/configuracion/catalogos", {"numeroPractica": 1, "nombre": "Practica Empresarial {{$randomInt}}", "materiaNucleo": "Ingenieria", "materiaNucleoCodigo": "ING-101", "programaId": 1, "cortesPorPractica": 3, "duracionSemanas": 16, "documentosRequeridos": "Hoja de Vida"}),
                 create_request("Obtener Info Sistema", "GET", "/api/configuracion/info")
             ]
         },
         {
             "name": "3. Modulo Usuarios",
             "item": [
-                create_request("Crear Usuario", "POST", "/api/usuarios", {"email": "nuevo@universidad.edu.co", "nombre": "Usuario Prueba", "password": "securepassword", "activo": True, "rol": "DOCENTE_ASESOR"}),
+                create_request("Crear Usuario", "POST", "/api/usuarios", {"email": "nuevo{{$randomInt}}@universidad.edu.co", "nombre": "Usuario Prueba", "password": "securepassword", "activo": True, "rol": "DOCENTE_ASESOR"}),
                 create_request("Obtener Todos los Usuarios", "GET", "/api/usuarios")
             ]
         },

@@ -31,6 +31,7 @@ public class Rol {
         COORDINADOR_ACADEMICO,
         ESTUDIANTE,
         DOCENTE_ASESOR,
-        TUTOR_EMPRESARIAL
+        TUTOR_EMPRESARIAL,
+        EMPRESA_VINCULADA
     }
 }

@@ -3,9 +3,9 @@ spring:
     name: practicas-backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/sistema_practicas?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: 
+    url: jdbc:mysql://localhost:3306/practicas_uah
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:2404}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -17,11 +17,6 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
     open-in-view: false
-
-  h2:
-    console:
-      enabled: false
-      path: /h2-console
 
   flyway:
     enabled: false

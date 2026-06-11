@@ -88,7 +88,7 @@ public class EmpresaController {
      * Registra un nuevo tutor asociado a una empresa específica.
      */
     @PostMapping("/{empresaId}/tutores")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
     public ResponseEntity<TutorEmpresarialResponse> registrarTutor(
             @PathVariable Long empresaId,
             @RequestBody TutorEmpresarialRequest request) {

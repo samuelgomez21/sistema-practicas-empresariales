@@ -53,6 +53,11 @@ export const MENU_POR_ROL = {
         { label: 'Bitácora',             icon: 'list-search', path: '/admin/bitacora' },
       ],
     },
+    { section: 'Practicas',
+      items: [
+        { label: 'Vacantes', icon: 'briefcase', path: '/vacantes/listado' },
+      ],
+    },
   ],
 
   [ROLES.COORDINACION_ACADEMICA]: [
@@ -80,7 +85,7 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinador-practica' },
         { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
-        { label: 'Vacantes',     icon: 'briefcase',        path: '/practica/vacantes' },
+        { label: 'Vacantes', icon: 'briefcase', path: '/vacantes/listado' },
         { label: 'Estudiantes',  icon: 'users',            path: '/practica/estudiantes' },
         { label: 'Asignaciones', icon: 'transfer',         path: '/practica/asignaciones' },
         { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
@@ -100,11 +105,10 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/secretaria' },
-        { label: 'Empresas',     icon: 'building',         path: '/secretaria/empresas' },
-        { label: 'Vacantes',     icon: 'briefcase',        path: '/secretaria/vacantes' },
+        { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
+        { label: 'Vacantes', icon: 'briefcase', path: '/vacantes/listado' },
         { label: 'Estudiantes',  icon: 'users',            path: '/secretaria/estudiantes' },
         { label: 'Asignaciones', icon: 'transfer',         path: '/secretaria/asignaciones' },
-        { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
         { label: 'Visitas',     icon: 'map-pin',     path: '/empresas/visitas' },
       ],
     },
@@ -138,6 +142,7 @@ export const MENU_POR_ROL = {
         { label: 'Mi perfil',  icon: 'building',         path: '/empresas/mi-perfil' },
         { label: 'Vacantes',   icon: 'briefcase',        path: '/empresa/vacantes' },
         { label: 'Practicantes',   icon: 'users',        path: '/empresas/practicantes' },
+        { label: 'Mis vacantes', icon: 'briefcase', path: '/vacantes/mis-vacantes' },
         
       ],
     },

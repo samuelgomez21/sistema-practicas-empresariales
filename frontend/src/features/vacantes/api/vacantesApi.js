@@ -207,6 +207,45 @@ export const vacantesApi = {
     return db.estudiantes
     // return api.get('/estudiantes/aptos').then(r => r.data)
   },
+
+    cambiarEstadoPostulacion: async (vacanteId, estudianteId, nuevoEstado) => {
+        await delay()
+        const v = db.vacantes.find(v => v.id === Number(vacanteId))
+        const p = v.postulaciones.find(p => p.estudianteId === Number(estudianteId))
+        if (p) p.estado = nuevoEstado
+        return v
+        // return api.patch(`/vacantes/${vacanteId}/postulaciones/${estudianteId}/estado`, { estado: nuevoEstado }).then(r => r.data)
+    },
+    getMisPostulaciones: async () => {
+        await delay()
+        // Mock: estudiante logueado es id=8, tiene postulaciones en vacantes 1 y 2
+        return [
+            {
+            vacanteId:      1,
+            tituloVacante:  'Practicante Desarrollo Web',
+            empresaNombre:  'Bancolombia S.A.',
+            modalidad:      'PRESENCIAL',
+            salario:        1300000,
+            horario:        'Lunes a Viernes 8am - 5pm',
+            fechaPostulacion: '2025-04-10',
+            estado:         'EN_ENTREVISTA',
+            observacion:    'La empresa se pondrá en contacto contigo para coordinar la entrevista',
+            },
+            {
+            vacanteId:      2,
+            tituloVacante:  'Practicante QA Tester',
+            empresaNombre:  'TechCo S.A.S.',
+            modalidad:      'HIBRIDA',
+            salario:        1200000,
+            horario:        'Lunes a Viernes 9am - 6pm',
+            fechaPostulacion: '2025-04-12',
+            estado:         'EN_SELECCION',
+            observacion:    'La empresa ya tiene tu hoja de vida y está evaluando candidatos',
+            },
+        ]
+        // return api.get('/postulaciones/mis-postulaciones').then(r => r.data)
+        },
+  
 }
 
 export const MODALIDAD_LABEL = {
@@ -227,4 +266,12 @@ export const ESTADO_VACANTE = {
   RECHAZADA:  { label: 'Rechazada',            bg: '#fef0f0', color: '#c0392b' },
   CERRADA:    { label: 'Cerrada',              bg: '#f0f2f5', color: '#6b7a8d' },
   RESOLVER:   { label: 'Por resolver',         bg: '#fdf4e7', color: '#b35c00' },
+}
+
+export const ESTADO_POSTULACION = {
+  POSTULADO:      { label: 'Postulado',           bg: '#e6f0fb', color: '#0B416B' },
+  EN_SELECCION:   { label: 'En proceso de selección', bg: '#f3e8ff', color: '#6d28d9' },
+  EN_ENTREVISTA:  { label: 'En entrevista',        bg: '#fff8e6', color: '#a07010' },
+  SELECCIONADO:   { label: 'Seleccionado',         bg: '#eaf7f0', color: '#1a7a4a' },
+  RECHAZADO:      { label: 'Rechazado',            bg: '#fef0f0', color: '#c0392b' },
 }

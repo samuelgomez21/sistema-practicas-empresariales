@@ -140,9 +140,9 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Dashboard',  icon: 'layout-dashboard', path: '/dashboard/empresa' },
         { label: 'Mi perfil',  icon: 'building',         path: '/empresas/mi-perfil' },
-        { label: 'Vacantes',   icon: 'briefcase',        path: '/empresa/vacantes' },
+        { label: 'Mis vacantes', icon: 'briefcase', path: '/vacantes/mis-vacantes' },        
         { label: 'Practicantes',   icon: 'users',        path: '/empresas/practicantes' },
-        { label: 'Mis vacantes', icon: 'briefcase', path: '/vacantes/mis-vacantes' },
+        { label: 'Candidatos', icon: 'users', path: '/empresas/candidatos' },
         
       ],
     },
@@ -178,6 +178,7 @@ export const MENU_POR_ROL = {
         { label: 'Avances',    icon: 'clipboard-list',  path: '/estudiante/avances'   },
         { label: 'Encuestas',  icon: 'forms',           path: '/estudiante/encuestas' },
         { label: 'Paz y salvo', icon: 'shield-check',   path: '/estudiante/paz-salvo' },
+        { label: 'Mis postulaciones', icon: 'send', path: '/estudiante/postulaciones' },
       ],
     },
   ],

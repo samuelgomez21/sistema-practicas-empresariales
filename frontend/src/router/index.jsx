@@ -59,6 +59,9 @@ import VacantesListadoPage from '@/features/vacantes/pages/VacantesListadoPage'
 import DetalleVacantePage  from '@/features/vacantes/pages/DetalleVacantePage'
 import MisVacantesPage     from '@/features/vacantes/pages/MisVacantesPage'
 
+import MisPostulacionesPage    from '@/features/estudiante/pages/MisPostulacionesPage'
+import CandidatosEmpresaPage   from '@/features/vacantes/pages/CandidatosEmpresaPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -191,6 +194,11 @@ const router = createBrowserRouter([
               <TutoresAdminPage />
             </ProtectedRoute>
           },
+          { path: 'candidatos', element:
+            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+              <CandidatosEmpresaPage />
+            </ProtectedRoute>
+          },
         ],
       },
       {  path: '/estudiante',
@@ -208,6 +216,7 @@ const router = createBrowserRouter([
           { path: 'avances',     element: <AvancesPage /> },
           { path: 'encuestas',   element: <EncuestasPage /> },
           { path: 'paz-salvo',   element: <PazYSalvoPage /> },
+          { path: 'postulaciones', element: <MisPostulacionesPage /> },
         ],
       },
       {

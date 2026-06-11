@@ -48,6 +48,8 @@ def create_request(name, method, url_path, body=None, is_login=False):
                         "var jsonData = pm.response.json();",
                         "if (jsonData.token) {",
                         "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                        "    pm.globals.set(\"jwt_token\", jsonData.token);",
+                        "    pm.environment.set(\"jwt_token\", jsonData.token);",
                         "    console.log(\"Token automatically saved to collection variables!\");",
                         "}"
                     ],
@@ -92,7 +94,7 @@ collection = {
                 create_request("Listar Programas", "GET", "/api/programas"),
                 create_request("Actualizar Programa", "PUT", "/api/programas/1", {"facultadId": 1, "nombre": "Sistemas Computacionales", "codigo": "SIS01"}),
                 create_request("Eliminar Programa", "DELETE", "/api/programas/1"),
-                create_request("Crear Catalogo", "POST", "/api/configuracion/catalogos", {"numeroPractica": 1, "nombre": "Practica Empresarial {{$randomInt}}", "materiaNucleo": "Ingenieria", "materiaNucleoCodigo": "ING-101", "programaId": 1, "cortesPorPractica": 3, "duracionSemanas": 16, "documentosRequeridos": "Hoja de Vida"}),
+                create_request("Crear Catalogo", "POST", "/api/configuracion/catalogos", {"numeroPractica": "{{$randomInt}}", "nombre": "Practica Empresarial {{$randomInt}}", "materiaNucleo": "Ingenieria", "materiaNucleoCodigo": "ING-101", "programaId": 1, "cortesPorPractica": 3, "duracionSemanas": 16, "documentosRequeridos": "Hoja de Vida"}),
                 create_request("Obtener Info Sistema", "GET", "/api/configuracion/info")
             ]
         },
@@ -113,7 +115,7 @@ collection = {
         {
             "name": "5. Modulo Vinculaciones",
             "item": [
-                create_request("Crear Vinculacion", "POST", "/api/vinculaciones", {"vacanteId": 1, "cargo": "Practicante Java", "descripcion": "Desarrollo", "requisitosEstudiante": "Java", "numeroCupos": 1, "cuposDisponibles": 1, "area": "Sistemas", "modalidad": "PRESENCIAL", "estado": "VIGENTE"}),
+                create_request("Crear Vinculacion", "POST", "/api/vinculaciones", {"vacanteId": 1, "cargo": "Practicante Java", "descripcion": "Desarrollo", "requisitosEstudiante": "Java", "numeroCupos": 1, "cuposDisponibles": 1, "area": "Sistemas", "modalidad": "PRESENCIAL", "estado": "PENDIENTE"}),
                 create_request("Listar Vinculaciones", "GET", "/api/vinculaciones")
             ]
         },

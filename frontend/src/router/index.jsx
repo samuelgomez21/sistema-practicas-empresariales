@@ -54,6 +54,11 @@ import AvancesPage               from '@/features/estudiante/pages/AvancesPage'
 import EncuestasPage             from '@/features/estudiante/pages/EncuestasPage'
 import PazYSalvoPage             from '@/features/estudiante/pages/PazYSalvoPage'
 
+import VacantesLayout      from '@/features/vacantes/pages/VacantesLayout'
+import VacantesListadoPage from '@/features/vacantes/pages/VacantesListadoPage'
+import DetalleVacantePage  from '@/features/vacantes/pages/DetalleVacantePage'
+import MisVacantesPage     from '@/features/vacantes/pages/MisVacantesPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -209,6 +214,30 @@ const router = createBrowserRouter([
         path: '/dashboard/estudiante',
         element: <Navigate to="/estudiante/dashboard" replace />,
       },
+      {
+        path: '/vacantes',
+        element: (
+          <ProtectedRoute roles={[
+            ROLES.ADMINISTRADOR,
+            ROLES.COORDINADOR_PRACTICA,
+            ROLES.SECRETARIA,
+            ROLES.EMPRESA,
+          ]}>
+            <VacantesLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true,          element: <Navigate to="/vacantes/listado" replace /> },
+          { path: 'listado',      element: <VacantesListadoPage /> },
+          { path: ':id',          element: <DetalleVacantePage />  },
+          { path: 'mis-vacantes', element:
+            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+              <MisVacantesPage />
+            </ProtectedRoute>
+          },
+        ],
+      },
+
     ],
     
   },

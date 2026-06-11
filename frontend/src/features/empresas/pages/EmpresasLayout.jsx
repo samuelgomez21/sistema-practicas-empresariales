@@ -46,23 +46,6 @@ export default function EmpresasLayout() {
           </NavLink>
         ))}
 
-        {/* Sección de tutores también visible para roles admin */}
-        {!esEmpresa && (
-          <>
-            <p className="text-[9px] uppercase tracking-widest px-2 mb-2 mt-4" style={{ color: '#8a9bb0' }}>
-              Gestión
-            </p>
-            <NavLink to="/empresas/tutores-admin"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition-all"
-              style={({ isActive }) => ({
-                background: isActive ? '#D91438' : 'transparent',
-                color:      isActive ? '#fff'    : '#6b7a8d',
-              })}>
-              <UserCheck size={14} />
-              Tutores empresariales
-            </NavLink>
-          </>
-        )}
       </aside>
 
       <div className="flex-1 min-w-0">

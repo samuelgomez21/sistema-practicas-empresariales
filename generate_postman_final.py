@@ -1,6 +1,6 @@
 import json
 
-def create_request(name, method, url_path, body=None):
+def create_request(name, method, url_path, body=None, is_login=False):
     req = {
         "name": name,
         "request": {
@@ -38,6 +38,24 @@ def create_request(name, method, url_path, body=None):
             "mode": "raw",
             "raw": json.dumps(body, indent=2)
         }
+        
+    if is_login:
+        req["event"] = [
+            {
+                "listen": "test",
+                "script": {
+                    "exec": [
+                        "var jsonData = pm.response.json();",
+                        "if (jsonData.token) {",
+                        "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                        "    console.log(\"Token automatically saved to collection variables!\");",
+                        "}"
+                    ],
+                    "type": "text/javascript"
+                }
+            }
+        ]
+        
     return req
 
 collection = {
@@ -60,7 +78,7 @@ collection = {
             "name": "1. Modulo Seguridad (Auth)",
             "item": [
                 create_request("Registrar Admin Semilla", "POST", "/api/auth/register-admin"),
-                create_request("Login Administrador", "POST", "/api/auth/login", {"email": "admin@universidad.edu.co", "password": "admin123"})
+                create_request("Login Administrador", "POST", "/api/auth/login", {"email": "admin@universidad.edu.co", "password": "admin123"}, is_login=True)
             ]
         },
         {

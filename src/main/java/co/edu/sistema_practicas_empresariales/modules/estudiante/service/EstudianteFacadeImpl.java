@@ -150,8 +150,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                     .log(java.util.logging.Level.WARNING, e, () -> "Error procesando fila " + row.getRowNum());
         }
     }
-    }
     
+
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
         String value = new DataFormatter().formatCellValue(cell).trim();
@@ -179,7 +179,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarTodos() {
         return estudianteRepository.findByActivoTrue().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -187,7 +187,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarPorPrograma(Long programaId) {
         return estudianteRepository.findByProgramaIdAndActivoTrue(programaId).stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -195,7 +195,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     public List<EstudianteResponse> listarAptos() {
         return estudianteRepository.findAptos().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -275,14 +275,14 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
         return practicaRepository.findByEstudianteIdOrderByNumeroPracticaAsc(estudianteId).stream()
                 .map(this::mapToPracticaResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional
     public void eliminarEstudiante(Long id) {
         Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado con ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(ESTUDIANTE_NO_ENCONTRADO_MSG + id));
         estudiante.setActivo(false); // Soft delete
         estudianteRepository.save(estudiante);
     }

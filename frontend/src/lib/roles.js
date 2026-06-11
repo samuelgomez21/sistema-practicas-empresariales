@@ -139,15 +139,14 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Dashboard',  icon: 'layout-dashboard', path: '/dashboard/empresa' },
         { label: 'Mi perfil',  icon: 'building',         path: '/empresas/mi-perfil' },
-        { label: 'Mis vacantes', icon: 'briefcase', path: '/vacantes/mis-vacantes' },        
         { label: 'Practicantes',   icon: 'users',        path: '/empresas/practicantes' },
-        { label: 'Candidatos', icon: 'users', path: '/empresas/candidatos' },
         
       ],
     },
     { section: 'Gestión',
       items: [
-        { label: 'Documentos', icon: 'file',             path: '/empresa/documentos' },
+        { label: 'Mis vacantes', icon: 'briefcase', path: '/vacantes/mis-vacantes' },  
+        { label: 'Candidatos', icon: 'users', path: '/empresas/candidatos' },        
         { label: 'Tutores',        icon: 'user-check',   path: '/empresas/tutores' },
       ],
     },

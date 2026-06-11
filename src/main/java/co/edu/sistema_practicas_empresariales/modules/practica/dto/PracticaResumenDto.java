@@ -12,18 +12,18 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class PracticaResumenDto {
-    private Long          id;
-    private String        nombrePractica;
-    private String        materiaNucleo;
-    private String        programa;
-    private String        nombreEstudiante;
-    private Long          estudianteId;
-    private String        nombreEmpresa;
-    private Long          empresaId;
-    private String        nombreDocente;
-    private Long          docenteId;
+    private Long id;
+    private String nombrePractica;
+    private String materiaNucleo;
+    private String programa;
+    private String nombreEstudiante;
+    private Long estudianteId;
+    private String nombreEmpresa;
+    private Long empresaId;
+    private String nombreDocente;
+    private Long docenteId;
     private EstadoPracticaTipo estado;
     private LocalDate fechaInicio;
-    private LocalDate     fechaFin;
-    private Boolean       tienePazYSalvo;
+    private LocalDate fechaFin;
+    private Boolean tienePazYSalvo;
 }

@@ -58,6 +58,8 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .salario(request.getSalario())
                 .tipoContrato(request.getTipoContrato())
                 .horario(request.getHorario())
+                .habilidades(request.getHabilidades())
+                .semestreMinimo(request.getSemestreMinimo())
                 .build();
 
         vacante = vacanteRepository.save(vacante);
@@ -145,6 +147,8 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .salario(vacante.getSalario())
                 .tipoContrato(vacante.getTipoContrato())
                 .horario(vacante.getHorario())
+                .habilidades(vacante.getHabilidades())
+                .semestreMinimo(vacante.getSemestreMinimo())
                 .build();
     }
 }

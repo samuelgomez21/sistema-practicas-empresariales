@@ -64,6 +64,12 @@ public class Vacante {
     @Column(length = 100)
     private String horario;
 
+    @Column(length = 255)
+    private String habilidades;
+
+    @Column(name = "semestre_minimo")
+    private Integer semestreMinimo;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default

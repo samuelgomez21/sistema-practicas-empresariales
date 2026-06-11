@@ -108,15 +108,15 @@ collection = {
         {
             "name": "4. Modulo Vacantes",
             "item": [
-                create_request("Crear Vacante", "POST", "/api/vacantes", {"empresaId": 1, "titulo": "Practicante", "descripcion": "Desarrollo", "perfilRequerido": "Estudiante", "requisitos": "Java", "cuposTotales": 2, "programaId": 1, "modalidad": "Presencial", "salario": 1000000, "tipoContrato": "Aprendizaje", "horario": "L-V 8-5"}),
+                create_request("Crear Vacante", "POST", "/api/vacantes", {"empresaId": 1, "titulo": "Practicante", "descripcion": "Desarrollo", "perfilRequerido": "Estudiante", "requisitos": "Java", "cuposTotales": 2, "programaId": 1, "modalidad": "Presencial", "salario": 1000000, "tipoContrato": "Aprendizaje", "horario": "L-V 8-5", "habilidades": "Spring Boot", "semestreMinimo": 7}),
                 create_request("Vacantes Pendientes", "GET", "/api/vacantes/pendientes")
             ]
         },
         {
-            "name": "5. Modulo Vinculaciones",
+            "name": "5. Modulo Postulaciones",
             "item": [
-                create_request("Crear Vinculacion", "POST", "/api/vinculaciones", {"vacanteId": 1, "cargo": "Practicante Java", "descripcion": "Desarrollo", "requisitosEstudiante": "Java", "numeroCupos": 1, "cuposDisponibles": 1, "area": "Sistemas", "modalidad": "PRESENCIAL", "estado": "PENDIENTE"}),
-                create_request("Listar Vinculaciones", "GET", "/api/vinculaciones")
+                create_request("Crear Postulacion", "POST", "/api/postulaciones", {"vacanteId": 1, "estudianteId": 1, "observaciones": "Interesado en la vacante"}),
+                create_request("Listar Postulaciones", "GET", "/api/postulaciones")
             ]
         },
         {

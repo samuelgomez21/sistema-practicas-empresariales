@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class SmtpEmailAdapter implements EmailPort {
+public class EmaiSmtplAdapter implements EmailPort {
 
     // En un entorno real inyectaríamos JavaMailSender
     // private final JavaMailSender mailSender;

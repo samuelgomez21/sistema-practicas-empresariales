@@ -6,6 +6,93 @@ import BadgeEstadoPractica from '../components/BadgeEstadoPractica'
 import BadgeEstadoAvance from '../components/BadgeEstadoAvance'
 import ChecklistItem from '../components/ChecklistItem'
 
+// Pasos del stepper según el estado de la práctica
+const PASOS = [
+  { numero: 1, label: 'Inicio',      estado: 'ASIGNADA_PENDIENTE_INICIO' },
+  { numero: 2, label: 'Documentos',  estado: 'EN_PROCESO_VINCULACION'    },
+  { numero: 3, label: 'Planeador',   estado: 'VINCULADA'                 },
+  { numero: 4, label: 'En desarrollo', estado: 'EN_PRACTICA'             },
+  { numero: 5, label: 'Cierre',      estado: 'COMPLETADA'                },
+]
+
+// Mapea el estado de la práctica al número de paso activo
+function obtenerPasoActivo(estado) {
+  const map = {
+    ASIGNADA_PENDIENTE_INICIO: 1,
+    EN_PROCESO_VINCULACION:    2,
+    VINCULADA:                 3,
+    EN_PRACTICA:               4,
+    COMPLETADA:                5,
+    REPROBADA:                 5,
+    CANCELADA:                 0,
+  }
+  return map[estado] ?? 1
+}
+
+function Stepper({ estadoPractica }) {
+  const pasoActivo = obtenerPasoActivo(estadoPractica)
+
+  return (
+    <div className="bg-white rounded-xl p-5"
+      style={{ border: '0.5px solid #e2e8f0' }}>
+      <p className="text-xs font-bold mb-4" style={{ color: '#023859' }}>
+        Progreso de la práctica
+      </p>
+      <div className="flex items-center">
+        {PASOS.map((paso, idx) => {
+          const completado = pasoActivo > paso.numero
+          const activo     = pasoActivo === paso.numero
+          const pendiente  = pasoActivo < paso.numero
+
+          return (
+            <div key={paso.numero} className="flex items-center flex-1 last:flex-none">
+              {/* Círculo del paso */}
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all"
+                  style={{
+                    background: completado ? '#1a7a4a'
+                      : activo    ? '#D91438'
+                      : '#f0f2f5',
+                    color: completado || activo ? '#fff' : '#8a9bb0',
+                    border: activo ? '2.5px solid #D91438' : 'none',
+                  }}>
+                  {completado
+                    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    : paso.numero
+                  }
+                </div>
+                <span
+                  className="text-[10px] font-medium whitespace-nowrap"
+                  style={{
+                    color: completado ? '#1a7a4a'
+                      : activo    ? '#D91438'
+                      : '#8a9bb0',
+                  }}>
+                  {paso.label}
+                </span>
+              </div>
+
+              {/* Línea conectora */}
+              {idx < PASOS.length - 1 && (
+                <div
+                  className="flex-1 h-0.5 mx-2 mb-5 rounded-full transition-all"
+                  style={{
+                    background: completado ? '#1a7a4a' : '#f0f2f5',
+                  }}
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function EstudianteDashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
@@ -39,7 +126,8 @@ export default function EstudianteDashboardPage() {
         </div>
         <BadgeEstadoPractica estado={practica.estado} />
       </div>
-
+      {/* Stepper de progreso */}
+      {practica && <Stepper estadoPractica={practica.estado} />}
       {/* Tarjetas resumen */}
       <div className="grid grid-cols-3 gap-3">
         {[

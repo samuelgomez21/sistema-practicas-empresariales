@@ -86,6 +86,7 @@ import MiPerfilTutorPage         from '@/features/tutor/pages/MiPerfilTutorPage'
 import MisEstudiantesTutorPage   from '@/features/tutor/pages/MisEstudiantesTutorPage'
 import EncuestaTutorPage         from '@/features/tutor/pages/EncuestaTutorPage'
 
+import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -111,6 +112,8 @@ const router = createBrowserRouter([
   { path: '/cambiar-password',   element: <CambiarPasswordPage /> },
   { path: '/recuperar-password', element: <RecuperarPasswordPage /> },
   { path: '/sin-permiso',        element: <SinPermisoPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
+
 
   // Raíz → redirige al dashboard del rol
   { path: '/', element: <RootRedirect /> },

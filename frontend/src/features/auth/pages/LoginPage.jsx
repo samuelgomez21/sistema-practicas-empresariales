@@ -5,9 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { toast } from 'sonner'
-import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
-import { authApi } from '../api/authApi'
 import logoUAH from '@/assets/images/logo-uah.png'
 
 // ── Validación del formulario ──────────────────────────────────────────────
@@ -21,23 +19,12 @@ const loginSchema = z.object({
     .min(1, 'La contraseña es obligatoria'),
 })
 
-// ── Rutas por rol después del login ───────────────────────────────────────
-const RUTA_POR_ROL = {
-  ADMINISTRADOR:           '/dashboard/admin',
-  COORDINACION_ACADEMICA:  '/dashboard/coordinacion-academica',
-  COORDINADOR_PRACTICA:    '/dashboard/coordinador-practica',
-  SECRETARIA:              '/dashboard/secretaria',
-  DOCENTE_ASESOR:          '/dashboard/docente',
-  EMPRESA:                 '/dashboard/empresa',
-  TUTOR_EMPRESARIAL:       '/dashboard/tutor',
-  ESTUDIANTE:              '/dashboard/estudiante',
-  DIRECCION:               '/dashboard/direccion',
-}
-
 export default function LoginPage() {
-  const navigate   = useNavigate()
-  const login      = useAuthStore((s) => s.login)
   const [verPass, setVerPass] = useState(false)
+  const [cargando, setCargando] = useState(false)
+
+  const navigate = useNavigate()
+  const login    = useAuthStore(s => s.login)
 
   const {
     register,
@@ -45,33 +32,24 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) })
 
-  // ── Patrón Observer: el mutation emite el evento de login exitoso
-  //    y el store reacciona actualizando el estado global ──────────────────
-  const mutation = useMutation({
-    mutationFn: authApi.login,
-    onSuccess: ({ token, user }) => {
-      // Guardamos en el store (persiste en localStorage vía Zustand)
-      login(token, user)
-
-      // Si es primer ingreso, forzar cambio de contraseña
-      if (user.requiereCambioPassword) {
-        navigate('/cambiar-password', { replace: true })
+  const onSubmit = async (formData) => {
+    setCargando(true)
+    try {
+      await login(formData.correo, formData.password)
+      // RootRedirect se encarga de mandar al dashboard correcto
+      navigate('/')
+    } catch (error) {
+      if (error.code === 'DEBE_CAMBIAR_PASSWORD') {
+        navigate('/cambiar-password', {
+          state: { email: error.email, currentPassword: error.currentPassword },
+        })
         return
       }
-
-      // Redirigir según rol
-      const ruta = RUTA_POR_ROL[user.rol] ?? '/'
-      navigate(ruta, { replace: true })
-      toast.success(`Bienvenido, ${user.nombre}`)
-    },
-    onError: (error) => {
-      const msg =
-        error.response?.data?.mensaje ?? 'Credenciales incorrectas'
-      toast.error(msg)
-    },
-  })
-
-  const onSubmit = (data) => mutation.mutate(data)
+      toast.error('Credenciales inválidas')
+    } finally {
+      setCargando(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-blue-100 flex items-center justify-center p-4">
@@ -213,11 +191,11 @@ export default function LoginPage() {
             {/* Botón */}
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={cargando}
               className="w-full h-11 rounded-lg text-white text-sm font-bold uppercase tracking-wide transition-all"
-              style={{ background: mutation.isPending ? '#a0aab4' : '#D91438' }}
+              style={{ background: cargando ? '#a0aab4' : '#D91438' }}
             >
-              {mutation.isPending ? 'Verificando...' : 'Ingresar al sistema'}
+              {cargando ? 'Verificando...' : 'Ingresar al sistema'}
             </button>
 
           </form>

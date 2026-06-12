@@ -4,8 +4,6 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
-import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.model.Postulacion;
-import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionRepository;
 import java.util.Objects;
 
 /**
@@ -29,11 +27,5 @@ public final class Validations {
         Objects.requireNonNull(id, "Id de Usuario no puede ser null");
         return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado o eliminado"));
-    }
-
-    public static Postulacion validarPostulacion(Long id, PostulacionRepository repo) {
-        Objects.requireNonNull(id, "Id de Postulacion no puede ser null");
-        return repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Postulación no encontrada o eliminada"));
     }
 }

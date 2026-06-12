@@ -2,9 +2,14 @@ package co.edu.sistema_practicas_empresariales.modules.usuario.service;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
+import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -21,9 +26,11 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UsuarioFacadeImpl implements UsuarioFacade {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
     private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
 
     /**
@@ -71,61 +78,67 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     }
 
     @Override
-    /**
-     * Recupera y mapea a DTO todos los usuarios del sistema.
-     *
-     * @return Lista de todos los usuarios (DTOs).
-     */
+    @Transactional(readOnly = true)
     public List<UsuarioDto> obtenerTodos() {
-        return usuarioService.obtenerTodos()
+        return usuarioRepository.findAllByEliminadoFalse()
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    /**
-     * Obtiene un usuario específico por su ID y lo convierte a DTO.
-     *
-     * @param id ID del usuario.
-     * @return DTO del usuario.
-     */
+    @Transactional(readOnly = true)
     public UsuarioDto obtenerPorId(Long id) {
-        return mapToDto(usuarioService.obtenerPorId(id));
+        Usuario usuario = usuarioRepository.findByIdAndEliminadoFalse(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + id));
+        return mapToDto(usuario);
     }
 
     @Override
-    /**
-     * Coordina la creación de un nuevo usuario delegando al servicio de dominio.
-     *
-     * @param usuarioDto DTO con los datos del usuario a crear.
-     * @return DTO del usuario creado y persistido.
-     */
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "CREAR", modulo = "USUARIOS")
     public UsuarioDto crear(UsuarioDto usuarioDto) {
-        Usuario guardado = usuarioService.crear(mapToEntity(usuarioDto));
+        Usuario usuario = mapToEntity(usuarioDto);
+        Objects.requireNonNull(usuario, "Usuario no puede ser null");
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese email");
+        }
+        if (usuario.getPassword() != null) {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        } else {
+            String generated = java.util.UUID.randomUUID().toString().substring(0, 8);
+            usuario.setPassword(passwordEncoder.encode(generated));
+        }
+        usuario.setDebeCambiarPassword(true);
+        Usuario guardado = usuarioRepository.save(usuario);
         return mapToDto(guardado);
     }
 
     @Override
-    /**
-     * Actualiza la información de un usuario existente.
-     *
-     * @param id ID del usuario a modificar.
-     * @param usuarioDto Nuevos datos.
-     * @return DTO del usuario actualizado.
-     */
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "ACTUALIZAR", modulo = "USUARIOS")
     public UsuarioDto actualizar(Long id, UsuarioDto usuarioDto) {
-        Usuario actualizado = usuarioService.actualizar(id, mapToEntity(usuarioDto));
+        Usuario datosNuevos = mapToEntity(usuarioDto);
+        Objects.requireNonNull(datosNuevos, "Usuario no puede ser null");
+        
+        Usuario existente = usuarioRepository.findByIdAndEliminadoFalse(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + id));
+                
+        existente.setEmail(datosNuevos.getEmail());
+        existente.setNombre(datosNuevos.getNombre());
+        existente.setActivo(datosNuevos.isActivo());
+        if (datosNuevos.getRol() != null) {
+            existente.setRol(datosNuevos.getRol());
+        }
+        if (datosNuevos.getPassword() != null) {
+            existente.setPassword(datosNuevos.getPassword()); 
+        }
+        
+        Usuario actualizado = usuarioRepository.save(existente);
         return mapToDto(actualizado);
     }
 
     @Override
-    /**
-     * Realiza el borrado lógico del usuario en el sistema.
-     *
-     * @param id ID del usuario a desactivar.
-     */
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "ELIMINAR", modulo = "USUARIOS")
     public void eliminar(Long id) {
-        usuarioService.eliminar(id);
+        usuarioRepository.softDelete(id);
     }
 }

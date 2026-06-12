@@ -163,8 +163,8 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',       icon: 'layout-dashboard', path: '/dashboard/tutor' },
-        { label: 'Mis estudiantes', icon: 'users',            path: '/tutor/estudiantes' },
-        { label: 'Encuestas',       icon: 'forms',            path: '/tutor/encuestas' },
+        { label: 'Mi Perfil',       icon: 'user',     path: '/tutor/perfil'      },
+        { label: 'Mis Estudiantes', icon: 'users',    path: '/tutor/estudiantes' },
       ],
     },
   ],

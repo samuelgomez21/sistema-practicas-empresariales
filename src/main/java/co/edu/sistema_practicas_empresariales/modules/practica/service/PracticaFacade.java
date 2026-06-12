@@ -34,6 +34,7 @@ public interface PracticaFacade {
     // Ejecución y Cierre
     PracticaDetalleDto registrarFechaSustentacion(Long practicaId, FechaSustentacionRequest req);
     PracticaDetalleDto registrarNotaFinal(Long practicaId, NotaFinalRequest req);
+    byte[] descargarContratoPdf(Long practicaId);
     
     // Documentos
     PracticaDetalleDto subirDocumento(Long practicaId, String categoria, MultipartFile archivo, String subidoPor);

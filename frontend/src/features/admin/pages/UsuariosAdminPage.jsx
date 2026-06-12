@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Edit, KeyRound, Power } from 'lucide-react'
 import { toast } from 'sonner'
-import { usuariosApi, ROL_LABEL } from '../api/usuariosApi'
+import { usuariosApi } from '../api/usuariosApi'
 import ModalUsuario from '../components/ModalUsuario'
+import { rolesApi, etiquetaRol } from '../api/rolesApi'
+
 
 export default function UsuariosAdminPage() {
   const qc = useQueryClient()
@@ -11,18 +13,32 @@ export default function UsuariosAdminPage() {
   const [filtroRol,  setFiltroRol]  = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [modal, setModal] = useState(null) // null | 'crear' | usuario a editar
+  const { data: roles = [] } = useQuery({
+    queryKey: ['roles-disponibles'],
+    queryFn:  rolesApi.getRoles,
+  })
 
   const { data: usuarios = [], isLoading } = useQuery({
     queryKey: ['usuarios-admin'],
     queryFn:  usuariosApi.getUsuarios,
   })
 
-  const toggleMutation = useMutation({
-    mutationFn: (id) => usuariosApi.toggleActivo(id),
-    onSuccess: (u) => {
+  const desactivarMutation = useMutation({
+    mutationFn: (id) => usuariosApi.desactivarUsuario(id),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['usuarios-admin'] })
-      toast.success(u.activo ? 'Usuario activado' : 'Usuario desactivado')
+      toast.success('Usuario desactivado correctamente')
     },
+    onError: () => toast.error('Error al desactivar el usuario'),
+  })
+
+  const activarMutation = useMutation({
+    mutationFn: (id) => usuariosApi.activarUsuario(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['usuarios-admin'] })
+      toast.success('Usuario activado correctamente')
+    },
+    onError: () => toast.error('Error al activar el usuario'),
   })
 
   const forzarMutation = useMutation({
@@ -88,8 +104,8 @@ export default function UsuariosAdminPage() {
           className="h-9 px-3 rounded-lg text-xs outline-none"
           style={{ border: '0.5px solid #e2e8f0', background: '#f7f9fb', color: '#023859' }}>
           <option value="">Todos los roles</option>
-          {Object.entries(ROL_LABEL).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
+          {roles.map(r => (
+            <option key={r.id} value={r.nombre}>{etiquetaRol(r.nombre)}</option>
           ))}
         </select>
         <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
@@ -125,14 +141,14 @@ export default function UsuariosAdminPage() {
                       style={{ background: '#e6f0fb', color: '#0B416B' }}>
                       {u.nombre[0]}
                     </div>
-                    <div>
+{/*                     <div>
                       <p className="text-xs font-semibold" style={{ color: '#023859' }}>{u.nombre}</p>
                       {u.debeCambiarPassword && (
                         <p className="text-[9px]" style={{ color: '#a07010' }}>
                           Debe cambiar contraseña
                         </p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-xs" style={{ color: '#6b7a8d' }}>
@@ -141,7 +157,7 @@ export default function UsuariosAdminPage() {
                 <td className="px-4 py-3">
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded"
                     style={{ background: '#e6f0fb', color: '#6b7a8d' }}>
-                    {ROL_LABEL[u.rol] ?? u.rol}
+                    {etiquetaRol(u.rol)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -161,7 +177,7 @@ export default function UsuariosAdminPage() {
                       title="Editar">
                       <Edit size={13} />
                     </button>
-                    <button
+{/*                     <button
                       onClick={() => forzarMutation.mutate(u.id)}
                       disabled={u.debeCambiarPassword}
                       className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -172,9 +188,13 @@ export default function UsuariosAdminPage() {
                       }}
                       title="Forzar cambio de contraseña">
                       <KeyRound size={13} />
-                    </button>
+                    </button> */}
                     <button
-                      onClick={() => toggleMutation.mutate(u.id)}
+                      onClick={() => u.activo
+                        ? desactivarMutation.mutate(u.id)
+                        : activarMutation.mutate(u.id)
+                      }
+                      disabled={desactivarMutation.isPending || activarMutation.isPending}
                       className="w-7 h-7 rounded-lg flex items-center justify-center"
                       style={u.activo
                         ? { border: '0.5px solid #f7c1c1', background: '#fef0f0', color: '#c0392b' }

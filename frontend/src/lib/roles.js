@@ -3,11 +3,11 @@
  */
 export const ROLES = {
   ADMINISTRADOR:          'ADMINISTRADOR',
-  COORDINACION_ACADEMICA: 'COORDINACION_ACADEMICA',
+  COORDINADOR_ACADEMICO: 'COORDINADOR_ACADEMICO',
   COORDINADOR_PRACTICA:   'COORDINADOR_PRACTICA',
-  SECRETARIA:             'SECRETARIA',
+  SECRETARIA_COORDINACION:             'SECRETARIA_COORDINACION',
   DOCENTE_ASESOR:         'DOCENTE_ASESOR',
-  EMPRESA:                'EMPRESA',
+  EMPRESA_VINCULADA:                'EMPRESA_VINCULADA',
   TUTOR_EMPRESARIAL:      'TUTOR_EMPRESARIAL',
   ESTUDIANTE:             'ESTUDIANTE',
   DIRECCION:              'DIRECCION',
@@ -19,11 +19,11 @@ export const ROLES = {
  */
 export const DASHBOARD_POR_ROL = {
   [ROLES.ADMINISTRADOR]:          '/dashboard/admin',
-  [ROLES.COORDINACION_ACADEMICA]: '/dashboard/coordinacion-academica',
+  [ROLES.COORDINADOR_ACADEMICO]: '/dashboard/coordinacion-academica',
   [ROLES.COORDINADOR_PRACTICA]:   '/dashboard/coordinador-practica',
-  [ROLES.SECRETARIA]:             '/dashboard/secretaria',
+  [ROLES.SECRETARIA_COORDINACION]:             '/dashboard/secretaria',
   [ROLES.DOCENTE_ASESOR]:         '/dashboard/docente',
-  [ROLES.EMPRESA]:                '/dashboard/empresa',
+  [ROLES.EMPRESA_VINCULADA]:                '/dashboard/empresa',
   [ROLES.TUTOR_EMPRESARIAL]:      '/dashboard/tutor',
   [ROLES.ESTUDIANTE]:             '/dashboard/estudiante',
   [ROLES.DIRECCION]:              '/dashboard/direccion',

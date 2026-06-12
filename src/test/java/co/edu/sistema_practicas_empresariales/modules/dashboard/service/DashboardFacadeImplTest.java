@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.dashboard.service;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

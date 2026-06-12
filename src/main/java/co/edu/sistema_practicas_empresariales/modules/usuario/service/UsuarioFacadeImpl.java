@@ -2,7 +2,7 @@ package co.edu.sistema_practicas_empresariales.modules.usuario.service;
 
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
-import co.edu.sistema_practicas_empresariales.modules.usuario.dto.ProgramaResumenDto;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.CoordinadorPrograma;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;

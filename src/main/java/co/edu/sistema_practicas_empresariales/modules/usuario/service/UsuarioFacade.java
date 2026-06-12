@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.service;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
 import java.util.List;
 
 public interface UsuarioFacade {

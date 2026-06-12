@@ -1,7 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.controller;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.AsignarProgramasRequest;
-import co.edu.sistema_practicas_empresariales.modules.usuario.dto.ProgramaResumenDto;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.UsuarioFacade;
 import lombok.RequiredArgsConstructor;

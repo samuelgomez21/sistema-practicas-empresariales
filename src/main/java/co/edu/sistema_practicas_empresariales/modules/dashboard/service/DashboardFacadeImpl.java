@@ -4,7 +4,7 @@ import co.edu.sistema_practicas_empresariales.modules.dashboard.dto.DashboardEst
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
-import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionRepository;
+import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +24,14 @@ public class DashboardFacadeImpl implements DashboardFacade {
 
     private final VacanteRepository vacanteRepository;
     private final UsuarioRepository usuarioRepository;
-    private final PostulacionRepository postulacionRepository;
+    private final PostulacionRepository postulacionesRepository;
 
     @Override
     public DashboardEstadisticasDto obtenerEstadisticas() {
         
         long totalVacantes = vacanteRepository.count();
         long totalUsuarios = usuarioRepository.count();
-        long totalPostulaciones = postulacionRepository.count();
+        long totalPostulaciones = postulacionesRepository.count();
         
         // Contamos solo las vacantes aprobadas usando el tipo de estado
         long vacantesAprobadas = vacanteRepository.findByEstado(EstadoVacanteTipo.APROBADA).size();

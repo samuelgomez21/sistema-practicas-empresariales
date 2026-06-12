@@ -88,6 +88,9 @@ import EncuestaTutorPage         from '@/features/tutor/pages/EncuestaTutorPage'
 
 import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 
+import UsuariosAdminPage from '@/features/admin/pages/UsuariosAdminPage'
+import BitacoraPage      from '@/features/admin/pages/BitacoraPage'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -368,6 +371,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}>
             <EncuestaTutorPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/usuarios',
+        element: (
+          <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}>
+            <UsuariosAdminPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/bitacora',
+        element: (
+          <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}>
+            <BitacoraPage />
           </ProtectedRoute>
         ),
       },

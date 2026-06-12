@@ -127,6 +127,7 @@ export const MENU_POR_ROL = {
   [ROLES.DOCENTE_ASESOR]: [
     { section: 'Principal',
       items: [
+        { label: 'Mi Perfil', icon: 'user', path: '/docente/perfil' },
         { label: 'Dashboard',   icon: 'layout-dashboard', path: '/dashboard/docente' },
         { label: 'Mis Estudiantes', icon: 'users',    path: '/docente/estudiantes'  },
       ],

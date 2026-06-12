@@ -68,6 +68,13 @@ import CargaDocentesPage   from '@/features/coordinacion/pages/CargaDocentesPage
 import PerfilEstudianteEmpresaPage from '@/features/empresas/pages/PerfilEstudianteEmpresaPage'
 import DetalleEmpresaCoordPage     from '@/features/empresas/pages/DetalleEmpresaPage'
 
+// Reemplázalo por (agregando VisitasPage con alias):
+import MisEstudiantesPage          from '@/features/docente/pages/MisEstudiantesPage'
+import PerfilEstudianteDocentePage from '@/features/docente/pages/PerfilEstudianteDocentePage'
+import SeguimientosPage            from '@/features/docente/pages/SeguimientosPage'
+import VisitasDocentePage          from '@/features/docente/pages/VisitasPage'
+import DocenteLayout                from '@/features/docente/pages/DocenteLayout'
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -265,12 +272,23 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/coordinacion/docentes',
+        path: '/coordinador/docentes',
+        element: <CargaDocentesPage />
+      },
+      {
+        path: '/docente',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA, ROLES.ADMINISTRADOR]}>
-            <CargaDocentesPage />
+          <ProtectedRoute roles={[ROLES.DOCENTE_ASESOR]}>
+            <DocenteLayout />
           </ProtectedRoute>
         ),
+        children: [
+          { index: true,        element: <Navigate to="/docente/estudiantes" replace /> },
+          { path: 'estudiantes',     element: <MisEstudiantesPage /> },
+          { path: 'estudiantes/:id', element: <PerfilEstudianteDocentePage /> },
+          { path: 'seguimientos',    element: <SeguimientosPage /> },
+          { path: 'visitas',         element: <VisitasDocentePage /> },
+        ]
       },
 
     ],

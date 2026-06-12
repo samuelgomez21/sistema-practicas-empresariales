@@ -4,7 +4,13 @@ const delay = (ms = 400) => new Promise(r => setTimeout(r, ms))
 
 const db = {
   docente: {
-    id: 1, nombre: 'Dr. Carlos Méndez', programa: 'Ingeniería de Software',
+    id: 1,
+    nombre: 'Dr. Carlos Méndez',
+    correo: 'c.mendez@universidad.edu.co',
+    facultad: 'Ingeniería',
+    programa: 'Ingeniería de Software',
+    dedicacion: 'Tiempo completo',
+    maxEstudiantes: 10,
   },
 
   estudiantes: [
@@ -124,6 +130,12 @@ export const docenteApi = {
   await delay()
   return db.estudiantes.filter(e => e.practica?.empresaNombre)
   // return api.get(`/practicas/docente/${docenteId}`).then(r => r.data.filter(p => p.empresaId))
+  },
+
+  getPerfilDocente: async () => {
+  await delay()
+  return db.docente
+  // return api.get(`/usuarios/${docenteId}`).then(r => r.data)
   },
 }
 

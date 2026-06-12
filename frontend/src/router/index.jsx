@@ -73,6 +73,8 @@ import PerfilEstudianteDocentePage from '@/features/docente/pages/PerfilEstudian
 import SeguimientosPage            from '@/features/docente/pages/SeguimientosPage'
 import VisitasDocentePage          from '@/features/docente/pages/VisitasPage'
 import DocenteLayout                from '@/features/docente/pages/DocenteLayout'
+import MiPerfilDocentePage from '@/features/docente/pages/MiPerfilDocentePage'
+
 
 import SeguimientoEstudiantesPage     from '@/features/coordinacion-empresarial/pages/SeguimientoEstudiantesPage'
 import PerfilEstudianteHistorialPage  from '@/features/coordinacion-empresarial/pages/PerfilEstudianteHistorialPage'
@@ -294,6 +296,8 @@ const router = createBrowserRouter([
           { path: 'estudiantes/:id', element: <PerfilEstudianteDocentePage /> },
           { path: 'seguimientos',    element: <SeguimientosPage /> },
           { path: 'visitas',         element: <VisitasDocentePage /> },
+          { path: 'perfil', element: <MiPerfilDocentePage /> },
+
         ]
       },
       {

@@ -54,7 +54,7 @@ app:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
 
 server:
-  port: 0
+  port: 8080
   error:
     include-message: always
 

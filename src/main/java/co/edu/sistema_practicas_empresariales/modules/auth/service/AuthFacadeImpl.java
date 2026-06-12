@@ -44,6 +44,7 @@ public class AuthFacadeImpl implements AuthFacade {
     private String coordPassword;
 
     @Override
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "LOGIN", modulo = "AUTENTICACION")
     public JwtResponse login(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Credenciales inválidas"));

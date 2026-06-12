@@ -24,8 +24,7 @@ public class DashboardFacadeImplTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
-    @Mock
-    private PostulacionRepository postulacionesRepository;
+
 
     @InjectMocks
     private DashboardFacadeImpl dashboardService;
@@ -39,7 +38,6 @@ public class DashboardFacadeImplTest {
         // Arrange
         when(vacanteRepository.count()).thenReturn(10L);
         when(usuarioRepository.count()).thenReturn(5L);
-        when(postulacionesRepository.count()).thenReturn(3L);
         when(vacanteRepository.findByEstado(co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo.APROBADA))
                 .thenReturn(java.util.List.of(new co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante(), new co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante()));
 
@@ -50,7 +48,7 @@ public class DashboardFacadeImplTest {
         assertNotNull(dto);
         assertEquals(10L, dto.getTotalVacantes());
         assertEquals(5L, dto.getTotalUsuarios());
-        assertEquals(3L, dto.getTotalPostulaciones());
+        assertEquals(0L, dto.getTotalPostulaciones());
         assertEquals(2L, dto.getVacantesAprobadas());
     }
 }

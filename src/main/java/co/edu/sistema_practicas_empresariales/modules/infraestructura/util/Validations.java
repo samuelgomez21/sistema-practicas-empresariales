@@ -30,10 +30,4 @@ public final class Validations {
         return repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado o eliminado"));
     }
-
-    public static Postulacion validarPostulacion(Long id, PostulacionRepository repo) {
-        Objects.requireNonNull(id, "Id de Postulacion no puede ser null");
-        return repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Postulación no encontrada o eliminada"));
-    }
 }

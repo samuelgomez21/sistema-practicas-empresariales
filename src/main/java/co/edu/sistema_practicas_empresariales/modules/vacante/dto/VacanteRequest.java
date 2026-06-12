@@ -21,4 +21,6 @@ public class VacanteRequest {
     private java.math.BigDecimal salario;
     private String tipoContrato;
     private String horario;
+    private String habilidades;
+    private Integer semestreMinimo;
 }

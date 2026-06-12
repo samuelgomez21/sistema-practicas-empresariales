@@ -46,6 +46,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
     private final CatalogoPracticaRepository catalogoRepository;
     private final EstudianteRepository       estudianteRepository;
     private final UsuarioRepository          usuarioRepository;
+    private final HistorialCargaDocenteRepository historialCargaDocenteRepository;
     private final ArchivoStorageService      storageService;
 
     // Claves del checklist
@@ -195,8 +196,25 @@ public class PracticaFacadeImpl implements PracticaFacade {
         Practica p  = buscar(practicaId);
         Usuario doc = usuarioRepository.findById(docenteId)
                 .orElseThrow(() -> new IllegalArgumentException("Docente no encontrado"));
+        
+        historialCargaDocenteRepository.findByPracticaIdAndEstado(practicaId, "ACTIVA").ifPresent(historial -> {
+            historial.setEstado("FINALIZADA");
+            historial.setFechaFin(LocalDateTime.now());
+            historialCargaDocenteRepository.save(historial);
+        });
+
         p.setDocenteAsesor(doc);
-        return toDetalle(practicaRepository.save(p));
+        Practica guardada = practicaRepository.save(p);
+
+        HistorialCargaDocente nuevoHistorial = HistorialCargaDocente.builder()
+                .docente(doc)
+                .practica(guardada)
+                .estado("ACTIVA")
+                .fechaAsignacion(LocalDateTime.now())
+                .build();
+        historialCargaDocenteRepository.save(nuevoHistorial);
+
+        return toDetalle(guardada);
     }
 
     public PracticaDetalleDto asignarEmpresa(Long practicaId, Long empresaId) {

@@ -30,4 +30,6 @@ public class VacanteResponse {
     private java.math.BigDecimal salario;
     private String tipoContrato;
     private String horario;
+    private String habilidades;
+    private Integer semestreMinimo;
 }

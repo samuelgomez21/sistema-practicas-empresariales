@@ -1,16 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "catalogo_practicas", uniqueConstraints = {
-    @UniqueConstraint(name = "uq_catalogo_practica_num_programa", columnNames = {"numero_practica", "programa_id"})
+        @UniqueConstraint(name = "uq_catalogo_practica_num_programa", columnNames = { "numero_practica",
+                "programa_id" })
 })
 @Data
 @NoArgsConstructor

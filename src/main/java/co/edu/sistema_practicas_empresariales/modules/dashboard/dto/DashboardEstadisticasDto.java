@@ -16,5 +16,5 @@ public class DashboardEstadisticasDto {
     private long totalVacantes;
     private long vacantesAprobadas;
     private long totalUsuarios;
-    private long totalVinculaciones;
+    private long totalPostulaciones;
 }

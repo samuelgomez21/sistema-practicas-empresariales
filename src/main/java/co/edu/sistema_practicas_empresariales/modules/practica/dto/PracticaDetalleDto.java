@@ -15,11 +15,11 @@ import java.util.List;
 @Data
 @Builder
 public class PracticaDetalleDto {
-    private Long           id;
+    private Long id;
     private EstadoPracticaTipo estado;
 
     // Catálogo
-    private Long   catalogoPracticaId;
+    private Long catalogoPracticaId;
     private String nombrePractica;
     private String materiaNucleo;
     private String descripcion;
@@ -27,13 +27,13 @@ public class PracticaDetalleDto {
     private Integer numeroPractica;
 
     // Participantes
-    private Long   estudianteId;
+    private Long estudianteId;
     private String nombreEstudiante;
-    private Long   empresaId;
+    private Long empresaId;
     private String nombreEmpresa;
-    private Long   docenteId;
+    private Long docenteId;
     private String nombreDocente;
-    private Long   tutorId;
+    private Long tutorId;
     private String nombreTutor;
     private String cargoTutor;
 
@@ -43,13 +43,13 @@ public class PracticaDetalleDto {
     private LocalDate fechaSustentacion;
 
     // Documentos
-    private String        arlUrl;
+    private String arlUrl;
     private LocalDateTime arlFechaCarga;
-    private String        planeadorUrl;
+    private String planeadorUrl;
     private LocalDateTime planeadorFechaCarga;
-    private String        informeEjecutivoUrl;
-    private String        presentacionUrl;
-    private String        documentoFinalUrl;
+    private String informeEjecutivoUrl;
+    private String presentacionUrl;
+    private String documentoFinalUrl;
 
     // Calificaciones
     private BigDecimal notaDocente;
@@ -58,7 +58,7 @@ public class PracticaDetalleDto {
 
     // Cortes y checklist
     private List<ChecklistDto> checklist;
-    private Boolean   tienePazYSalvo;
+    private Boolean tienePazYSalvo;
 
     private String materiaNucleoCodigo;
     private int duracionSemanas;

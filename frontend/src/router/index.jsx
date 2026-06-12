@@ -82,6 +82,10 @@ import ContratosPage                  from '@/features/coordinacion-empresarial/
 import VisitasCoordinadoraPage        from '@/features/coordinacion-empresarial/pages/VisitasCoordinadorPage'
 import PazYSalvoCoordPage             from '@/features/coordinacion-empresarial/pages/PazYSalvoCoordPage'
 
+import MiPerfilTutorPage         from '@/features/tutor/pages/MiPerfilTutorPage'
+import MisEstudiantesTutorPage   from '@/features/tutor/pages/MisEstudiantesTutorPage'
+import EncuestaTutorPage         from '@/features/tutor/pages/EncuestaTutorPage'
+
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -337,6 +341,30 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
             <PazYSalvoCoordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/tutor/perfil',
+        element: (
+          <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}>
+            <MiPerfilTutorPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/tutor/estudiantes',
+        element: (
+          <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}>
+            <MisEstudiantesTutorPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/tutor/estudiantes/:id',
+        element: (
+          <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}>
+            <EncuestaTutorPage />
           </ProtectedRoute>
         ),
       },

@@ -4,17 +4,24 @@ import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
-import { usuariosApi, ROL_LABEL } from '../api/usuariosApi'
+import { useQuery } from '@tanstack/react-query'
+import { rolesApi, etiquetaRol } from '../api/rolesApi'
+import { usuariosApi } from '../api/usuariosApi'
 
 const schema = z.object({
   nombre: z.string().min(3, 'Mínimo 3 caracteres'),
   email:  z.string().email('Correo inválido'),
   rol:    z.string().min(1, 'Selecciona un rol'),
+  activo: z.boolean().optional(),
 })
+
 
 export default function ModalUsuario({ usuario, onClose, onGuardado }) {
   const esEdicion = !!usuario
-
+  const { data: roles = [], isLoading: cargandoRoles } = useQuery({
+    queryKey: ['roles-disponibles'],
+    queryFn:  rolesApi.getRoles,
+  })
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: usuario
@@ -68,10 +75,12 @@ export default function ModalUsuario({ usuario, onClose, onGuardado }) {
 
           <div>
             <label className={lc} style={ls}>Rol</label>
-            <select {...register('rol')} className={ic} style={is}>
-              <option value="">Seleccionar rol...</option>
-              {Object.entries(ROL_LABEL).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
+            <select {...register('rol')} className={ic} style={is} disabled={cargandoRoles}>
+              <option value="">
+                {cargandoRoles ? 'Cargando roles...' : 'Seleccionar rol...'}
+              </option>
+              {roles.map(r => (
+                <option key={r.id} value={r.nombre}>{etiquetaRol(r.nombre)}</option>
               ))}
             </select>
             {errors.rol && <p className="text-xs" style={{ color: '#D91438' }}>{errors.rol.message}</p>}

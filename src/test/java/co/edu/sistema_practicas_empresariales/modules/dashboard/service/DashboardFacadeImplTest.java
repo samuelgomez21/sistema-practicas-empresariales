@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.dashboard.service;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionesRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ public class DashboardFacadeImplTest {
     private UsuarioRepository usuarioRepository;
 
     @Mock
-    private co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionRepository postulacionRepository;
+    private PostulacionesRepository postulacionesRepository;
 
     @InjectMocks
     private DashboardFacadeImpl dashboardService;
@@ -38,7 +39,7 @@ public class DashboardFacadeImplTest {
         // Arrange
         when(vacanteRepository.count()).thenReturn(10L);
         when(usuarioRepository.count()).thenReturn(5L);
-        when(postulacionRepository.count()).thenReturn(3L);
+        when(postulacionesRepository.count()).thenReturn(3L);
         when(vacanteRepository.findByEstado(co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo.APROBADA))
                 .thenReturn(java.util.List.of(new co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante(), new co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante()));
 

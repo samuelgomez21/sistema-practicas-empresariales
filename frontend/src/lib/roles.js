@@ -122,12 +122,12 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',   icon: 'layout-dashboard', path: '/dashboard/docente' },
-        { label: 'Mis estudiantes', icon: 'users',        path: '/docente/estudiantes' },
+        { label: 'Mis Estudiantes', icon: 'users',    path: '/docente/estudiantes'  },
       ],
     },
     { section: 'Seguimiento',
       items: [
-        { label: 'Seguimiento', icon: 'clipboard-list',   path: '/docente/seguimiento' },
+        { label: 'Seguimientos', icon: 'clipboard-list',   path: '/docente/seguimientos' },
         { label: 'Visitas',     icon: 'map-pin',          path: '/docente/visitas' },
         { label: 'Evaluaciones', icon: 'star',            path: '/docente/evaluaciones' },
       ],

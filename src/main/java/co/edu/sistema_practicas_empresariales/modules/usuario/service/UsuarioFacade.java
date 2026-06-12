@@ -9,4 +9,7 @@ public interface UsuarioFacade {
     UsuarioDto crear(UsuarioDto usuarioDto);
     UsuarioDto actualizar(Long id, UsuarioDto usuarioDto);
     void eliminar(Long id);
+    void activar(Long id);
+    List<ProgramaResumenDto> obtenerProgramas(Long usuarioId);
+    void asignarProgramas(Long usuarioId, List<Long> programaIds);
 }

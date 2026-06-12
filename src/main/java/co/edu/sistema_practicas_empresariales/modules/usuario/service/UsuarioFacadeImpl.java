@@ -1,7 +1,12 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.service;
 
+import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
+import co.edu.sistema_practicas_empresariales.modules.usuario.dto.ProgramaResumenDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
+import co.edu.sistema_practicas_empresariales.modules.usuario.model.CoordinadorPrograma;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
+import co.edu.sistema_practicas_empresariales.modules.usuario.repository.CoordinadorProgramaRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +34,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class UsuarioFacadeImpl implements UsuarioFacade {
 
+    private final CoordinadorProgramaRepository coordinadorProgramaRepository;
+    private final ProgramaRepository programaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
@@ -141,4 +148,49 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     public void eliminar(Long id) {
         usuarioRepository.softDelete(id);
     }
+    @Override
+    @Transactional
+    public void activar(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        usuario.setActivo(true);
+        usuarioRepository.save(usuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProgramaResumenDto> obtenerProgramas(Long usuarioId) {
+        return coordinadorProgramaRepository.findByUsuarioId(usuarioId).stream()
+                .map(cp -> ProgramaResumenDto.builder()
+                        .id(cp.getPrograma().getId())
+                        .nombre(cp.getPrograma().getNombre())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void asignarProgramas(Long usuarioId, List<Long> programaIds) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Elimina las asignaciones actuales
+        List<CoordinadorPrograma> actuales = coordinadorProgramaRepository.findByUsuarioId(usuarioId);
+        coordinadorProgramaRepository.deleteAll(actuales);
+
+        // Crea las nuevas
+        List<CoordinadorPrograma> nuevas = programaIds.stream()
+                .map(programaId -> {
+                    Programa programa = programaRepository.findById(programaId)
+                            .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado: " + programaId));
+                    return CoordinadorPrograma.builder()
+                            .usuario(usuario)
+                            .programa(programa)
+                            .build();
+                })
+                .toList();
+
+        coordinadorProgramaRepository.saveAll(nuevas);
+    }
+
 }

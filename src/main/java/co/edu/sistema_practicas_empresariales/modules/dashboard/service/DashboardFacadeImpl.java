@@ -4,7 +4,7 @@ import co.edu.sistema_practicas_empresariales.modules.dashboard.dto.DashboardEst
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
-import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
+import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * Implementación de la fachada del Dashboard.
  * <p>
  * <b>Patrón de Diseño aplicado:</b> Facade.
- * Coordina múltiples repositorios (Usuarios, Vacantes, Vinculaciones) para
+ * Coordina múltiples repositorios (Usuarios, Vacantes, Postulaciones) para
  * consolidar las estadísticas generales en un solo objeto de respuesta.
  * 
  * @author Equipo de Desarrollo

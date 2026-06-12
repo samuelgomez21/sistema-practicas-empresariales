@@ -4,8 +4,8 @@ import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
-import co.edu.sistema_practicas_empresariales.modules.postulacion.model.Postulacion;
-import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
+import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.model.Postulacion;
+import co.edu.sistema_practicas_empresariales.modules.vacante.postulacion.repository.PostulacionRepository;
 import java.util.Objects;
 
 /**

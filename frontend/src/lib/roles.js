@@ -85,9 +85,7 @@ export const MENU_POR_ROL = {
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinador-practica' },
         { label: 'Empresas',    icon: 'building',    path: '/empresas/listado' },
         { label: 'Vacantes', icon: 'briefcase', path: '/vacantes/listado' },
-        { label: 'Estudiantes',  icon: 'users',            path: '/practica/estudiantes' },
-        { label: 'Asignaciones', icon: 'transfer',         path: '/practica/asignaciones' },
-        { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
+        { label: 'Estudiantes',  icon: 'graduation-cap', path: '/coordinacion-empresarial/estudiantes' },
         
       ],
     },
@@ -95,9 +93,17 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Prácticas activas', icon: 'clipboard-list', path: '/practica/activas' },
         { label: 'Reportes',          icon: 'chart-bar',       path: '/practica/reportes' },
-        { label: 'Visitas',     icon: 'map-pin',     path: '/empresas/visitas' },
+        { label: 'Visitas',      icon: 'map-pin',        path: '/coordinacion-empresarial/visitas'     },
+        { label: 'Paz y Salvo',  icon: 'award',          path: '/coordinacion-empresarial/paz-salvo'   },
       ],
     },
+    { section: 'Gestion',
+      items: [
+        { label: 'Contratos',    icon: 'file-text',      path: '/coordinacion-empresarial/contratos'   },
+        { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },        
+
+      ],
+    },    
   ],
 
   [ROLES.SECRETARIA]: [

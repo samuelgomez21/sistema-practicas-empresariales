@@ -68,12 +68,18 @@ import CargaDocentesPage   from '@/features/coordinacion/pages/CargaDocentesPage
 import PerfilEstudianteEmpresaPage from '@/features/empresas/pages/PerfilEstudianteEmpresaPage'
 import DetalleEmpresaCoordPage     from '@/features/empresas/pages/DetalleEmpresaPage'
 
-// Reemplázalo por (agregando VisitasPage con alias):
 import MisEstudiantesPage          from '@/features/docente/pages/MisEstudiantesPage'
 import PerfilEstudianteDocentePage from '@/features/docente/pages/PerfilEstudianteDocentePage'
 import SeguimientosPage            from '@/features/docente/pages/SeguimientosPage'
 import VisitasDocentePage          from '@/features/docente/pages/VisitasPage'
 import DocenteLayout                from '@/features/docente/pages/DocenteLayout'
+
+import SeguimientoEstudiantesPage     from '@/features/coordinacion-empresarial/pages/SeguimientoEstudiantesPage'
+import PerfilEstudianteHistorialPage  from '@/features/coordinacion-empresarial/pages/PerfilEstudianteHistorialPage'
+import ContratosPage                  from '@/features/coordinacion-empresarial/pages/ContratosPage'
+import VisitasCoordinadoraPage        from '@/features/coordinacion-empresarial/pages/VisitasCoordinadorPage'
+import PazYSalvoCoordPage             from '@/features/coordinacion-empresarial/pages/PazYSalvoCoordPage'
+
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -290,7 +296,46 @@ const router = createBrowserRouter([
           { path: 'visitas',         element: <VisitasDocentePage /> },
         ]
       },
-
+      {
+        path: '/coordinacion-empresarial/estudiantes',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <SeguimientoEstudiantesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/estudiantes/:id',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <PerfilEstudianteHistorialPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/contratos',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <ContratosPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/visitas',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <VisitasCoordinadoraPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/paz-salvo',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <PazYSalvoCoordPage />
+          </ProtectedRoute>
+        ),
+      },
     ],
     
   },

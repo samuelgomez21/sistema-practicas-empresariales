@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,6 +8,8 @@ import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { authApi } from '../api/authApi'
 import logoUAH from '@/assets/images/logo-uah.png'
+import { useLocation, useNavigate } from 'react-router-dom'
+
 
 const schema = z
   .object({
@@ -62,7 +63,19 @@ export default function CambiarPasswordPage() {
     },
   })
 
-  const onSubmit = (data) => mutation.mutate(data)
+  const onSubmit = async (formData) => {
+    try {
+      await authApi.cambiarPasswordInicial({
+        email:           state?.email,
+        currentPassword: state?.currentPassword,
+        newPassword:     formData.newPassword,
+      })
+      toast.success('Contraseña actualizada. Inicia sesión nuevamente.')
+      navigate('/login')
+    } catch {
+      toast.error('Error al cambiar la contraseña')
+    }
+  }
 
   // Campo de contraseña reutilizable
   const PasswordField = ({ id, label, campo, fieldKey, error }) => (

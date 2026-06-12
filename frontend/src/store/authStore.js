@@ -1,15 +1,28 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { authApi } from '@/features/auth/api/authApi'
 
 export const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       token: null,
-      user: null,
+      user:  null, // { email, nombre, rol }
       isAuthenticated: false,
-      login: (token, user) => set({ token, user, isAuthenticated: true }),
-      logout: () => set({ token: null, user: null, isAuthenticated: false }),
+
+      login: async (email, password) => {
+        const data = await authApi.login(email, password)
+        set({
+          token: data.token,
+          user:  { email: data.email, nombre: data.nombre, rol: data.rol },
+          isAuthenticated: true,
+        })
+        return data
+      },
+
+      logout: () => {
+        set({ token: null, user: null, isAuthenticated: false })
+      },
     }),
-    { name: 'practicas-uah-auth' }
+    { name: 'auth-storage' }
   )
 )

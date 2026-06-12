@@ -1,24 +1,25 @@
 import axios from 'axios'
+import { useAuthStore } from '@/store/authStore'
 
 const api = axios.create({
-  baseURL: '/api',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: import.meta.env.VITE_API_URL,
 })
 
+// Inyecta el token en cada request
 api.interceptors.request.use((config) => {
-  const raw = localStorage.getItem('practicas-uah-auth')
-  if (raw) {
-    const { token } = JSON.parse(raw)
-    if (token) config.headers.Authorization = `Bearer ${token}`
+  const token = useAuthStore.getState().token
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
 
+// Si el token expira o es inválido, desloguea y redirige
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('practicas-uah-auth')
+      useAuthStore.getState().logout()
       window.location.href = '/login'
     }
     return Promise.reject(error)

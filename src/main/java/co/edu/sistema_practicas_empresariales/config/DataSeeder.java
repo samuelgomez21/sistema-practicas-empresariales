@@ -163,15 +163,8 @@ public class DataSeeder implements CommandLineRunner {
                     estudianteId, vacanteId));
             }
             
-            // Vinculacion
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM vinculaciones WHERE id = 1", Integer.class) == 0) {
-                jdbcTemplate.execute(String.format(
-                    "INSERT INTO vinculaciones (id, vacante_id, cargo, descripcion, requisitos_estudiante, numero_cupos, cupos_disponibles, area, modalidad, estado, eliminado, fecha_creacion) VALUES (1, %d, 'Desarrollador Junior', 'Apoyo en backend', 'Java, Spring', 1, 1, 'Sistemas', 'PRESENCIAL', 'APROBADA', false, CURRENT_TIMESTAMP)",
-                    vacanteId));
-            }
-            
         } catch(Exception e) {
-            System.err.println("Error insertando dependencias (Tutor/Postulacion/Vinculacion): " + e.getMessage());
+            System.err.println("Error insertando dependencias (Tutor/Postulacion): " + e.getMessage());
         }
     }
 }

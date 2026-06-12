@@ -180,4 +180,18 @@ public class PracticaController {
     public ResponseEntity<?> generarActaCierre(@PathVariable Long id) {
         return ResponseEntity.ok(practicaFacade.generarActaCierre(id));
     }
+
+    // ============================================================================================================
+    // Contrato PDF (Adapter / Builder)
+    // ============================================================================================================
+
+    @GetMapping("/{id}/contrato/pdf")
+    public ResponseEntity<byte[]> descargarContratoPdf(@PathVariable Long id) {
+        byte[] pdfContent = practicaFacade.descargarContratoPdf(id);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Contrato_Practica_" + id + ".pdf");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return ResponseEntity.ok().headers(headers).body(pdfContent);
+    }
 }

@@ -3,7 +3,9 @@ package co.edu.sistema_practicas_empresariales.modules.practica.service.impl;
 import co.edu.sistema_practicas_empresariales.modules.infraestructura.storage.ArchivoStorageService;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
+import co.edu.sistema_practicas_empresariales.modules.practica.model.HistorialCargaDocente;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.*;
+import co.edu.sistema_practicas_empresariales.modules.practica.repository.HistorialCargaDocenteRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.FechaSustentacionRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.request.NotaFinalRequest;
 import co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade;
@@ -48,6 +50,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
     private final UsuarioRepository          usuarioRepository;
     private final HistorialCargaDocenteRepository historialCargaDocenteRepository;
     private final ArchivoStorageService      storageService;
+    private final co.edu.sistema_practicas_empresariales.modules.practica.builder.ContratoBuilder contratoBuilder;
+    private final co.edu.sistema_practicas_empresariales.modules.infraestructura.export.GeneradorDocumentoPlantilla generadorDocumentoPlantilla;
 
     // Claves del checklist
     private static final String CK_NOTA_FINAL     = "nota_final";
@@ -483,5 +487,13 @@ public class PracticaFacadeImpl implements PracticaFacade {
                 .agregarFirma("Firma " + (practica.getDocenteAsesor() != null ? practica.getDocenteAsesor().getNombre() : "Docente"))
                 .establecerResolucion(resolucion)
                 .construir();
+    }
+
+    @Override
+    public byte[] descargarContratoPdf(Long practicaId) {
+        Practica practica = buscar(practicaId);
+        java.util.Map<String, Object> variables = contratoBuilder.construirVariablesContrato(practica);
+        // Cuando exista la plantilla, pasar la ruta real. Por ahora pasamos un placeholder.
+        return generadorDocumentoPlantilla.generarDesdePlantilla("plantilla_contrato_placeholder.pdf", variables);
     }
 }

@@ -1,5 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.controller;
 
+import co.edu.sistema_practicas_empresariales.modules.usuario.dto.AsignarProgramasRequest;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.UsuarioFacade;
 import lombok.RequiredArgsConstructor;
@@ -97,4 +99,37 @@ public class UsuarioController {
         usuarioFacade.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Reactiva un usuario previamente desactivado (inverso al soft-delete).
+     */
+    @PatchMapping("/{id}/activar")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> activar(@PathVariable Long id) {
+        usuarioFacade.activar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Lista los programas asignados a un coordinador académico.
+     */
+    @GetMapping("/{id}/programas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO')")
+    public ResponseEntity<List<ProgramaResumenDto>> obtenerProgramas(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioFacade.obtenerProgramas(id));
+    }
+
+    /**
+     * Asigna (reemplaza) los programas que gestiona un coordinador académico.
+     * Solo el administrador puede definir el alcance de cada coordinador.
+     */
+    @PutMapping("/{id}/programas")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> asignarProgramas(
+            @PathVariable Long id,
+            @RequestBody AsignarProgramasRequest request) {
+        usuarioFacade.asignarProgramas(id, request.getProgramaIds());
+        return ResponseEntity.noContent().build();
+    }
+
 }

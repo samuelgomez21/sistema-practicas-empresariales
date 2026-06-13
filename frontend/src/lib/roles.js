@@ -39,8 +39,8 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/admin' },
-        { label: 'Usuarios', icon: 'users', path: '/usuarios/coordinadores' },
-        //{ label: 'Usuarios',  icon: 'users',       path: '/admin/usuarios'  },        
+        //{ label: 'Usuarios', icon: 'users', path: '/usuarios/coordinadores' },
+        { label: 'Usuarios',  icon: 'users',       path: '/admin/usuarios'  },        
       ],
     },
     { section: 'Sistema',

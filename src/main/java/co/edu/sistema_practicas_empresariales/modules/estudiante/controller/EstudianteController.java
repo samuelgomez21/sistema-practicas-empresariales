@@ -145,4 +145,14 @@ public class EstudianteController {
     public ResponseEntity<List<PracticaResponse>> obtenerHistorialPracticas(@PathVariable Long estudianteId) {
         return ResponseEntity.ok(estudianteFacade.obtenerHistorialPracticas(estudianteId));
     }
+
+    /**
+     * Reactiva un estudiante previamente desactivado.
+     */
+    @PatchMapping("/{id}/activar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO')")
+    public ResponseEntity<Void> activar(@PathVariable Long id) {
+        estudianteFacade.activarEstudiante(id);
+        return ResponseEntity.noContent().build();
+    }
 }

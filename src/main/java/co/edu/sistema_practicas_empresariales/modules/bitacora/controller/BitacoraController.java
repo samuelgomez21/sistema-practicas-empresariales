@@ -20,7 +20,7 @@ public class BitacoraController {
     private final BitacoraRepository bitacoraRepository;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<Bitacora>> getBitacora() {
         return ResponseEntity.ok(bitacoraRepository.findAll(Sort.by(Sort.Direction.DESC, "fechaRegistro")));
     }

@@ -7,6 +7,7 @@ import Avatar from '../components/Avatar'
 import BadgeEstadoUsuario from '../components/BadgeEstadoUsuario'
 import ModalConfirmUsuario from '../components/ModalConfirmUsuario'
 import ModalCoordinador from '../components/ModalCoordinador'
+import { coordinacionApi } from '@/features/coordinacion/api/coordinacionApi' 
 
 const ROL_LABEL = {
   COORDINACION_ACADEMICA: 'Coord. Académica',
@@ -170,6 +171,56 @@ function Skeleton() {
   return (
     <div className="bg-white rounded-xl p-5 animate-pulse" style={{ border: '0.5px solid #e2e8f0' }}>
       {[1, 2, 3].map(i => <div key={i} className="h-8 bg-gray-50 rounded mb-2" />)}
+    </div>
+  )
+}
+
+
+
+function SelectorProgramasCoordinador({ usuarioId, onClose }) {
+  const { data: programasTodos = [] } = useQuery({
+    queryKey: ['programas-todos'],
+    queryFn:  coordinacionApi.getProgramas,
+  })
+
+  const { data: asignados = [] } = useQuery({
+    queryKey: ['programas-coordinador', usuarioId],
+    queryFn:  () => usuariosApi.getProgramasDeCoordinador(usuarioId),
+  })
+
+  const [seleccionados, setSeleccionados] = useState([])
+
+  useEffect(() => {
+    setSeleccionados(asignados.map(p => p.id))
+  }, [asignados])
+
+  const mutation = useMutation({
+    mutationFn: () => usuariosApi.asignarProgramas(usuarioId, seleccionados),
+    onSuccess: () => {
+      toast.success('Programas actualizados')
+      onClose()
+    },
+  })
+
+  const toggle = (id) => setSeleccionados(prev =>
+    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+  )
+
+  return (
+    <div className="flex flex-col gap-2">
+      {programasTodos.map(p => (
+        <label key={p.id} className="flex items-center gap-2 text-xs">
+          <input type="checkbox"
+            checked={seleccionados.includes(p.id)}
+            onChange={() => toggle(p.id)} />
+          {p.nombre}
+        </label>
+      ))}
+      <button onClick={() => mutation.mutate()}
+        className="h-8 px-3 rounded-lg text-xs font-bold text-white mt-2"
+        style={{ background: '#D91438' }}>
+        Guardar programas
+      </button>
     </div>
   )
 }

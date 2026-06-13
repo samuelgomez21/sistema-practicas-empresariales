@@ -287,6 +287,15 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         estudianteRepository.save(estudiante);
     }
 
+    @Override
+    @Transactional
+    public void activarEstudiante(Long id) {
+        Estudiante estudiante = estudianteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        estudiante.setActivo(true);
+        estudianteRepository.save(estudiante);
+    }
+
     // ========== Métodos privados ==========
 
     /**

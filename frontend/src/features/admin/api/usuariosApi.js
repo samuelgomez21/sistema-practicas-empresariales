@@ -18,6 +18,7 @@ export const usuariosApi = {
       nombre: data.nombre,
       email:  data.email,
       rol:    data.rol,
+      activo: true,
       // password: no se envía — el backend la genera y la envía por correo
     })
     return res

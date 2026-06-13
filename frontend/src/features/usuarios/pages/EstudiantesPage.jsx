@@ -46,6 +46,16 @@ export default function EstudiantesPage() {
       esCoordAcademica ? { programas: programasScope } : {}
     ),
   })
+  const { data: misProgramas = [] } = useQuery({
+    queryKey: ['mis-programas', usuarioId],
+    queryFn:  () => usuariosApi.getProgramasDeCoordinador(usuarioId),
+    enabled:  esCoordinadorAcademico,
+  })
+
+  const programaIds = misProgramas.map(p => p.id)
+  const estudiantesFiltrados = esCoordinadorAcademico
+    ? estudiantes.filter(e => programaIds.includes(e.programaId))
+    : estudiantes
 
   const toggleMutation = useMutation({
     mutationFn: (id) => usuariosApi.toggleEstudiante(id),
@@ -61,7 +71,7 @@ export default function EstudiantesPage() {
     const matchBusqueda = !busqueda ||
       e.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       e.documento.includes(busqueda)
-    const matchPrograma  = !filtroPrograma  || e.programa === filtroPrograma
+    const matchPrograma  = !filtroPrograma  || e.nombrePrograma === filtroPrograma
     const matchAptitud   = !filtroAptitud   || e.estadoAptitud === filtroAptitud
     const matchSemestre  = !filtroSemestre  || String(e.semestre) === filtroSemestre
     return matchBusqueda && matchPrograma && matchAptitud && matchSemestre
@@ -70,7 +80,7 @@ export default function EstudiantesPage() {
   // Programas disponibles para el filtro (respeta scope)
   const programasDisponibles = esCoordAcademica
     ? programasScope
-    : [...new Set(estudiantes.map(e => e.programa))]
+    : [...new Set(estudiantes.map(e => e.nombrePrograma))]
 
   // Contadores
   const conteo = {
@@ -79,6 +89,31 @@ export default function EstudiantesPage() {
     enRevision:  estudiantes.filter(e => e.estadoAptitud === 'EN_REVISION').length,
     noAptos:     estudiantes.filter(e => e.estadoAptitud === 'NO_APTO').length,
   }
+
+  const desactivarMutation = useMutation({
+    mutationFn: (id) => estudiantesApi.desactivarEstudiante(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['estudiantes'] })
+      toast.success('Estudiante desactivado')
+    },
+  })
+
+  const activarMutation = useMutation({
+    mutationFn: (id) => estudiantesApi.activarEstudiante(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['estudiantes'] })
+      toast.success('Estudiante activado')
+    },
+  })
+
+  const cargaMasivaMutation = useMutation({
+  mutationFn: (file) => estudiantesApi.cargaMasivaEstudiantes(file),
+  onSuccess: (creados) => {
+    qc.invalidateQueries({ queryKey: ['estudiantes'] })
+    toast.success(`${creados.length} estudiante(s) registrado(s) correctamente`)
+  },
+  onError: () => toast.error('Error al procesar el archivo'),
+})
 
   if (isLoading) return <Skeleton />
 
@@ -188,8 +223,8 @@ export default function EstudiantesPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-xs" style={{ color: '#6b7a8d', maxWidth: 120 }}>
-                  <span title={e.programa}>
-                    {e.programa.replace('Ingeniería de ', 'Ing. ').replace('Administración de Empresas', 'Admon.')}
+                  <span title={e.nombrePrograma}>
+                    {e.nombrePrograma.replace('Ingeniería de ', 'Ing. ').replace('Administración de Empresas', 'Admon.')}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-center" style={{ color: '#023859' }}>

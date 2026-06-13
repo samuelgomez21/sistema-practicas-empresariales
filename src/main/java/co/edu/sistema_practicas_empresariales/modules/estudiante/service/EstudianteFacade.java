@@ -34,4 +34,7 @@ public interface EstudianteFacade {
      * @param id ID del estudiante.
      */
     void eliminarEstudiante(Long id);
+
+    void activarEstudiante(Long id);
+
 }

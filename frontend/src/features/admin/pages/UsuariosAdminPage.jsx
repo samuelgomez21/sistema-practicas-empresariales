@@ -141,6 +141,7 @@ export default function UsuariosAdminPage() {
                       style={{ background: '#e6f0fb', color: '#0B416B' }}>
                       {u.nombre[0]}
                     </div>
+                    <p className="text-xs font-semibold" style={{ color: '#023859' }}>{u.nombre}</p>
 {/*                     <div>
                       <p className="text-xs font-semibold" style={{ color: '#023859' }}>{u.nombre}</p>
                       {u.debeCambiarPassword && (

@@ -1,6 +1,7 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.service;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
 import java.util.List;
 
 public interface UsuarioFacade {
@@ -9,4 +10,7 @@ public interface UsuarioFacade {
     UsuarioDto crear(UsuarioDto usuarioDto);
     UsuarioDto actualizar(Long id, UsuarioDto usuarioDto);
     void eliminar(Long id);
+    void activar(Long id);
+    List<ProgramaResumenDto> obtenerProgramas(Long usuarioId);
+    void asignarProgramas(Long usuarioId, List<Long> programaIds);
 }

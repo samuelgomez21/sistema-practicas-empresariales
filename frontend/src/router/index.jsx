@@ -91,6 +91,11 @@ import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 import UsuariosAdminPage from '@/features/admin/pages/UsuariosAdminPage'
 import BitacoraPage      from '@/features/admin/pages/BitacoraPage'
 
+import EstudiantesCoordPage    from '@/features/coordinacion-empresarial/pages/EstudiantesCoordPage'
+import EncuestasCoordPage      from '@/features/coordinacion-empresarial/pages/EncuestasCoordPage'
+import PracticasActivasPage from '@/features/coordinacion-empresarial/pages/PracticasActivasPage'
+
+
 // Redirige al dashboard del rol activo
 function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
@@ -351,6 +356,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/coordinacion-empresarial/practicas',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <PracticasActivasPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/coordinacion-empresarial/visitas',
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
@@ -363,6 +376,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
             <PazYSalvoCoordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/mis-estudiantes',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <EstudiantesCoordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/encuestas',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <EncuestasCoordPage />
           </ProtectedRoute>
         ),
       },

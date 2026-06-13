@@ -21,4 +21,6 @@ public interface CoordinadorProgramaRepository extends JpaRepository<Coordinador
      * Verifica si ya existe una relación entre un usuario y un programa.
      */
     boolean existsByUsuarioIdAndProgramaId(Long usuarioId, Long programaId);
+
+
 }

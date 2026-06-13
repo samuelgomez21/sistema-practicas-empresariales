@@ -21,6 +21,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
+import co.edu.sistema_practicas_empresariales.modules.usuario.repository.CoordinadorProgramaRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
 import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
@@ -60,6 +61,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
+    private final CoordinadorProgramaRepository coordinadorProgramaRepository;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -428,5 +430,36 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         eventPublisher.publishEvent(new AptitudEvaluadaEvent(this, estudiante, nuevoEstado == Estudiante.EstadoAptitud.APTO, motivo));
 
         return mapToResponse(estudiante);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EstudianteResponse> listarPorCoordinadorPractica(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Si es ADMINISTRADOR, devuelve todos los aptos
+        if (usuario.getRol().getNombre() == Rol.Nombre.ADMINISTRADOR) {
+            return estudianteRepository.findAptos().stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        }
+
+        // Para COORDINADOR_PRACTICA: filtrar por programas asignados
+        List<Long> programaIds = coordinadorProgramaRepository
+                .findByUsuarioId(usuario.getId())
+                .stream()
+                .map(cp -> cp.getPrograma().getId())
+                .toList();
+
+        if (programaIds.isEmpty()) return List.of();
+
+        return estudianteRepository.findByActivoTrue().stream()
+                .filter(e -> programaIds.contains(e.getPrograma().getId()))
+                .filter(e -> e.getEstadoAptitud() == Estudiante.EstadoAptitud.APTO
+                        || e.getEstadoPractica() != null)
+                .map(this::mapToResponse)
+                .toList();
     }
 }

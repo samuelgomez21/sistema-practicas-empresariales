@@ -173,4 +173,16 @@ public class EstudianteController {
             @RequestBody AptitudManualRequest request) {
         return ResponseEntity.ok(estudianteFacade.actualizarAptitudManual(id, request.getEstadoAptitud()));
     }
+
+    /**
+     * Lista estudiantes de los programas asignados al coordinador autenticado.
+     * Incluye solo APTOS o EN_PRACTICA (ya clasificados por el coordinador).
+     */
+    @GetMapping("/por-coordinador")
+    @PreAuthorize("hasAnyRole('COORDINADOR_PRACTICA', 'ADMINISTRADOR')")
+    public ResponseEntity<List<EstudianteResponse>> listarPorCoordinador(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(estudianteFacade.listarPorCoordinadorPractica(userDetails.getUsername()));
+    }
 }

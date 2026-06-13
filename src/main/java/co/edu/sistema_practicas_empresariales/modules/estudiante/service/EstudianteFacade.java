@@ -39,4 +39,7 @@ public interface EstudianteFacade {
     void activarEstudiante(Long id);
     List<EstudianteClasificacionDto> listarParaClasificacion();
     EstudianteResponse actualizarAptitudManual(Long estudianteId, String estadoAptitud);
+
+    List<EstudianteResponse> listarPorCoordinadorPractica(String email);
+
 }

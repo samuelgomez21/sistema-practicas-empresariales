@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Eye, UserPlus, CheckCircle, XCircle, Search } from 'lucide-react'
 import { toast } from 'sonner'
-import { vacantesApi, MODALIDAD_LABEL, ESTADO_VACANTE } from '../api/vacantesApi'
+import { vacantesApi } from '../api/vacantesApi'
 import BadgeEstadoVacante from '../components/BadgeEstadoVacante'
 import TagHabilidad from '../components/TagHabilidad'
 import ModalPostular from '../components/ModalPostular'
@@ -12,9 +12,9 @@ import ModalRechazar from '../components/ModalRechazar'
 export default function VacantesListadoPage() {
   const qc       = useQueryClient()
   const navigate = useNavigate()
-  const [busqueda,    setBusqueda]    = useState('')
+  const [busqueda,     setBusqueda]     = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
-  const [modalPostular, setModalPostular] = useState(null) // vacante seleccionada
+  const [modalPostular, setModalPostular] = useState(null)
   const [modalRechazar, setModalRechazar] = useState(null)
 
   const { data: vacantes = [], isLoading } = useQuery({
@@ -28,29 +28,25 @@ export default function VacantesListadoPage() {
       qc.invalidateQueries({ queryKey: ['vacantes'] })
       toast.success('Vacante aprobada y publicada')
     },
+    onError: (err) => toast.error(err?.response?.data?.message ?? 'Error al aprobar'),
   })
 
   const filtradas = vacantes.filter(v => {
     const matchBusqueda = !busqueda ||
       v.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      v.empresaNombre.toLowerCase().includes(busqueda.toLowerCase())
-    const matchEstado = !filtroEstado ||
-      (filtroEstado === 'SIN_CANDIDATOS'
-        ? v.postulaciones.length === 0
-        : v.estado === filtroEstado)
+      (v.empresaNombre ?? '').toLowerCase().includes(busqueda.toLowerCase())
+    const matchEstado = !filtroEstado || v.estado === filtroEstado
     return matchBusqueda && matchEstado
   })
 
   const pendientes = vacantes.filter(v => v.estado === 'PENDIENTE').length
   const aprobadas  = vacantes.filter(v => v.estado === 'APROBADA').length
-  const totalCandidatos = vacantes.reduce((acc, v) => acc + v.postulaciones.length, 0)
 
   if (isLoading) return <Skeleton />
 
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Alerta de pendientes */}
       {pendientes > 0 && (
         <div className="flex items-start gap-3 px-4 py-3 rounded-xl"
           style={{ background: '#fff8e6', border: '0.5px solid #f0d080' }}>
@@ -60,23 +56,21 @@ export default function VacantesListadoPage() {
               {pendientes} vacante(s) esperando tu aprobación
             </p>
             <p className="text-[10px] mt-0.5" style={{ color: '#a07010' }}>
-              Las vacantes deben ser aprobadas para que los estudiantes puedan verlas y postularse.
+              Las vacantes deben ser aprobadas para que los estudiantes puedan postularse.
             </p>
           </div>
         </div>
       )}
 
-      {/* Tarjetas resumen */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Pendientes aprobación', value: pendientes,     color: '#a07010', bg: '#fff8e6' },
-          { label: 'Aprobadas',             value: aprobadas,      color: '#1a7a4a', bg: '#eaf7f0' },
-          { label: 'Total candidatos',      value: totalCandidatos, color: '#023859', bg: '#fff'   },
+          { label: 'Pendientes aprobación', value: pendientes, color: '#a07010', bg: '#fff8e6' },
+          { label: 'Aprobadas',             value: aprobadas,  color: '#1a7a4a', bg: '#eaf7f0' },
+          { label: 'Total vacantes',        value: vacantes.length, color: '#023859', bg: '#fff' },
         ].map(c => (
           <div key={c.label} className="bg-white rounded-xl p-4"
             style={{ border: '0.5px solid #e2e8f0', background: c.bg }}>
-            <p className="text-[10px] uppercase tracking-wide mb-1"
-              style={{ color: c.color, opacity: 0.8 }}>
+            <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: c.color, opacity: 0.8 }}>
               {c.label}
             </p>
             <p className="text-3xl font-bold" style={{ color: c.color }}>{c.value}</p>
@@ -84,11 +78,9 @@ export default function VacantesListadoPage() {
         ))}
       </div>
 
-      {/* Filtros */}
       <div className="flex gap-2 items-center">
         <div className="flex-1 relative">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: '#8a9bb0' }} />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#8a9bb0' }} />
           <input
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
@@ -97,13 +89,13 @@ export default function VacantesListadoPage() {
             style={{ border: '0.5px solid #e2e8f0', background: '#f7f9fb', color: '#023859' }}
           />
         </div>
-        {/* Tabs de estado */}
         <div className="flex gap-1">
           {[
-            { label: `Todas (${vacantes.length})`,    value: ''          },
-            { label: `Pendientes (${pendientes})`,    value: 'PENDIENTE' },
-            { label: `Aprobadas (${aprobadas})`,      value: 'APROBADA'  },
-            { label: `Sin candidatos (${vacantes.filter(v => v.postulaciones.length === 0).length})`, value: 'SIN_CANDIDATOS' },
+            { label: `Todas (${vacantes.length})`, value: '' },
+            { label: `Pendientes (${pendientes})`, value: 'PENDIENTE' },
+            { label: `Aprobadas (${aprobadas})`,   value: 'APROBADA'  },
+            { label: 'Cerradas',                   value: 'CERRADA'   },
+            { label: 'Rechazadas',                 value: 'RECHAZADA' },
           ].map(t => (
             <button key={t.value}
               onClick={() => setFiltroEstado(t.value)}
@@ -118,26 +110,19 @@ export default function VacantesListadoPage() {
         </div>
       </div>
 
-      {/* Lista de vacantes */}
       <div className="flex flex-col gap-3">
         {filtradas.length === 0 ? (
-          <div className="bg-white rounded-xl p-8 text-center"
-            style={{ border: '0.5px solid #e2e8f0' }}>
-            <p className="text-xs" style={{ color: '#8a9bb0' }}>
-              No se encontraron vacantes
-            </p>
+          <div className="bg-white rounded-xl p-8 text-center" style={{ border: '0.5px solid #e2e8f0' }}>
+            <p className="text-xs" style={{ color: '#8a9bb0' }}>No se encontraron vacantes</p>
           </div>
         ) : filtradas.map(v => (
-          <div key={v.id} className="bg-white rounded-xl p-5"
-            style={{ border: '0.5px solid #e2e8f0' }}>
-
-            {/* Cabecera */}
+          <div key={v.id} className="bg-white rounded-xl p-5" style={{ border: '0.5px solid #e2e8f0' }}>
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: '#e6f0fb' }}>
                   <span className="text-sm font-bold" style={{ color: '#0B416B' }}>
-                    {v.empresaNombre[0]}
+                    {v.empresaNombre?.[0]}
                   </span>
                 </div>
                 <div>
@@ -147,33 +132,22 @@ export default function VacantesListadoPage() {
                   </div>
                   <p className="text-xs" style={{ color: '#0B416B' }}>{v.empresaNombre}</p>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[10px]" style={{ color: '#8a9bb0' }}>
-                      {v.programaNombre}
-                    </span>
-                    <span className="text-[10px]" style={{ color: '#8a9bb0' }}>
-                      Sem. {v.semestreMinimo}+
-                    </span>
+                    {v.programaNombre && (
+                      <span className="text-[10px]" style={{ color: '#8a9bb0' }}>{v.programaNombre}</span>
+                    )}
+                    {v.semestreMinimo && (
+                      <span className="text-[10px]" style={{ color: '#8a9bb0' }}>Sem. {v.semestreMinimo}+</span>
+                    )}
                     {v.salario && (
                       <span className="text-[10px] font-semibold" style={{ color: '#1a7a4a' }}>
-                        ${v.salario.toLocaleString('es-CO')}/mes
-                      </span>
-                    )}
-                    {v.horario && (
-                      <span className="text-[10px]" style={{ color: '#8a9bb0' }}>
-                        {v.horario}
+                        ${Number(v.salario).toLocaleString('es-CO')}/mes
                       </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Acciones */}
               <div className="flex items-center gap-2">
-                <span className="text-[10px] flex items-center gap-1"
-                  style={{ color: '#6b7a8d' }}>
-                  <UserPlus size={11} />
-                  {v.postulaciones.length} candidato(s)
-                </span>
                 <button onClick={() => navigate(`/vacantes/${v.id}`)}
                   className="flex items-center gap-1 h-7 px-3 rounded-lg text-[10px] font-semibold"
                   style={{ background: '#f4f6f9', color: '#023859', border: '0.5px solid #e2e8f0' }}>
@@ -189,17 +163,14 @@ export default function VacantesListadoPage() {
               </div>
             </div>
 
-            {/* Habilidades */}
             {v.habilidades?.length > 0 && (
               <div className="flex gap-1 flex-wrap mb-3">
                 {v.habilidades.map(h => <TagHabilidad key={h} label={h} />)}
               </div>
             )}
 
-            {/* Acciones para pendientes */}
             {v.estado === 'PENDIENTE' && (
-              <div className="flex gap-2 pt-3"
-                style={{ borderTop: '0.5px solid #f0f2f5' }}>
+              <div className="flex gap-2 pt-3" style={{ borderTop: '0.5px solid #f0f2f5' }}>
                 <button
                   onClick={() => aprobarMutation.mutate(v.id)}
                   disabled={aprobarMutation.isPending}
@@ -216,10 +187,8 @@ export default function VacantesListadoPage() {
               </div>
             )}
 
-            {/* Motivo de rechazo */}
             {v.estado === 'RECHAZADA' && v.motivoRechazo && (
-              <div className="mt-2 p-2 rounded-lg"
-                style={{ background: '#fef0f0', border: '0.5px solid #f7c1c1' }}>
+              <div className="mt-2 p-2 rounded-lg" style={{ background: '#fef0f0', border: '0.5px solid #f7c1c1' }}>
                 <p className="text-[10px]" style={{ color: '#c0392b' }}>
                   <strong>Motivo:</strong> {v.motivoRechazo}
                 </p>
@@ -262,8 +231,7 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-3">
       {[1,2,3].map(i => (
-        <div key={i} className="bg-white rounded-xl p-5 animate-pulse h-28"
-          style={{ border: '0.5px solid #e2e8f0' }} />
+        <div key={i} className="bg-white rounded-xl p-5 animate-pulse h-28" style={{ border: '0.5px solid #e2e8f0' }} />
       ))}
     </div>
   )

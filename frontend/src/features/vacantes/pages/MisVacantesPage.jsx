@@ -2,34 +2,36 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/store/authStore'
 import { vacantesApi } from '../api/vacantesApi'
+import { empresasApi } from '@/features/empresas/api/empresasApi'
 import BadgeEstadoVacante from '../components/BadgeEstadoVacante'
 import TagHabilidad from '../components/TagHabilidad'
 import ModalCrearVacante from '../components/ModalCrearVacante'
 
 export default function MisVacantesPage() {
-  const qc      = useQueryClient()
-  const { user } = useAuthStore()
+  const qc = useQueryClient()
   const [modal, setModal] = useState(false)
 
-  // En mock la empresa logueada es id=2
-  const empresaId = 2
+  const { data: empresa } = useQuery({
+    queryKey: ['mi-empresa'],
+    queryFn:  empresasApi.getMiEmpresa,
+  })
 
   const { data: vacantes = [], isLoading } = useQuery({
-    queryKey: ['mis-vacantes', empresaId],
-    queryFn:  () => vacantesApi.getVacantesPorEmpresa(empresaId),
+    queryKey: ['mis-vacantes', empresa?.id],
+    queryFn:  () => vacantesApi.getVacantesPorEmpresa(empresa.id),
+    enabled:  !!empresa?.id,
   })
 
   const cerrarMutation = useMutation({
     mutationFn: (id) => vacantesApi.cerrarVacante(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['mis-vacantes', empresaId] })
+      qc.invalidateQueries({ queryKey: ['mis-vacantes', empresa?.id] })
       toast.success('Vacante cerrada correctamente')
     },
   })
 
-  if (isLoading) return (
+  if (isLoading || !empresa) return (
     <div className="flex flex-col gap-3">
       {[1,2].map(i => (
         <div key={i} className="bg-white rounded-xl p-5 animate-pulse h-24"
@@ -40,8 +42,6 @@ export default function MisVacantesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-
-      {/* Header */}
       <div className="bg-white rounded-xl px-5 py-3 flex items-center justify-between"
         style={{ border: '0.5px solid #e2e8f0' }}>
         <div>
@@ -57,7 +57,6 @@ export default function MisVacantesPage() {
         </button>
       </div>
 
-      {/* Lista */}
       {vacantes.length === 0 ? (
         <div className="bg-white rounded-xl p-8 text-center"
           style={{ border: '0.5px solid #e2e8f0' }}>
@@ -79,7 +78,7 @@ export default function MisVacantesPage() {
                   <div className="flex items-center gap-3 mt-1">
                     {v.salario && (
                       <span className="text-[10px] font-semibold" style={{ color: '#1a7a4a' }}>
-                        ${v.salario.toLocaleString('es-CO')}/mes
+                        ${Number(v.salario).toLocaleString('es-CO')}/mes
                       </span>
                     )}
                     {v.horario && (
@@ -87,9 +86,6 @@ export default function MisVacantesPage() {
                     )}
                     <span className="text-[10px]" style={{ color: '#8a9bb0' }}>
                       {v.cuposDisponibles}/{v.cuposTotales} cupos
-                    </span>
-                    <span className="text-[10px]" style={{ color: '#8a9bb0' }}>
-                      {v.postulaciones.length} candidato(s)
                     </span>
                   </div>
                 </div>
@@ -110,7 +106,6 @@ export default function MisVacantesPage() {
                 </div>
               )}
 
-              {/* Estado pendiente — esperando aprobación */}
               {v.estado === 'PENDIENTE' && (
                 <div className="mt-2 p-2 rounded"
                   style={{ background: '#fff8e6', border: '0.5px solid #f0d080' }}>
@@ -120,7 +115,6 @@ export default function MisVacantesPage() {
                 </div>
               )}
 
-              {/* Motivo de rechazo */}
               {v.estado === 'RECHAZADA' && v.motivoRechazo && (
                 <div className="mt-2 p-2 rounded"
                   style={{ background: '#fef0f0', border: '0.5px solid #f7c1c1' }}>
@@ -139,9 +133,10 @@ export default function MisVacantesPage() {
 
       {modal && (
         <ModalCrearVacante
+          empresaId={empresa.id}
           onClose={() => setModal(false)}
           onCreada={() => {
-            qc.invalidateQueries({ queryKey: ['mis-vacantes', empresaId] })
+            qc.invalidateQueries({ queryKey: ['mis-vacantes', empresa.id] })
             setModal(false)
             toast.success('Vacante creada. Está pendiente de aprobación.')
           }}

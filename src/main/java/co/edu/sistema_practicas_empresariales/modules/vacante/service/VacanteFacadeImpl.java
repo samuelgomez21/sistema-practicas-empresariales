@@ -151,4 +151,20 @@ public class VacanteFacadeImpl implements VacanteFacade {
                 .semestreMinimo(vacante.getSemestreMinimo())
                 .build();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<VacanteResponse> listarTodas() {
+        return vacanteRepository.findAll().stream()
+                .filter(v -> !Boolean.TRUE.equals(v.getEliminado()))
+                .map(this::mapToVacanteResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public VacanteResponse obtenerPorId(Long id) {
+        Vacante vacante = vacanteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(VACANTE_NO_ENCONTRADA));
+        return mapToVacanteResponse(vacante);
+    }
 }

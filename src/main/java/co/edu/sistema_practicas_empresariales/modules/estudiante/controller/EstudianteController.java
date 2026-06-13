@@ -69,7 +69,7 @@ public class EstudianteController {
      * Obtiene la información de un estudiante por su ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA', 'DOCENTE_ASESOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA', 'DOCENTE_ASESOR', 'EMPRESA_VINCULADA')")
     public ResponseEntity<EstudianteResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(estudianteFacade.obtenerPorId(id));
     }

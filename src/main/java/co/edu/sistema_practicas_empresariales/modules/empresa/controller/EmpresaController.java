@@ -58,7 +58,7 @@ public class EmpresaController {
      * Obtiene la información de una empresa por su ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'ESTUDIANTE', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'ESTUDIANTE', 'TUTOR_EMPRESARIAL','EMPRESA_VINCULADA')")
     public ResponseEntity<EmpresaResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(empresaFacade.obtenerPorId(id));
     }
@@ -67,7 +67,7 @@ public class EmpresaController {
      * Actualiza la información de una empresa existente.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL', 'EMPRESA_VINCULADA')")
     public ResponseEntity<EmpresaResponse> actualizarEmpresa(
             @PathVariable Long id,
             @RequestBody EmpresaRequest request) {
@@ -88,7 +88,7 @@ public class EmpresaController {
      * Registra un nuevo tutor asociado a una empresa específica.
      */
     @PostMapping("/{empresaId}/tutores")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','EMPRESA_VINCULADA')")
     public ResponseEntity<TutorEmpresarialResponse> registrarTutor(
             @PathVariable Long empresaId,
             @RequestBody TutorEmpresarialRequest request) {
@@ -100,7 +100,7 @@ public class EmpresaController {
      * Lista los tutores activos de una empresa.
      */
     @GetMapping("/{empresaId}/tutores")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL','EMPRESA_VINCULADA')")
     public ResponseEntity<List<TutorEmpresarialResponse>> listarTutores(@PathVariable Long empresaId) {
         return ResponseEntity.ok(empresaFacade.listarTutoresPorEmpresa(empresaId));
     }
@@ -109,9 +109,50 @@ public class EmpresaController {
      * Realiza un borrado lógico (desactivación) de un tutor en el sistema.
      */
     @DeleteMapping("/tutores/{tutorId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL','EMPRESA_VINCULADA')")
     public ResponseEntity<Void> eliminarTutor(@PathVariable Long tutorId) {
         empresaFacade.eliminarTutor(tutorId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Perfil de la empresa del usuario autenticado (rol EMPRESA_VINCULADA).
+     */
+    @GetMapping("/mi-perfil")
+    @PreAuthorize("hasRole('EMPRESA_VINCULADA')")
+    public ResponseEntity<EmpresaResponse> miPerfil(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(empresaFacade.obtenerPorUsuarioEmail(userDetails.getUsername()));
+    }
+
+    /**
+     * Actualiza los datos de un tutor existente.
+     */
+    @PutMapping("/tutores/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA')")
+    public ResponseEntity<TutorEmpresarialResponse> actualizarTutor(
+            @PathVariable Long id,
+            @RequestBody TutorEmpresarialRequest request) {
+        return ResponseEntity.ok(empresaFacade.actualizarTutor(id, request));
+    }
+
+    /**
+     * Reactiva un tutor previamente desactivado.
+     */
+    @PatchMapping("/tutores/{id}/activar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA')")
+    public ResponseEntity<Void> activarTutor(@PathVariable Long id) {
+        empresaFacade.activarTutor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Lista todos los tutores activos del sistema (todas las empresas).
+     */
+    @GetMapping("/tutores/todos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA')")
+    public ResponseEntity<List<TutorEmpresarialResponse>> listarTodosLosTutores() {
+        return ResponseEntity.ok(empresaFacade.listarTodosLosTutores());
     }
 }

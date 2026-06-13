@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { ROLES } from '@/lib/roles'
+import { useQuery } from '@tanstack/react-query'
+import { empresasApi } from '@/features/empresas/api/empresasApi'
 
 import Layout from '@/components/layout/Layout'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
@@ -38,8 +40,6 @@ import DetalleEstudiantePage  from '@/features/usuarios/pages/DetalleEstudianteP
 import EmpresasLayout         from '@/features/empresas/pages/EmpresasLayout'
 import EmpresasListadoPage    from '@/features/empresas/pages/EmpresasListadoPage'
 import DetalleEmpresaPage     from '@/features/empresas/pages/DetalleEmpresaPage'
-import ValidarDocumentosPage  from '@/features/empresas/pages/ValidarDocumentosPage'
-import VisitasPage            from '@/features/empresas/pages/VisitasPage'
 import TutoresAdminPage       from '@/features/empresas/pages/TutoresAdminPage'
 import MiPerfilEmpresaPage    from '@/features/empresas/pages/MiPerfilEmpresaPage'
 import MisPracticantesPage    from '@/features/empresas/pages/MisPracticantesPage'
@@ -107,6 +107,25 @@ function RootRedirect() {
     [ROLES.DIRECCION]:               '/dashboard/direccion',
   }
   return <Navigate to={RUTAS[user?.rol] ?? '/login'} replace />
+}
+
+function TutoresPageWrapper() {
+  const { user } = useAuthStore()
+  const esEmpresa = user?.rol === ROLES.EMPRESA_VINCULADA
+
+  const { data: miEmpresa, isLoading } = useQuery({
+    queryKey: ['mi-empresa'],
+    queryFn:  empresasApi.getMiEmpresa,
+    enabled:  esEmpresa,
+  })
+
+  if (esEmpresa && isLoading) return (
+    <div className="bg-white rounded-xl p-5 animate-pulse" style={{ border: '0.5px solid #e2e8f0' }}>
+      <div className="h-8 bg-gray-50 rounded" />
+    </div>
+  )
+
+  return <TutoresAdminPage empresaIdFijo={esEmpresa ? miEmpresa?.id : undefined} />
 }
 
 const router = createBrowserRouter([
@@ -205,8 +224,6 @@ const router = createBrowserRouter([
           { path: 'listado',        element: <EmpresasListadoPage /> },
           { path: ':id',            element: <DetalleEmpresaPage /> },
           { path: ':id/editar',     element: <DetalleEmpresaPage editMode /> },
-          { path: 'validar',        element: <ValidarDocumentosPage /> },
-          { path: 'visitas',        element: <VisitasPage /> },
           { path: 'tutores-admin',  element: <TutoresAdminPage /> },
           { path: 'mi-perfil',      element:
             <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}>
@@ -220,7 +237,7 @@ const router = createBrowserRouter([
           },
           { path: 'tutores',        element:
             <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA, ROLES.ADMINISTRADOR, ROLES.COORDINADOR_PRACTICA, ROLES.SECRETARIA_COORDINACION]}>
-              <TutoresAdminPage empresaId={2} />
+              <TutoresPageWrapper />
             </ProtectedRoute>
           },
           { path: 'candidatos', element:

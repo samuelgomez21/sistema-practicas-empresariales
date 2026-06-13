@@ -111,4 +111,16 @@ public class VacanteController {
     public ResponseEntity<VacanteResponse> cerrarVacante(@PathVariable Long vacanteId) {
         return ResponseEntity.ok(vacanteFacade.cerrarVacante(vacanteId));
     }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    public ResponseEntity<List<VacanteResponse>> listarTodas() {
+        return ResponseEntity.ok(vacanteFacade.listarTodas());
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA', 'ESTUDIANTE')")
+    public ResponseEntity<VacanteResponse> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(vacanteFacade.obtenerPorId(id));
+    }
 }

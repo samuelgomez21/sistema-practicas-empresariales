@@ -19,7 +19,7 @@ const SECCIONES_POR_ROL = {
 /*     { label: 'Plantillas correo',  path: '/configuracion/plantillas',   icon: Mail },
     { label: 'Catálogos maestros', path: '/configuracion/catalogos',    icon: Table }, */
   ],
-  [ROLES.COORDINACION_ACADEMICA]: [
+  [ROLES.COORDINADOR_ACADEMICO]: [
     { label: 'Facultades',         path: '/configuracion/facultades',   icon: School },
     { label: 'Programas',          path: '/configuracion/programas',    icon: BookOpen },
     { label: 'Parámetros',         path: '/configuracion/parametros',   icon: Settings2 },

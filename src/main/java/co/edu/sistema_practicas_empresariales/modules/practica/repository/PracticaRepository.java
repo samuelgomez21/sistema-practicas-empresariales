@@ -43,4 +43,11 @@ public interface PracticaRepository extends JpaRepository<Practica, Long> {
     boolean existsByEstudianteIdAndEstadoNotIn(Long estudianteId, List<EstadoPracticaTipo> estadosCerrados);
 
     long countActivasByCatalogoPracticaId (@Param("catalogoId") Long catalogoId);
+
+    @Query("""
+            SELECT p FROM Practica p
+            WHERE p.docenteAsesor.id = :docenteId
+            AND p.estado NOT IN ('COMPLETADA', 'REPROBADA', 'CANCELADA')
+        """)
+    List<Practica> findAsignadasActivasByDocente(@Param("docenteId") Long docenteId);
 }

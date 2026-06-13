@@ -84,7 +84,7 @@ export default function CargaDocentesPage() {
                           {d.dedicacion}
                         </span>
                       </div>
-                      <p className="text-xs" style={{ color: '#8a9bb0' }}>{d.facultad}</p>
+                      <p className="text-sm font-bold" style={{ color: '#023859' }}>{d.nombre}</p>
                       <p className="text-[10px] mt-0.5" style={{ color: '#8a9bb0' }}>
                         {d.correo}
                       </p>

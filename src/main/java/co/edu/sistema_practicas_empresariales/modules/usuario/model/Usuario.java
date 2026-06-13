@@ -62,6 +62,10 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    @Builder.Default
+    @Column(name = "max_estudiantes", nullable = false)
+    private Integer maxEstudiantes = 0;
+
     @PrePersist
     protected void onCreate() {
         if (fechaCreacion == null) {

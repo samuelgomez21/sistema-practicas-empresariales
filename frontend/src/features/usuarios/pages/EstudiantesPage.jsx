@@ -35,7 +35,7 @@ export default function EstudiantesPage() {
   const [filtroSemestre, setFiltroSemestre] = useState('')
 
   // Determinar scope de programas según rol
-  const esCoordAcademica = user?.rol === ROLES.COORDINACION_ACADEMICA
+  const esCoordAcademica = user?.rol === ROLES.COORDINADOR_ACADEMICO
   const programasScope   = esCoordAcademica
     ? (SCOPE_PROGRAMAS[user?.correo] ?? [])
     : []
@@ -49,11 +49,11 @@ export default function EstudiantesPage() {
   const { data: misProgramas = [] } = useQuery({
     queryKey: ['mis-programas', usuarioId],
     queryFn:  () => usuariosApi.getProgramasDeCoordinador(usuarioId),
-    enabled:  esCoordinadorAcademico,
+    enabled:  esCoordAcademica,
   })
 
   const programaIds = misProgramas.map(p => p.id)
-  const estudiantesFiltrados = esCoordinadorAcademico
+  const estudiantesFiltrados = esCoordAcademica
     ? estudiantes.filter(e => programaIds.includes(e.programaId))
     : estudiantes
 

@@ -84,6 +84,7 @@ public class Estudiante {
     public enum EstadoAptitud {
         SIN_EVALUAR,
         APTO,
+        EN_REVISION,
         NO_APTO
     }
 }

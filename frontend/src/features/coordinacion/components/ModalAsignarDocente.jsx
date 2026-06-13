@@ -70,7 +70,7 @@ export default function ModalAsignarDocente({ estudiante, onClose, onAsignado })
                         {d.nombre}
                       </p>
                       <p className="text-[10px]" style={{ color: '#8a9bb0' }}>
-                        {d.facultad}
+                        {d.correo}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex-1 h-1.5 rounded-full" style={{ background: '#f0f2f5' }}>

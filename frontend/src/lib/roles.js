@@ -56,7 +56,7 @@ export const MENU_POR_ROL = {
     },
   ],
 
-  [ROLES.COORDINACION_ACADEMICA]: [
+  [ROLES.COORDINADOR_ACADEMICO]: [
     { section: 'Principal',
       items: [
         { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/coordinacion-academica' },

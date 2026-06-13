@@ -375,4 +375,55 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .fechaFin(p.getFechaFin())
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteClasificacionDto> listarParaClasificacion() {
+        return estudianteRepository.findByActivoTrue().stream()
+                .map(this::toClasificacionDto)
+                .toList();
+    }
+
+    private co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteClasificacionDto toClasificacionDto(Estudiante e) {
+        Practica practica = practicaRepository.findPracticaActivaByEstudiante(e.getId()).orElse(null);
+
+        return co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteClasificacionDto.builder()
+                .id(e.getId())
+                .nombre(e.getUsuario().getNombre())
+                .programa(e.getPrograma().getNombre())
+                .programaId(e.getPrograma().getId())
+                .semestre(e.getSemestre())
+                .creditosAprobados(e.getCreditosAprobados())
+                .promedioAcumulado(e.getPromedioAcumulado())
+                .estadoAptitud(e.getEstadoAptitud().name())
+                .numeroPractica(practica != null ? practica.getNumeroPractica() : null)
+                .docenteId(practica != null && practica.getDocenteAsesor() != null ? practica.getDocenteAsesor().getId() : null)
+                .docenteNombre(practica != null && practica.getDocenteAsesor() != null ? practica.getDocenteAsesor().getNombre() : null)
+                .empresaNombre(practica != null && practica.getEmpresaId() != null ? "Empresa ID: " + practica.getEmpresaId() : null)
+                .practicaId(practica != null ? practica.getId() : null)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "ACTUALIZAR", modulo = "ESTUDIANTES")
+    public EstudianteResponse actualizarAptitudManual(Long estudianteId, String estadoAptitud) {
+        Estudiante estudiante = estudianteRepository.findById(estudianteId)
+                .orElseThrow(() -> new IllegalArgumentException(ESTUDIANTE_NO_ENCONTRADO_MSG + estudianteId));
+
+        Estudiante.EstadoAptitud nuevoEstado;
+        try {
+            nuevoEstado = Estudiante.EstadoAptitud.valueOf(estadoAptitud);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Estado de aptitud inválido: " + estadoAptitud);
+        }
+
+        estudiante.setEstadoAptitud(nuevoEstado);
+        estudiante = estudianteRepository.save(estudiante);
+
+        String motivo = "Aptitud actualizada manualmente por coordinación a " + nuevoEstado;
+        eventPublisher.publishEvent(new AptitudEvaluadaEvent(this, estudiante, nuevoEstado == Estudiante.EstadoAptitud.APTO, motivo));
+
+        return mapToResponse(estudiante);
+    }
 }

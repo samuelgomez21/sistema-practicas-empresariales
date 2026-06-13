@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.estudiante.service;
 
+import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteClasificacionDto;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteRequest;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteResponse;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.PracticaResponse;
@@ -36,5 +37,6 @@ public interface EstudianteFacade {
     void eliminarEstudiante(Long id);
 
     void activarEstudiante(Long id);
-
+    List<EstudianteClasificacionDto> listarParaClasificacion();
+    EstudianteResponse actualizarAptitudManual(Long estudianteId, String estadoAptitud);
 }

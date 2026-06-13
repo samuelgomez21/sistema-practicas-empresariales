@@ -43,6 +43,8 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     private final PasswordEncoder passwordEncoder;
     private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
     private final EmailService emailService;
+    private final co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository practicaRepository;
+
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -211,6 +213,46 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
                 .toList();
 
         coordinadorProgramaRepository.saveAll(nuevas);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto> listarDocentesConCarga() {
+        return usuarioRepository.findByRolNombreAndEliminadoFalse(
+                        co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.DOCENTE_ASESOR)
+                .stream()
+                .map(this::toDocenteCargaDto)
+                .toList();
+    }
+
+    private co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto toDocenteCargaDto(Usuario docente) {
+        List<co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto> activos =
+                practicaRepository.findAsignadasActivasByDocente(docente.getId()).stream()
+                        .map(p -> co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto.builder()
+                                .id(p.getEstudiante().getId())
+                                .nombre(p.getEstudiante().getUsuario().getNombre())
+                                .programa(p.getEstudiante().getPrograma().getNombre())
+                                .semestre(p.getEstudiante().getSemestre())
+                                .build())
+                        .toList();
+
+        return co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.builder()
+                .id(docente.getId())
+                .nombre(docente.getNombre())
+                .correo(docente.getEmail())
+                .maxEstudiantes(docente.getMaxEstudiantes())
+                .estudiantesActivos(activos)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "ACTUALIZAR", modulo = "USUARIOS")
+    public void actualizarMaxEstudiantes(Long docenteId, int max) {
+        Usuario docente = usuarioRepository.findById(docenteId)
+                .orElseThrow(() -> new IllegalArgumentException("Docente no encontrado"));
+        docente.setMaxEstudiantes(max);
+        usuarioRepository.save(docente);
     }
 
 }

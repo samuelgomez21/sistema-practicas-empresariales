@@ -2,6 +2,8 @@ package co.edu.sistema_practicas_empresariales.modules.usuario.controller;
 
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.AsignarProgramasRequest;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaResumenDto;
+import co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto;
+import co.edu.sistema_practicas_empresariales.modules.usuario.dto.MaxEstudiantesRequest;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.UsuarioFacade;
 import lombok.RequiredArgsConstructor;
@@ -130,6 +132,17 @@ public class UsuarioController {
             @RequestBody AsignarProgramasRequest request) {
         usuarioFacade.asignarProgramas(id, request.getProgramaIds());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/docentes-carga")
+    public ResponseEntity<List<DocenteCargaDto>> listarDocentesConCarga() {
+        return ResponseEntity.ok(usuarioFacade.listarDocentesConCarga());
+    }
+
+    @PatchMapping("/{id}/max-estudiantes")
+    public ResponseEntity<Void> actualizarMaxEstudiantes(@PathVariable Long id, @RequestBody MaxEstudiantesRequest request) {
+        usuarioFacade.actualizarMaxEstudiantes(id, request.getMax());
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -1,8 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.estudiante.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteRequest;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteResponse;
-import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.PracticaResponse;
+import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.service.EstudianteFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -154,5 +152,25 @@ public class EstudianteController {
     public ResponseEntity<Void> activar(@PathVariable Long id) {
         estudianteFacade.activarEstudiante(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Lista estudiantes con información de clasificación (aptitud, práctica activa,
+     * docente y empresa asignados). Usado por coordinación académica.
+     */
+    @GetMapping("/clasificacion")
+    public ResponseEntity<List<EstudianteClasificacionDto>> listarParaClasificacion() {
+        return ResponseEntity.ok(estudianteFacade.listarParaClasificacion());
+    }
+
+    /**
+     * Actualiza manualmente el estado de aptitud de un estudiante
+     * (override de coordinación académica).
+     */
+    @PatchMapping("/{id}/aptitud")
+    public ResponseEntity<EstudianteResponse> actualizarAptitudManual(
+            @PathVariable Long id,
+            @RequestBody AptitudManualRequest request) {
+        return ResponseEntity.ok(estudianteFacade.actualizarAptitudManual(id, request.getEstadoAptitud()));
     }
 }

@@ -97,7 +97,7 @@ function RootRedirect() {
   if (!isAuthenticated) return <Navigate to="/login" replace />
   const RUTAS = {
     [ROLES.ADMINISTRADOR]:          '/dashboard/admin',
-    [ROLES.COORDINACION_ACADEMICA]: '/dashboard/coordinacion-academica',
+    [ROLES.COORDINADOR_ACADEMICO]: '/dashboard/coordinacion-academica',
     [ROLES.COORDINADOR_PRACTICA]:   '/dashboard/coordinador-practica',
     [ROLES.SECRETARIA]:             '/dashboard/secretaria',
     [ROLES.DOCENTE_ASESOR]:         '/dashboard/docente',
@@ -132,7 +132,7 @@ const router = createBrowserRouter([
       { path: '/dashboard/admin',
         element: <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}><DashboardAdmin /></ProtectedRoute> },
       { path: '/dashboard/coordinacion-academica',
-        element: <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA]}><DashboardCoordinacionAcademica /></ProtectedRoute> },
+        element: <ProtectedRoute roles={[ROLES.COORDINADOR_ACADEMICO]}><DashboardCoordinacionAcademica /></ProtectedRoute> },
       { path: '/dashboard/coordinador-practica',
         element: <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA]}><DashboardCoordinadorPractica /></ProtectedRoute> },
       { path: '/dashboard/secretaria',
@@ -151,7 +151,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[
             ROLES.ADMINISTRADOR,
-            ROLES.COORDINACION_ACADEMICA,
+            ROLES.COORDINADOR_ACADEMICO,
             ROLES.COORDINADOR_PRACTICA,
           ]}>
             <ConfiguracionLayout />
@@ -169,7 +169,7 @@ const router = createBrowserRouter([
       },
       {  path: '/usuarios',
         element: (
-          <ProtectedRoute roles={[ROLES.ADMINISTRADOR, ROLES.COORDINACION_ACADEMICA]}>
+          <ProtectedRoute roles={[ROLES.ADMINISTRADOR, ROLES.COORDINADOR_ACADEMICO]}>
             <UsuariosLayout />
           </ProtectedRoute>
         ),
@@ -284,13 +284,13 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion/clasificacion',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_ACADEMICO, ROLES.ADMINISTRADOR]}>
             <ClasificacionPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/coordinador/docentes',
+        path: '/coordinacion/docentes',
         element: <CargaDocentesPage />
       },
       {

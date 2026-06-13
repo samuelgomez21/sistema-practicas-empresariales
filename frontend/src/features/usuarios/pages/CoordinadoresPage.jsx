@@ -10,7 +10,7 @@ import ModalCoordinador from '../components/ModalCoordinador'
 import { coordinacionApi } from '@/features/coordinacion/api/coordinacionApi' 
 
 const ROL_LABEL = {
-  COORDINACION_ACADEMICA: 'Coord. Académica',
+  COORDINADOR_ACADEMICO: 'Coord. Académica',
   COORDINADOR_PRACTICA:   'Coord. de Práctica',
   SECRETARIA:             'Secretaria',
   DIRECCION:              'Dirección',

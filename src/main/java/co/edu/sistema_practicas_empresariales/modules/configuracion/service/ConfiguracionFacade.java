@@ -6,7 +6,7 @@ import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Catalo
 import java.util.List;
 
 public interface ConfiguracionFacade {
-    List<CatalogoPractica> listarCatalogosPorPrograma(Long programaId);
+    List<CatalogoPracticaDto> listarCatalogosPorPrograma(Long programaId);
     CatalogoPractica crearCatalogo(CatalogoPracticaRequest request);
     void activarDesactivarCatalogo(Long catalogoId, boolean activo);
 

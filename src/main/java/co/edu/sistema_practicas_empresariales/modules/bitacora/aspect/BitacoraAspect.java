@@ -10,20 +10,17 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Aspecto para interceptar y registrar en bitácora acciones del sistema.
- */
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -35,7 +32,6 @@ public class BitacoraAspect {
 
     @Around("@annotation(auditable)")
     public Object auditarAccion(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
-        // Ejecutar el método original
         Object result;
         try {
             result = joinPoint.proceed();
@@ -44,7 +40,6 @@ public class BitacoraAspect {
             throw ex;
         }
 
-        // Registrar acción exitosa
         registrar(joinPoint, auditable, result, null);
 
         return result;
@@ -54,34 +49,45 @@ public class BitacoraAspect {
         try {
             String usuario = obtenerUsuarioActual();
             String ip = obtenerIp();
-            
-            // Construir detalles
+
             Map<String, Object> detallesMap = new HashMap<>();
-            
+
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             String[] parameterNames = signature.getParameterNames();
             Object[] args = joinPoint.getArgs();
-            
+
             Map<String, Object> argsMap = new HashMap<>();
             if (parameterNames != null) {
                 for (int i = 0; i < parameterNames.length; i++) {
-                    // Evitamos serializar objetos inyectados gigantes como HttpServletRequest
-                    if (!(args[i] instanceof HttpServletRequest)) {
-                        argsMap.put(parameterNames[i], args[i]);
+                    Object arg = args[i];
+
+                    // Evitamos serializar objetos inyectados gigantes o no serializables
+                    if (arg instanceof HttpServletRequest) {
+                        continue;
                     }
+                    if (arg instanceof MultipartFile mf) {
+                        argsMap.put(parameterNames[i], Map.of(
+                                "filename", mf.getOriginalFilename(),
+                                "size", mf.getSize(),
+                                "contentType", mf.getContentType() != null ? mf.getContentType() : ""
+                        ));
+                        continue;
+                    }
+
+                    argsMap.put(parameterNames[i], arg);
                 }
             }
-            
+
             detallesMap.put("parametros", argsMap);
-            
+
             if (ex != null) {
                 detallesMap.put("error", ex.getMessage());
             } else if (result != null) {
                 detallesMap.put("resultado", "Éxito");
             }
-            
+
             String detallesJson = objectMapper.writeValueAsString(detallesMap);
-            if (detallesJson.length() > 60000) { // Límite de texto
+            if (detallesJson.length() > 60000) {
                 detallesJson = detallesJson.substring(0, 60000) + "...";
             }
 
@@ -93,9 +99,8 @@ public class BitacoraAspect {
                     .ipAddress(ip)
                     .build();
 
-            // Guardado síncrono para simplicidad y evitar pérdida de contexto en H2
             bitacoraRepository.save(bitacora);
-            
+
         } catch (Exception e) {
             log.error("Error al registrar en bitácora", e);
         }

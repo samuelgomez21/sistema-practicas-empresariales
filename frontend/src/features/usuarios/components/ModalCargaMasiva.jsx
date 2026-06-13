@@ -1,24 +1,17 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
 import { X, Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
-import { toast } from 'sonner'
-import { estudiantesApi } from '../api/estudiantesApi'
 
-export default function ModalCargaMasiva({ onClose, onGuardado }) {
+export default function ModalCargaMasiva({ onClose, onSubir, cargando }) {
   const [archivo, setArchivo] = useState(null)
-
-  const mutation = useMutation({
-    mutationFn: () => estudiantesApi.cargaMasivaEstudiantes(archivo),
-    onSuccess: (creados) => {
-      toast.success(`${creados.length} estudiante(s) registrado(s) correctamente`)
-      onGuardado()
-    },
-    onError: () => toast.error('Error al procesar el archivo'),
-  })
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) setArchivo(file)
+  }
+
+  const handleSubmit = () => {
+    if (!archivo) return
+    onSubir(archivo)
   }
 
   return (
@@ -39,7 +32,7 @@ export default function ModalCargaMasiva({ onClose, onGuardado }) {
           {/* Instrucciones */}
           <div className="p-3 rounded-lg text-[11px] leading-relaxed"
             style={{ background: '#e6f0fb', color: '#0B416B' }}>
-            El archivo Excel debe tener las columnas en este orden (sin encabezados en la primera fila opcional):
+            El archivo Excel debe tener las columnas en este orden (sin encabezado obligatorio en la primera fila):
             <strong> Nombre, Email, Tipo de Identificación, Identificación, Teléfono, Contacto de Emergencia,
             Programa ID, Semestre, Créditos Aprobados, Promedio Acumulado.</strong>
           </div>
@@ -91,12 +84,12 @@ export default function ModalCargaMasiva({ onClose, onGuardado }) {
               Cancelar
             </button>
             <button
-              onClick={() => mutation.mutate()}
-              disabled={!archivo || mutation.isPending}
+              onClick={handleSubmit}
+              disabled={!archivo || cargando}
               className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white"
-              style={{ background: !archivo || mutation.isPending ? '#a0aab4' : '#D91438' }}>
+              style={{ background: !archivo || cargando ? '#a0aab4' : '#D91438' }}>
               <Upload size={13} />
-              {mutation.isPending ? 'Procesando...' : 'Cargar estudiantes'}
+              {cargando ? 'Procesando...' : 'Cargar estudiantes'}
             </button>
           </div>
         </div>

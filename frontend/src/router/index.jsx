@@ -96,15 +96,15 @@ function RootRedirect() {
   const { isAuthenticated, user } = useAuthStore()
   if (!isAuthenticated) return <Navigate to="/login" replace />
   const RUTAS = {
-    [ROLES.ADMINISTRADOR]:          '/dashboard/admin',
-    [ROLES.COORDINACION_ACADEMICA]: '/dashboard/coordinacion-academica',
-    [ROLES.COORDINADOR_PRACTICA]:   '/dashboard/coordinador-practica',
-    [ROLES.SECRETARIA]:             '/dashboard/secretaria',
-    [ROLES.DOCENTE_ASESOR]:         '/dashboard/docente',
-    [ROLES.EMPRESA]:                '/dashboard/empresa',
-    [ROLES.TUTOR_EMPRESARIAL]:      '/dashboard/tutor',
-    [ROLES.ESTUDIANTE]:             '/dashboard/estudiante',
-    [ROLES.DIRECCION]:              '/dashboard/direccion',
+    [ROLES.ADMINISTRADOR]:           '/dashboard/admin',
+    [ROLES.COORDINADOR_ACADEMICO]:   '/dashboard/coordinacion-academica',
+    [ROLES.COORDINADOR_PRACTICA]:    '/dashboard/coordinador-practica',
+    [ROLES.SECRETARIA_COORDINACION]: '/dashboard/secretaria',
+    [ROLES.DOCENTE_ASESOR]:          '/dashboard/docente',
+    [ROLES.EMPRESA_VINCULADA]:       '/dashboard/empresa',
+    [ROLES.TUTOR_EMPRESARIAL]:       '/dashboard/tutor',
+    [ROLES.ESTUDIANTE]:              '/dashboard/estudiante',
+    [ROLES.DIRECCION]:               '/dashboard/direccion',
   }
   return <Navigate to={RUTAS[user?.rol] ?? '/login'} replace />
 }
@@ -132,15 +132,15 @@ const router = createBrowserRouter([
       { path: '/dashboard/admin',
         element: <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}><DashboardAdmin /></ProtectedRoute> },
       { path: '/dashboard/coordinacion-academica',
-        element: <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA]}><DashboardCoordinacionAcademica /></ProtectedRoute> },
+        element: <ProtectedRoute roles={[ROLES.COORDINADOR_ACADEMICO]}><DashboardCoordinacionAcademica /></ProtectedRoute> },
       { path: '/dashboard/coordinador-practica',
         element: <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA]}><DashboardCoordinadorPractica /></ProtectedRoute> },
       { path: '/dashboard/secretaria',
-        element: <ProtectedRoute roles={[ROLES.SECRETARIA]}><DashboardSecretaria /></ProtectedRoute> },
+        element: <ProtectedRoute roles={[ROLES.SECRETARIA_COORDINACION]}><DashboardSecretaria /></ProtectedRoute> },
       { path: '/dashboard/docente',
         element: <ProtectedRoute roles={[ROLES.DOCENTE_ASESOR]}><DashboardDocente /></ProtectedRoute> },
       { path: '/dashboard/empresa',
-        element: <ProtectedRoute roles={[ROLES.EMPRESA]}><DashboardEmpresa /></ProtectedRoute> },
+        element: <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}><DashboardEmpresa /></ProtectedRoute> },
       { path: '/dashboard/tutor',
         element: <ProtectedRoute roles={[ROLES.TUTOR_EMPRESARIAL]}><DashboardTutor /></ProtectedRoute> },
       { path: '/estudiante/dashboard',
@@ -151,7 +151,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[
             ROLES.ADMINISTRADOR,
-            ROLES.COORDINACION_ACADEMICA,
+            ROLES.COORDINADOR_ACADEMICO,
             ROLES.COORDINADOR_PRACTICA,
           ]}>
             <ConfiguracionLayout />
@@ -169,7 +169,7 @@ const router = createBrowserRouter([
       },
       {  path: '/usuarios',
         element: (
-          <ProtectedRoute roles={[ROLES.ADMINISTRADOR, ROLES.COORDINACION_ACADEMICA]}>
+          <ProtectedRoute roles={[ROLES.ADMINISTRADOR, ROLES.COORDINADOR_ACADEMICO]}>
             <UsuariosLayout />
           </ProtectedRoute>
         ),
@@ -193,8 +193,8 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={[
             ROLES.ADMINISTRADOR,
             ROLES.COORDINADOR_PRACTICA,
-            ROLES.SECRETARIA,
-            ROLES.EMPRESA,
+            ROLES.SECRETARIA_COORDINACION,
+            ROLES.EMPRESA_VINCULADA,
             ROLES.ESTUDIANTE,
           ]}>
             <EmpresasLayout />
@@ -202,38 +202,33 @@ const router = createBrowserRouter([
         ),
         children: [
           { index: true, element: <Navigate to="/empresas/listado" replace /> },
-          // Admin / Coordinadora / Secretaria
           { path: 'listado',        element: <EmpresasListadoPage /> },
           { path: ':id',            element: <DetalleEmpresaPage /> },
           { path: ':id/editar',     element: <DetalleEmpresaPage editMode /> },
           { path: 'validar',        element: <ValidarDocumentosPage /> },
           { path: 'visitas',        element: <VisitasPage /> },
           { path: 'tutores-admin',  element: <TutoresAdminPage /> },
-          // Portal empresa
           { path: 'mi-perfil',      element:
-            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+            <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}>
               <MiPerfilEmpresaPage />
             </ProtectedRoute>
           },
           { path: 'practicantes',   element:
-            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+            <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}>
               <MisPracticantesPage />
             </ProtectedRoute>
           },
           { path: 'tutores',        element:
-            <ProtectedRoute roles={[ROLES.EMPRESA, ROLES.ADMINISTRADOR, ROLES.COORDINADOR_PRACTICA, ROLES.SECRETARIA]}>
+            <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA, ROLES.ADMINISTRADOR, ROLES.COORDINADOR_PRACTICA, ROLES.SECRETARIA_COORDINACION]}>
               <TutoresAdminPage empresaId={2} />
             </ProtectedRoute>
           },
           { path: 'candidatos', element:
-            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+            <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}>
               <CandidatosEmpresaPage />
             </ProtectedRoute>
           },
-          {
-            path: 'estudiante/:id',
-            element: <PerfilEstudianteEmpresaPage />,
-          },
+          { path: 'estudiante/:id', element: <PerfilEstudianteEmpresaPage /> },
         ],
       },
       {  path: '/estudiante',
@@ -264,8 +259,8 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={[
             ROLES.ADMINISTRADOR,
             ROLES.COORDINADOR_PRACTICA,
-            ROLES.SECRETARIA,
-            ROLES.EMPRESA,
+            ROLES.SECRETARIA_COORDINACION,
+            ROLES.EMPRESA_VINCULADA,
           ]}>
             <VacantesLayout />
           </ProtectedRoute>
@@ -275,7 +270,7 @@ const router = createBrowserRouter([
           { path: 'listado',      element: <VacantesListadoPage /> },
           { path: ':id',          element: <DetalleVacantePage />  },
           { path: 'mis-vacantes', element:
-            <ProtectedRoute roles={[ROLES.EMPRESA]}>
+            <ProtectedRoute roles={[ROLES.EMPRESA_VINCULADA]}>
               <MisVacantesPage />
             </ProtectedRoute>
           },
@@ -284,14 +279,18 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion/clasificacion',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINACION_ACADEMICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_ACADEMICO, ROLES.ADMINISTRADOR]}>
             <ClasificacionPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/coordinador/docentes',
-        element: <CargaDocentesPage />
+        path: '/coordinacion/docentes',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_ACADEMICO, ROLES.ADMINISTRADOR]}>
+            <CargaDocentesPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/docente',

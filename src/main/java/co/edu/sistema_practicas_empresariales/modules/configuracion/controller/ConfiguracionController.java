@@ -1,6 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaRequest;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.service.ConfiguracionFacade;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaParametroDto;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaParametroRequest;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaConConteoDto;
 
 /**
  * Controlador REST para la gestión de la configuración global del sistema.
@@ -55,7 +52,7 @@ public class ConfiguracionController {
      * @return ResponseEntity con la lista de catálogos pertenecientes al programa.
      */
     @GetMapping("/programas/{programaId}/catalogos")
-    public ResponseEntity<List<CatalogoPractica>> listarCatalogos(@PathVariable Long programaId) {
+    public ResponseEntity<List<CatalogoPracticaDto>> listarCatalogos(@PathVariable Long programaId) {
         return ResponseEntity.ok(configuracionFacade.listarCatalogosPorPrograma(programaId));
     }
 

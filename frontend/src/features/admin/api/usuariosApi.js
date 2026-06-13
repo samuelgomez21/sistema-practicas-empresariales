@@ -43,6 +43,16 @@ export const usuariosApi = {
   activarUsuario: async (id) => {
     const { data } = await api.patch(`/usuarios/${id}/activar`)
     return data
-    // Endpoint pendiente en backend — el front asume que existe
+  },
+
+  // ── Programas asignados a coordinadores ───────────────────────────
+  getProgramasDeCoordinador: async (usuarioId) => {
+    const { data } = await api.get(`/usuarios/${usuarioId}/programas`)
+    return data
+    // [{ id, nombre }]  — ProgramaResumenDto
+  },
+
+  asignarProgramas: async (usuarioId, programaIds) => {
+    await api.put(`/usuarios/${usuarioId}/programas`, { programaIds })
   },
 }

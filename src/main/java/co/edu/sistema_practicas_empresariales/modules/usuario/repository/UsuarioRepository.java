@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.usuario.repository;
 
+import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -32,4 +33,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /** Lista todos los usuarios que no están marcados como eliminados. */
     List<Usuario> findAllByEliminadoFalse();
+
+    List<Usuario> findByRolNombreAndEliminadoFalse(Rol.Nombre rolNombre);
+
 }

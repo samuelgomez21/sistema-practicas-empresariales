@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { usuariosApi } from '../api/usuariosApi'
 
 const ROLES_DISPONIBLES = [
-  { value: 'COORDINACION_ACADEMICA', label: 'Coordinación Académica' },
+  { value: 'COORDINADOR_ACADEMICO', label: 'Coordinador Académico' },
   { value: 'COORDINADOR_PRACTICA',   label: 'Coordinador de Práctica' },
   { value: 'SECRETARIA',             label: 'Secretaria' },
   { value: 'DIRECCION',              label: 'Dirección' },

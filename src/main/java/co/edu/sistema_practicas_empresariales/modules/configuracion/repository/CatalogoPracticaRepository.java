@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.repository;
 
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaDto;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CatalogoPracticaRepository extends JpaRepository<CatalogoPractica, Long> {
     List<CatalogoPractica> findByProgramaIdAndActivoTrue(Long programaId);
-    Optional<CatalogoPractica> findByProgramaIdAndNumeroPracticaAndActivoTrue(Long programaId, int numeroPractica);
+    Optional<CatalogoPracticaDto> findByProgramaIdAndNumeroPracticaAndActivoTrue(Long programaId, int numeroPractica);
     boolean existsByProgramaIdAndNumeroPracticaAndActivoTrue(Long programaId, int numeroPractica);
 
     @Query("""

@@ -77,14 +77,7 @@ export default function CargaDocentesPage() {
                       {d.nombre[0]}
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold" style={{ color: '#023859' }}>{d.nombre}</p>
-                        <span className="text-[9px] px-2 py-0.5 rounded"
-                          style={{ background: '#f0f2f5', color: '#6b7a8d' }}>
-                          {d.dedicacion}
-                        </span>
-                      </div>
-                      <p className="text-xs" style={{ color: '#8a9bb0' }}>{d.facultad}</p>
+                      <p className="text-sm font-bold" style={{ color: '#023859' }}>{d.nombre}</p>
                       <p className="text-[10px] mt-0.5" style={{ color: '#8a9bb0' }}>
                         {d.correo}
                       </p>

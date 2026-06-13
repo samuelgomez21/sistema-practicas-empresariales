@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.service.impl;
 
+import co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable;
 import co.edu.sistema_practicas_empresariales.modules.infraestructura.storage.ArchivoStorageService;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
@@ -60,9 +61,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
     private static final String CK_DOCUMENTOS     = "documentos_completos";
     private static final String CK_INFORME        = "informe_final";
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // CONSULTAS
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Transactional(readOnly = true)
     public List<PracticaResumenDto> listarTodas() {
@@ -105,6 +104,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
      * acadÃ©mico marca al estudiante como APTO y asigna nÃºmero de prÃ¡ctica.
      * PatrÃ³n estrategia: inicializa cortes y checklist automÃ¡ticamente.
      */
+    @Auditable(accion = "CRAER", modulo = "PRACTICAS")
     public PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId) {
 
         Estudiante      estudiante = estudianteRepository.findById(estudianteId)
@@ -144,10 +144,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practica);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // TRANSICIONES DE ESTADO
     // PatrÃ³n State: delegado al modelo
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Inicia el proceso de vinculaciÃ³n con la empresa.
@@ -192,10 +190,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practicaRepository.save(p));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // ASIGNACIONES
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
+    @Auditable(accion = "ACTUALIZAR",modulo = "PRACTICAS")
     public PracticaDetalleDto asignarDocente(Long practicaId, Long docenteId) {
         Practica p  = buscar(practicaId);
         Usuario doc = usuarioRepository.findById(docenteId)

@@ -1,40 +1,68 @@
 import api from '@/lib/axios'
 
 export const estudiantesApi = {
-
+  // Combina /estudiantes (datos académicos) con /estudiantes/clasificacion
+  // (numeroPractica, docente, empresa) para tener todo en un solo objeto.
   getEstudiantes: async () => {
-    const { data } = await api.get('/estudiantes')
-    return data
-  },
+    const [{ data: lista }, { data: clasif }] = await Promise.all([
+      api.get('/estudiantes'),
+      api.get('/estudiantes/clasificacion'),
+    ])
 
-  getEstudiantesPorPrograma: async (programaId) => {
-    const { data } = await api.get(`/estudiantes/programa/${programaId}`)
-    return data
-  },
+    const clasifMap = new Map(clasif.map(c => [c.id, c]))
 
-  getEstudianteById: async (id) => {
-    const { data } = await api.get(`/estudiantes/${id}`)
-    return data
+    return lista.map(e => {
+      const c = clasifMap.get(e.id)
+      return {
+        id: e.id,
+        nombre: e.nombre,
+        email: e.email,
+        documento: e.identificacion,
+        tipoIdentificacion: e.tipoIdentificacion,
+        telefono: e.telefono,
+        contactoEmergencia: e.contactoEmergencia,
+        programaId: e.programaId,
+        nombrePrograma: e.nombrePrograma,
+        nombreFacultad: e.nombreFacultad,
+        semestre: e.semestre,
+        creditosAprobados: e.creditosAprobados,
+        promedioAcumulado: Number(e.promedioAcumulado ?? 0),
+        estadoAptitud: e.estadoAptitud,
+        estadoPractica: e.estadoPractica,
+        activo: e.activo,
+        numeroPractica: c?.numeroPractica ?? null,
+        docenteId: c?.docenteId ?? null,
+        docenteNombre: c?.docenteNombre ?? null,
+        empresaNombre: c?.empresaNombre ?? null,
+        practicaId: c?.practicaId ?? null,
+      }
+    })
   },
 
   crearEstudiante: async (data) => {
     const { data: res } = await api.post('/estudiantes', {
-      identificacion:     data.identificacion,
+      nombre: data.nombre,
+      email: data.email,
       tipoIdentificacion: data.tipoIdentificacion,
-      nombre:             data.nombre,
-      email:              data.email,
-      telefono:           data.telefono,
+      identificacion: data.identificacion,
+      telefono: data.telefono,
       contactoEmergencia: data.contactoEmergencia,
-      programaId:         data.programaId,
-      semestre:           data.semestre,
-      creditosAprobados:  data.creditosAprobados,
-      promedioAcumulado:  data.promedioAcumulado,
+      programaId: Number(data.programaId),
+      semestre: Number(data.semestre),
+      creditosAprobados: Number(data.creditosAprobados),
+      promedioAcumulado: Number(data.promedioAcumulado),
     })
     return res
   },
 
-  editarEstudiante: async (id, data) => {
-    const { data: res } = await api.put(`/estudiantes/${id}`, data)
+  actualizarEstudiante: async (id, data) => {
+    const { data: res } = await api.put(`/estudiantes/${id}`, {
+      telefono: data.telefono,
+      contactoEmergencia: data.contactoEmergencia,
+      semestre: data.semestre != null ? Number(data.semestre) : undefined,
+      creditosAprobados: data.creditosAprobados != null ? Number(data.creditosAprobados) : undefined,
+      promedioAcumulado: data.promedioAcumulado != null ? Number(data.promedioAcumulado) : undefined,
+    })
     return res
   },
 
@@ -48,10 +76,6 @@ export const estudiantesApi = {
     return { id, activo: true }
   },
 
-  /**
-   * Carga masiva — envía el archivo Excel directo (multipart),
-   * el backend lo parsea con Apache POI.
-   */
   cargaMasivaEstudiantes: async (file) => {
     const formData = new FormData()
     formData.append('file', file)
@@ -59,8 +83,6 @@ export const estudiantesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
-    // Retorna List<EstudianteResponse> de los creados exitosamente.
-    // Las filas con error simplemente se omiten (quedan logueadas en
-    // el backend con Logger.WARNING) — no se retorna detalle de errores.
+    // [EstudianteResponse, ...] — creados exitosamente
   },
 }

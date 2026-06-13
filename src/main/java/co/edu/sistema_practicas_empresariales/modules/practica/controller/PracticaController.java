@@ -35,14 +35,14 @@ public class PracticaController {
     }
 
     @GetMapping("/estado/{estado}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<PracticaResumenDto>> listarPorEstado(
             @PathVariable EstadoPracticaTipo estado) {
         return ResponseEntity.ok(practicaFacade.listarPorEstado(estado));
     }
 
     @GetMapping("/docente/{docenteId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','DOCENTE_ASESOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_ACADEMICO','DOCENTE_ASESOR')")
     public ResponseEntity<List<PracticaResumenDto>> listarPorDocente(
             @PathVariable Long docenteId) {
         return ResponseEntity.ok(practicaFacade.listarPorDocente(docenteId));
@@ -57,7 +57,7 @@ public class PracticaController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA','ESTUDIANTE','EMPRESA_VINCULADA','TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_ACADEMICO','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA','ESTUDIANTE','EMPRESA_VINCULADA','TUTOR_EMPRESARIAL')")
     public ResponseEntity<PracticaDetalleDto> detalle(@PathVariable Long id) {
         return ResponseEntity.ok(practicaFacade.obtenerDetalle(id));
     }
@@ -65,7 +65,7 @@ public class PracticaController {
     // ── Creación automática ─────────────────────────────────────────
 
     @PostMapping("/crear-automatica")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_ACADEMICO')")
     public ResponseEntity<PracticaDetalleDto> crearAutomatica(
             @RequestParam Long estudianteId,
             @RequestParam Long catalogoId) {
@@ -104,7 +104,7 @@ public class PracticaController {
     // ── Asignaciones ────────────────────────────────────────────────
 
     @PatchMapping("/{id}/asignar-docente")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_ACADEMICO')")
     public ResponseEntity<PracticaDetalleDto> asignarDocente(
             @PathVariable Long id,
             @RequestBody @Valid AsignarDocenteRequest req) {
@@ -162,7 +162,7 @@ public class PracticaController {
     // ── Checklist ───────────────────────────────────────────────────
 
     @GetMapping("/{id}/checklist")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA','ESTUDIANTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA_COORDINACION','ESTUDIANTE')")
     public ResponseEntity<List<ChecklistDto>> checklist(@PathVariable Long id) {
         return ResponseEntity.ok(practicaFacade.obtenerChecklist(id));
     }

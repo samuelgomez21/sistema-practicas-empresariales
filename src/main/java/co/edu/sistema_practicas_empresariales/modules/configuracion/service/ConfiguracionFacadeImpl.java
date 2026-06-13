@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+import co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable;
 /**
  * Implementación de la fachada de configuración del sistema.
  * <p>
@@ -59,6 +59,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "CREAR", modulo = "CATALOGO_PRACTICAS")
     /**
      * Crea un nuevo catálogo de práctica con base en la información suministrada.
      * @param request Datos del catálogo.
@@ -90,6 +91,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "CATALOGO_PRACTICAS")
 /**
  * Cambia el estado (activo/inactivo) de un catálogo de práctica.
  * @param catalogoId ID del catálogo a modificar.
@@ -140,6 +142,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "CREAR", modulo = "FACULTADES")
     public FacultadDto crearFacultad(FacultadRequest request) {
         Facultad f = Facultad.builder()
                 .nombre(request.getNombre())
@@ -151,6 +154,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "FACULTADES")
     public FacultadDto actualizarFacultad(Long id, FacultadRequest request) {
         Facultad f = facultadRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Facultad no encontrada"));
         validarEdicionFacultad(id);
@@ -161,6 +165,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "FACULTADES")
     public void eliminarFacultad(Long id) {
         Facultad f = facultadRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Facultad no encontrada"));
         validarEdicionFacultad(id);
@@ -192,6 +197,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "CREAR", modulo = "PROGRAMAS")
     public ProgramaDto crearPrograma(ProgramaRequest request) {
         Facultad f = facultadRepository.findById(request.getFacultadId())
                 .orElseThrow(() -> new IllegalArgumentException("Facultad no encontrada"));
@@ -206,6 +212,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "PROGRAMAS")
     public ProgramaDto actualizarPrograma(Long id, ProgramaRequest request) {
         Programa p = programaRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Programa no encontrado"));
         validarEdicionPrograma(id);
@@ -219,6 +226,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "DESACTIVAR", modulo = "PROGRAMAS")
     public void eliminarPrograma(Long id) {
         Programa p = programaRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Programa no encontrado"));
         validarEdicionPrograma(id);
@@ -252,6 +260,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "PARAMETROS_PROGRAMA")
     public ProgramaParametroDto actualizarParametrosPrograma(Long programaId, ProgramaParametroRequest request) {
         Programa programa = programaRepository.findById(programaId)
                 .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado"));
@@ -307,6 +316,7 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "ACTUALIZAR", modulo = "CATALOGO_PRACTICAS")
     public CatalogoPractica actualizarCatalogo(Long id, CatalogoPracticaRequest request) {
         CatalogoPractica catalogo = catalogoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Catálogo no encontrado"));

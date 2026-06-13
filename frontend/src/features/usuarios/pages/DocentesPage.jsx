@@ -21,12 +21,13 @@ export default function DocentesPage() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: (id) => usuariosApi.toggleDocente(id),
+    mutationFn: (d) => usuariosApi.toggleDocente(d.id, d.activo),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['docentes'] })
       toast.success('Estado actualizado')
       setConfirmando(null)
     },
+    onError: () => toast.error('Error al cambiar el estado'),
   })
 
   const filtrados = docentes.filter(d =>
@@ -129,7 +130,7 @@ export default function DocentesPage() {
           titulo={confirmando.activo ? 'Desactivar docente' : 'Activar docente'}
           mensaje={`¿Confirmas ${confirmando.activo ? 'desactivar' : 'activar'} a ${confirmando.nombre}?`}
           cargando={toggleMutation.isPending}
-          onConfirmar={() => toggleMutation.mutate(confirmando.id)}
+          onConfirmar={() => toggleMutation.mutate(confirmando)}
           onCancelar={() => setConfirmando(null)}
         />
       )}

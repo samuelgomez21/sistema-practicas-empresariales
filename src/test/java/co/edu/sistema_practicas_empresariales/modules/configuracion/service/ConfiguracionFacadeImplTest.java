@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.service;
 
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaDto;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaRequest;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
@@ -35,7 +36,7 @@ public class ConfiguracionFacadeImplTest {
         when(catalogoRepository.findByProgramaIdAndActivoTrue(1L))
                 .thenReturn(List.of(new CatalogoPractica()));
 
-        List<CatalogoPractica> result = configuracionFacade.listarCatalogosPorPrograma(1L);
+        List<CatalogoPracticaDto> result = configuracionFacade.listarCatalogosPorPrograma(1L);
 
         assertNotNull(result);
         assertEquals(1, result.size());

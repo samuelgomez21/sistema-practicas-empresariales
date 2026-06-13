@@ -6,19 +6,13 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/store/authStore'
 import { ROLES } from '@/lib/roles'
 import { usuariosApi } from '../api/usuariosApi'
+import { estudiantesApi } from '../api/estudiantesApi'
 import Avatar from '../components/Avatar'
 import BadgeAptitud from '../components/BadgeAptitud'
 import BadgeEstadoUsuario from '../components/BadgeEstadoUsuario'
 import ModalConfirmUsuario from '../components/ModalConfirmUsuario'
 import ModalEstudiante from '../components/ModalEstudiante'
 import ModalCargaMasiva from '../components/ModalCargaMasiva'
-
-// Scope de programas por coordinador académico
-const SCOPE_PROGRAMAS = {
-  'coord.soft@uah.edu.co':  ['Ingeniería de Software'],
-  'coord.ind@uah.edu.co':   ['Ingeniería Industrial', 'Turismo'],
-  'coord.admon@uah.edu.co': ['Administración de Empresas'],
-}
 
 export default function EstudiantesPage() {
   const navigate  = useNavigate()
@@ -34,86 +28,66 @@ export default function EstudiantesPage() {
   const [filtroAptitud, setFiltroAptitud]   = useState('')
   const [filtroSemestre, setFiltroSemestre] = useState('')
 
-  // Determinar scope de programas según rol
   const esCoordAcademica = user?.rol === ROLES.COORDINADOR_ACADEMICO
-  const programasScope   = esCoordAcademica
-    ? (SCOPE_PROGRAMAS[user?.correo] ?? [])
-    : []
 
   const { data: estudiantes = [], isLoading } = useQuery({
-    queryKey: ['estudiantes', programasScope],
-    queryFn: () => usuariosApi.getEstudiantes(
-      esCoordAcademica ? { programas: programasScope } : {}
-    ),
+    queryKey: ['estudiantes'],
+    queryFn:  estudiantesApi.getEstudiantes,
   })
+
+  // Scope de programas para el coordinador académico
   const { data: misProgramas = [] } = useQuery({
-    queryKey: ['mis-programas', usuarioId],
-    queryFn:  () => usuariosApi.getProgramasDeCoordinador(usuarioId),
-    enabled:  esCoordAcademica,
+    queryKey: ['mis-programas', user?.id],
+    queryFn:  () => usuariosApi.getProgramasDeCoordinador(user.id),
+    enabled:  esCoordAcademica && !!user?.id,
   })
 
   const programaIds = misProgramas.map(p => p.id)
-  const estudiantesFiltrados = esCoordAcademica
+  const estudiantesScope = esCoordAcademica && misProgramas.length > 0
     ? estudiantes.filter(e => programaIds.includes(e.programaId))
     : estudiantes
 
-  const toggleMutation = useMutation({
-    mutationFn: (id) => usuariosApi.toggleEstudiante(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['estudiantes'] })
-      toast.success('Estado actualizado')
-      setConfirmando(null)
-    },
-  })
-
   // Filtros en frontend
-  const filtrados = estudiantes.filter(e => {
+  const filtrados = estudiantesScope.filter(e => {
     const matchBusqueda = !busqueda ||
       e.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      e.documento.includes(busqueda)
+      (e.documento ?? '').includes(busqueda)
     const matchPrograma  = !filtroPrograma  || e.nombrePrograma === filtroPrograma
     const matchAptitud   = !filtroAptitud   || e.estadoAptitud === filtroAptitud
     const matchSemestre  = !filtroSemestre  || String(e.semestre) === filtroSemestre
     return matchBusqueda && matchPrograma && matchAptitud && matchSemestre
   })
 
-  // Programas disponibles para el filtro (respeta scope)
-  const programasDisponibles = esCoordAcademica
-    ? programasScope
-    : [...new Set(estudiantes.map(e => e.nombrePrograma))]
+  const programasDisponibles = [...new Set(estudiantesScope.map(e => e.nombrePrograma))]
 
-  // Contadores
   const conteo = {
-    total:       estudiantes.length,
-    aptos:       estudiantes.filter(e => e.estadoAptitud === 'APTO').length,
-    enRevision:  estudiantes.filter(e => e.estadoAptitud === 'EN_REVISION').length,
-    noAptos:     estudiantes.filter(e => e.estadoAptitud === 'NO_APTO').length,
+    total:      estudiantesScope.length,
+    aptos:      estudiantesScope.filter(e => e.estadoAptitud === 'APTO').length,
+    enRevision: estudiantesScope.filter(e => e.estadoAptitud === 'EN_REVISION').length,
+    noAptos:    estudiantesScope.filter(e => e.estadoAptitud === 'NO_APTO').length,
   }
 
-  const desactivarMutation = useMutation({
-    mutationFn: (id) => estudiantesApi.desactivarEstudiante(id),
+  const toggleMutation = useMutation({
+    mutationFn: (est) => est.activo
+      ? estudiantesApi.desactivarEstudiante(est.id)
+      : estudiantesApi.activarEstudiante(est.id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['estudiantes'] })
-      toast.success('Estudiante desactivado')
+      toast.success('Estado actualizado')
+      setConfirmando(null)
     },
-  })
-
-  const activarMutation = useMutation({
-    mutationFn: (id) => estudiantesApi.activarEstudiante(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['estudiantes'] })
-      toast.success('Estudiante activado')
-    },
+    onError: () => toast.error('Error al cambiar el estado'),
   })
 
   const cargaMasivaMutation = useMutation({
-  mutationFn: (file) => estudiantesApi.cargaMasivaEstudiantes(file),
-  onSuccess: (creados) => {
-    qc.invalidateQueries({ queryKey: ['estudiantes'] })
-    toast.success(`${creados.length} estudiante(s) registrado(s) correctamente`)
-  },
-  onError: () => toast.error('Error al procesar el archivo'),
-})
+    mutationFn: (file) => estudiantesApi.cargaMasivaEstudiantes(file),
+    onSuccess: (creados) => {
+      qc.invalidateQueries({ queryKey: ['estudiantes'] })
+      toast.success(`${creados.length} estudiante(s) registrado(s) correctamente`)
+      setCargaMasiva(false)
+    },
+    onError: () => toast.error('Error al procesar el archivo'),
+  })
 
   if (isLoading) return <Skeleton />
 
@@ -124,9 +98,9 @@ export default function EstudiantesPage() {
       <div className="grid grid-cols-4 gap-3">
         {[
           { label: 'Total estudiantes', value: conteo.total,      color: '#023859' },
-          { label: 'Aptos',             value: conteo.aptos,       color: '#1a7a4a' },
-          { label: 'En revisión',       value: conteo.enRevision,  color: '#a07010' },
-          { label: 'No aptos',          value: conteo.noAptos,     color: '#D91438' },
+          { label: 'Aptos',             value: conteo.aptos,      color: '#1a7a4a' },
+          { label: 'En revisión',       value: conteo.enRevision, color: '#a07010' },
+          { label: 'No aptos',          value: conteo.noAptos,    color: '#D91438' },
         ].map(c => (
           <div key={c.label} className="bg-white rounded-xl p-4"
             style={{ border: '0.5px solid #e2e8f0' }}>
@@ -193,7 +167,7 @@ export default function EstudiantesPage() {
             className="h-8 px-2 rounded-lg text-xs outline-none"
             style={{ border: '0.5px solid #e2e8f0', background: '#f7f9fb', color: '#023859' }}>
             <option value="">Todos los semestres</option>
-            {[5,6,7,8,9,10].map(s => <option key={s} value={s}>Semestre {s}</option>)}
+            {[1,2,3,4,5,6,7,8,9,10].map(s => <option key={s} value={s}>Semestre {s}</option>)}
           </select>
         </div>
 
@@ -224,20 +198,20 @@ export default function EstudiantesPage() {
                 </td>
                 <td className="px-4 py-3 text-xs" style={{ color: '#6b7a8d', maxWidth: 120 }}>
                   <span title={e.nombrePrograma}>
-                    {e.nombrePrograma.replace('Ingeniería de ', 'Ing. ').replace('Administración de Empresas', 'Admon.')}
+                    {e.nombrePrograma?.replace('Ingeniería de ', 'Ing. ').replace('Administración de Empresas', 'Admon.')}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-center" style={{ color: '#023859' }}>
                   {e.semestre}
                 </td>
                 <td className="px-4 py-3 text-xs text-center" style={{ color: '#023859' }}>
-                  {e.numeroPractica}
+                  {e.numeroPractica ?? '—'}
                 </td>
                 <td className="px-4 py-3 text-xs text-center" style={{ color: '#023859' }}>
                   {e.creditosAprobados}
                 </td>
                 <td className="px-4 py-3 text-xs text-center" style={{ color: '#023859' }}>
-                  {e.promedioAcumulado.toFixed(1)}
+                  {(e.promedioAcumulado ?? 0).toFixed(1)}
                 </td>
                 <td className="px-4 py-3">
                   <BadgeAptitud estado={e.estadoAptitud} />
@@ -298,10 +272,8 @@ export default function EstudiantesPage() {
       {cargaMasiva && (
         <ModalCargaMasiva
           onClose={() => setCargaMasiva(false)}
-          onGuardado={() => {
-            qc.invalidateQueries({ queryKey: ['estudiantes'] })
-            setCargaMasiva(false)
-          }}
+          onSubir={(file) => cargaMasivaMutation.mutate(file)}
+          cargando={cargaMasivaMutation.isPending}
         />
       )}
 
@@ -310,7 +282,7 @@ export default function EstudiantesPage() {
           titulo={confirmando.activo ? 'Desactivar estudiante' : 'Activar estudiante'}
           mensaje={`¿Confirmas ${confirmando.activo ? 'desactivar' : 'activar'} a ${confirmando.nombre}?`}
           cargando={toggleMutation.isPending}
-          onConfirmar={() => toggleMutation.mutate(confirmando.id)}
+          onConfirmar={() => toggleMutation.mutate(confirmando)}
           onCancelar={() => setConfirmando(null)}
         />
       )}

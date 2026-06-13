@@ -53,8 +53,26 @@ public class ConfiguracionFacadeImpl implements ConfiguracionFacade {
      * @param programaId ID del programa.
      * @return Lista de catálogos activos.
      */
-    public List<CatalogoPractica> listarCatalogosPorPrograma(Long programaId) {
-        return catalogoRepository.findByProgramaIdAndActivoTrue(programaId);
+    public List<CatalogoPracticaDto> listarCatalogosPorPrograma(Long programaId) {
+        return catalogoRepository.findByProgramaIdAndActivoTrue(programaId).stream()
+                .map(this::toCatalogoDto)
+                .toList();
+    }
+
+    private CatalogoPracticaDto toCatalogoDto(CatalogoPractica c) {
+        return CatalogoPracticaDto.builder()
+                .id(c.getId())
+                .numeroPractica(c.getNumeroPractica())
+                .nombre(c.getNombre())
+                .materiaNucleo(c.getMateriaNucleo())
+                .materiaNucleoCodigo(c.getMateriaNucleoCodigo())
+                .descripcion(c.getDescripcion())
+                .programaId(c.getPrograma().getId())
+                .cortesPorPractica(c.getCortesPorPractica())
+                .duracionSemanas(c.getDuracionSemanas())
+                .documentosRequeridos(c.getDocumentosRequeridos())
+                .activo(c.isActivo())
+                .build();
     }
 
     @Override

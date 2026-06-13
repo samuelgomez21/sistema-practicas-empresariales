@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.estudiante.service;
 
+import co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteRequest;
@@ -65,6 +66,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
     @Override
     @Transactional
+    @Auditable( accion = "CREAR", modulo = "ESTUDIANTE")
     public EstudianteResponse registrarEstudiante(EstudianteRequest request) {
         if (estudianteRepository.existsByIdentificacion(request.getIdentificacion())) {
             throw new IllegalArgumentException("Ya existe un estudiante con la identificación: " + request.getIdentificacion());
@@ -126,6 +128,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
     @Override
     @Transactional
+    @Auditable(accion = "CREAR", modulo = "ESTUDIANTE")
     public List<EstudianteResponse> registrarEstudiantesMasivo(MultipartFile file) {
         List<EstudianteResponse> responses = new ArrayList<>();
         try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {

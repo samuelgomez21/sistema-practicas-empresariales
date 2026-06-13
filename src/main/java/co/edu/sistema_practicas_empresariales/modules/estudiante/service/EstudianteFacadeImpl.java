@@ -22,6 +22,9 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
+import co.edu.sistema_practicas_empresariales.shared.email.templates.EmailTemplates;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.ss.usermodel.*;
@@ -55,6 +58,10 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Override
     @Transactional
@@ -66,20 +73,33 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
         Programa programa = programaRepository.findById(request.getProgramaId())
                 .orElseThrow(() -> new IllegalArgumentException("Programa no encontrado con ID: " + request.getProgramaId()));
 
+        boolean usuarioYaExistia = usuarioRepository.existsByEmail(request.getEmail());
+
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseGet(() -> {
                     Rol rolEstudiante = rolRepository.findByNombre(Rol.Nombre.ESTUDIANTE)
                             .orElseThrow(() -> new IllegalStateException("Rol ESTUDIANTE no encontrado"));
-                    
+
                     Usuario nuevoUsuario = Usuario.builder()
                             .email(request.getEmail())
                             .nombre(request.getNombre())
                             .password(passwordEncoder.encode(request.getIdentificacion())) // Contraseña por defecto: Identificación
                             .rol(rolEstudiante)
                             .activo(true)
+                            .debeCambiarPassword(true)
                             .build();
                     return usuarioRepository.save(nuevoUsuario);
                 });
+
+        // Si el usuario se acaba de crear (no existía antes), su contraseña
+        // temporal es la identificación del estudiante — la enviamos por correo.
+        if (!usuarioYaExistia) {
+            emailService.sendEmail(
+                    usuario.getEmail(),
+                    "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
+                    EmailTemplates.credencialesAcceso(usuario.getNombre(), usuario.getEmail(), request.getIdentificacion(), frontendUrl)
+            );
+        }
 
         if (request.getTipoIdentificacion() == null || request.getTipoIdentificacion().isBlank()) {
             throw new IllegalArgumentException("tipoIdentificacion es obligatorio");
@@ -126,31 +146,31 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
     private boolean esFilaValida(Row row) {
         return row.getCell(0) != null && row.getCell(1) != null && row.getCell(2) != null && row.getCell(3) != null &&
-               row.getCell(6) != null && row.getCell(7) != null && row.getCell(8) != null && row.getCell(9) != null;
+                row.getCell(6) != null && row.getCell(7) != null && row.getCell(8) != null && row.getCell(9) != null;
     }
 
     private void procesarFila(Row row, List<EstudianteResponse> responses) {
         try {
             EstudianteRequest req = EstudianteRequest.builder()
-                .nombre(getCellValueAsString(row.getCell(0)))
-                .email(getCellValueAsString(row.getCell(1)))
-                .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
-                .identificacion(getCellValueAsString(row.getCell(3)))
-                .telefono(getCellValueAsString(row.getCell(4)))
-                .contactoEmergencia(getCellValueAsString(row.getCell(5)))
-                .programaId((long) row.getCell(6).getNumericCellValue())
-                .semestre((int) row.getCell(7).getNumericCellValue())
-                .creditosAprobados((int) row.getCell(8).getNumericCellValue())
-                .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
-                .build();
-                
+                    .nombre(getCellValueAsString(row.getCell(0)))
+                    .email(getCellValueAsString(row.getCell(1)))
+                    .tipoIdentificacion(getCellValueAsString(row.getCell(2)))
+                    .identificacion(getCellValueAsString(row.getCell(3)))
+                    .telefono(getCellValueAsString(row.getCell(4)))
+                    .contactoEmergencia(getCellValueAsString(row.getCell(5)))
+                    .programaId((long) row.getCell(6).getNumericCellValue())
+                    .semestre((int) row.getCell(7).getNumericCellValue())
+                    .creditosAprobados((int) row.getCell(8).getNumericCellValue())
+                    .promedioAcumulado(java.math.BigDecimal.valueOf(row.getCell(9).getNumericCellValue()))
+                    .build();
+
             responses.add(((EstudianteFacade)org.springframework.aop.framework.AopContext.currentProxy()).registrarEstudiante(req));
         } catch (Exception e) {
             java.util.logging.Logger.getLogger(EstudianteFacadeImpl.class.getName())
                     .log(java.util.logging.Level.WARNING, e, () -> "Error procesando fila " + row.getRowNum());
         }
     }
-    
+
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
@@ -240,7 +260,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .findByProgramaIdAndNumeroPractica(estudiante.getPrograma().getId(), numeroPractica)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No se encontraron requisitos para la práctica " + numeroPractica +
-                        " del programa " + estudiante.getPrograma().getNombre()));
+                                " del programa " + estudiante.getPrograma().getNombre()));
 
         List<Practica> historial = practicaRepository
                 .findByEstudianteIdOrderByNumeroPracticaAsc(estudianteId);

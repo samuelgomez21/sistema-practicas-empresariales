@@ -1,11 +1,8 @@
 package co.edu.sistema_practicas_empresariales.modules.configuracion.service;
 
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.CatalogoPractica;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaRequest;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.FacultadDto;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.FacultadRequest;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaDto;
-import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaRequest;
+
 import java.util.List;
 
 public interface ConfiguracionFacade {
@@ -26,4 +23,11 @@ public interface ConfiguracionFacade {
     // Métodos delegados a ConfiguracionSistema
     String getNombreAplicacion();
     String getVersion();
+
+    ProgramaParametroDto obtenerParametrosPrograma(Long programaId);
+    ProgramaParametroDto actualizarParametrosPrograma(Long programaId, ProgramaParametroRequest request);
+
+    CatalogoPractica actualizarCatalogo(Long id, CatalogoPracticaRequest request);
+    List<CatalogoPracticaConConteoDto> listarCatalogosPorProgramaConConteo(Long programaId);
+
 }

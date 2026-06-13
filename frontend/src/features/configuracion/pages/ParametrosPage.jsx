@@ -36,7 +36,7 @@ export default function ParametrosPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (data) => configuracionApi.editarPrograma(programa.id, data),
+    mutationFn: (data) => configuracionApi.editarParametrosPrograma(programa.id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['programas'] })
       toast.success('Parámetros actualizados — solo aplica a prácticas futuras')

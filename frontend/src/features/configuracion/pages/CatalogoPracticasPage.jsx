@@ -26,14 +26,15 @@ export default function CatalogoPracticasPage() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: (id) => configuracionApi.toggleCatalogoPractica(id),
+    mutationFn: (item) => configuracionApi.toggleCatalogoPractica(item.id, item.activa),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['catalogo-practicas'] })
       toast.success('Estado actualizado')
       setConfirmando(null)
     },
     onError: (err) => {
-      toast.error(err.response?.data?.mensaje ?? 'No se pudo cambiar el estado')
+      const msg = err.response?.data?.message ?? err.response?.data?.mensaje ?? 'No se pudo cambiar el estado'
+      toast.error(msg)
       setConfirmando(null)
     },
   })
@@ -80,7 +81,7 @@ export default function CatalogoPracticasPage() {
         <table className="w-full">
           <thead>
             <tr style={{ background: '#f7f9fb' }}>
-              {['Nombre', 'Programa', 'Materia núcleo', 'Puede hacer', 'Prácticas activas', 'Estado', 'Acciones'].map((h) => (
+              {['Nombre', 'Programa', 'Materia núcleo', 'Puede hacer', 'Documentos', 'Prácticas activas', 'Estado', 'Acciones'].map((h) => (
                 <th key={h} className="text-left px-5 py-2 text-[10px] font-semibold uppercase tracking-wide"
                   style={{ color: '#8a9bb0', borderBottom: '0.5px solid #e2e8f0' }}>
                   {h}
@@ -108,6 +109,22 @@ export default function CatalogoPracticasPage() {
                       ? c.descripcion.slice(0, 50) + '...'
                       : c.descripcion}
                   </p>
+                </td>
+                <td className="px-5 py-3">
+                  <div className="flex flex-wrap gap-1" style={{ maxWidth: 160 }}>
+                    {(c.documentosRequeridos ?? '')
+                      .split(',')
+                      .filter(Boolean)
+                      .map((doc) => (
+                        <span key={doc} className="text-[9px] font-medium px-1.5 py-0.5 rounded"
+                          style={{ background: '#e6f0fb', color: '#0B416B' }}>
+                          {doc.trim().replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    {!c.documentosRequeridos && (
+                      <span className="text-[10px]" style={{ color: '#8a9bb0' }}>—</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-5 py-3 text-center">
                   <span
@@ -167,7 +184,7 @@ export default function CatalogoPracticasPage() {
               : `¿Confirmas ${confirmando.activa ? 'desactivar' : 'activar'} "${confirmando.nombre}"?`
           }
           cargando={toggleMutation.isPending}
-          onConfirmar={() => toggleMutation.mutate(confirmando.id)}
+          onConfirmar={() => toggleMutation.mutate(confirmando)}
           onCancelar={() => setConfirmando(null)}
         />
       )}

@@ -16,9 +16,6 @@ export const configuracionApi = {
       nombre: f.nombre,
       activo: f.activo,
       activa: f.activo,           // alias para BadgeEstado/condicionales existentes
-      coordinador: '—',           // no existe en backend
-      correoCoordinador: '—',     // no existe en backend
-      programas: [],               // no existe en backend (placeholder)
     }))
   },
 
@@ -80,17 +77,11 @@ export const configuracionApi = {
   },
 
   editarPrograma: async (id, data) => {
-    // Si vienen nombre/facultadId, actualiza el programa base.
-    if (data.nombre !== undefined || data.facultadId !== undefined) {
-      const { data: res } = await api.put(`/programas/${id}`, {
-        nombre:     data.nombre,
-        facultadId: Number(data.facultadId),
-      })
-      return res
-    }
-    // Si solo vienen parámetros (numeroPracticas, corteseguimiento, notaMinima),
-    // se guardan en el mock hasta tener endpoint real.
-    return configuracionApi.editarParametrosPrograma(id, data)
+    const { data: res } = await api.put(`/programas/${id}`, {
+      nombre:     data.nombre,
+      facultadId: Number(data.facultadId),
+    })
+    return res
   },
 
   togglePrograma: async (id, activoActual) => {
@@ -113,19 +104,19 @@ export const configuracionApi = {
     nombre: c.nombre,
     materiaNucleo: c.materiaNucleo,
     materiaNucleoCodigo: c.materiaNucleoCodigo,
-    programaId: c.programa?.id,
+    descripcion: c.descripcion,
+    programaId: c.programaId ?? c.programa?.id,
     cortesPorPractica: c.cortesPorPractica,
     duracionSemanas: c.duracionSemanas,
     documentosRequeridos: c.documentosRequeridos,
-    descripcion: c.documentosRequeridos, // no hay campo "descripcion" en backend; se usa este como aproximación
     activo: c.activo,
-    activa: c.activo,        // alias para BadgeEstado
-    practicasActivas: 0,     // backend no expone este conteo todavía
+    activa: c.activo,
+    practicasActivas: c.practicasActivas ?? 0,
   }),
 
   // El backend solo lista POR programa (no "todos").
   getCatalogoPracticasPorPrograma: async (programaId) => {
-    const { data } = await api.get(`/configuracion/programas/${programaId}/catalogos`)
+    const { data } = await api.get(`/configuracion/programas/${programaId}/catalogos-con-conteo`)
     return data.map(configuracionApi._mapCatalogo)
   },
 
@@ -148,6 +139,7 @@ export const configuracionApi = {
       nombre:               data.nombre,
       materiaNucleo:        data.materiaNucleo,
       materiaNucleoCodigo:  data.materiaNucleoCodigo ?? data.materiaNucleo?.slice(0, 10).toUpperCase(),
+      descripcion:        data.descripcion,
       programaId:           Number(data.programaId),
       cortesPorPractica:    Number(data.cortesPorPractica) || 3,
       duracionSemanas:      Number(data.duracionSemanas) || 16,
@@ -159,12 +151,19 @@ export const configuracionApi = {
   // No existe endpoint de edición general en el backend — solo cambio
   // de estado (activo/inactivo). ModalCatalogoPractica llama a esto en
   // modo edición; se informa al usuario que no es soportado.
-  editarCatalogoPractica: async (_id, _data) => {
-    throw {
-      response: {
-        data: { mensaje: 'Editar una práctica del catálogo no está soportado todavía. Puedes activar/desactivar o crear una nueva.' },
-      },
-    }
+  editarCatalogoPractica: async (id, data) => {
+    const { data: res } = await api.put(`/configuracion/catalogos/${id}`, {
+      numeroPractica:       Number(data.numeroPractica),
+      nombre:               data.nombre,
+      materiaNucleo:        data.materiaNucleo,
+      materiaNucleoCodigo:  data.materiaNucleoCodigo ?? data.materiaNucleo?.slice(0, 10).toUpperCase(),
+      descripcion:        data.descripcion,
+      programaId:           Number(data.programaId),
+      cortesPorPractica:    Number(data.cortesPorPractica) || 3,
+      duracionSemanas:      Number(data.duracionSemanas) || 16,
+      documentosRequeridos: data.descripcion ?? data.documentosRequeridos ?? '',
+    })
+    return configuracionApi._mapCatalogo(res)
   },
 
   toggleCatalogoPractica: async (id, activoActual) => {
@@ -181,14 +180,27 @@ export const configuracionApi = {
   // ════════════════════════════════════════════════════════════════════
 
   getParametrosPrograma: async (programaId) => {
-    await delay(50)
-    return { numeroPracticas: 2, corteseguimiento: 4, notaMinima: 3.5, programaId }
-    // return api.get(`/configuracion/programas/${programaId}/parametros`).then(r => r.data)
+    const { data } = await api.get(`/configuracion/programas/${programaId}/parametros`)
+    return {
+      numeroPracticas:  data.numeroPracticas,
+      corteseguimiento: data.corteseguimiento,
+      notaMinima:       Number(data.notaMinima),
+      programaId:       data.programaId,
+    }
   },
+
   editarParametrosPrograma: async (programaId, data) => {
-    await delay(50)
-    return { ...data, programaId }
-    // return api.put(`/configuracion/programas/${programaId}/parametros`, data).then(r => r.data)
+    const { data: res } = await api.put(`/configuracion/programas/${programaId}/parametros`, {
+      numeroPracticas:  data.numeroPracticas  != null ? Number(data.numeroPracticas)  : undefined,
+      corteseguimiento: data.corteseguimiento != null ? Number(data.corteseguimiento) : undefined,
+      notaMinima:       data.notaMinima       != null ? Number(data.notaMinima)       : undefined,
+    })
+    return {
+      numeroPracticas:  res.numeroPracticas,
+      corteseguimiento: res.corteseguimiento,
+      notaMinima:       Number(res.notaMinima),
+      programaId:       res.programaId,
+    }
   },
 
   // ── Plantillas de correo (sin backend) ────────────────────────────────

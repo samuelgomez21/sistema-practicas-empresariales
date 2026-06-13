@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaParametroDto;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.ProgramaParametroRequest;
+import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.CatalogoPracticaConConteoDto;
 
 /**
  * Controlador REST para la gestión de la configuración global del sistema.
@@ -78,5 +81,48 @@ public class ConfiguracionController {
     public ResponseEntity<String> cambiarEstadoCatalogo(@PathVariable Long id, @RequestParam boolean activo) {
         configuracionFacade.activarDesactivarCatalogo(id, activo);
         return ResponseEntity.ok("Estado actualizado exitosamente");
+    }
+
+
+    /**
+     * Obtiene los parámetros académicos configurados para un programa.
+     * Si no existen, se crean con valores por defecto.
+     */
+    @GetMapping("/programas/{programaId}/parametros")
+    public ResponseEntity<ProgramaParametroDto> obtenerParametros(@PathVariable Long programaId) {
+        return ResponseEntity.ok(configuracionFacade.obtenerParametrosPrograma(programaId));
+    }
+
+    /**
+     * Actualiza los parámetros académicos de un programa.
+     * Los cambios solo aplican a prácticas futuras.
+     */
+    @PutMapping("/programas/{programaId}/parametros")
+    public ResponseEntity<ProgramaParametroDto> actualizarParametros(
+            @PathVariable Long programaId,
+            @RequestBody ProgramaParametroRequest request) {
+        return ResponseEntity.ok(configuracionFacade.actualizarParametrosPrograma(programaId, request));
+    }
+
+    /**
+     * Actualiza una práctica del catálogo.
+     * Nota: solo afecta a prácticas futuras; las instancias activas
+     * mantienen su configuración original.
+     */
+    @PutMapping("/catalogos/{id}")
+    public ResponseEntity<CatalogoPractica> actualizarCatalogo(
+            @PathVariable Long id,
+            @RequestBody CatalogoPracticaRequest request) {
+        return ResponseEntity.ok(configuracionFacade.actualizarCatalogo(id, request));
+    }
+
+
+    /**
+     * Lista los catálogos de práctica de un programa, incluyendo el
+     * conteo de prácticas activas vinculadas a cada uno.
+     */
+    @GetMapping("/programas/{programaId}/catalogos-con-conteo")
+    public ResponseEntity<List<CatalogoPracticaConConteoDto>> listarCatalogosConConteo(@PathVariable Long programaId) {
+        return ResponseEntity.ok(configuracionFacade.listarCatalogosPorProgramaConConteo(programaId));
     }
 }

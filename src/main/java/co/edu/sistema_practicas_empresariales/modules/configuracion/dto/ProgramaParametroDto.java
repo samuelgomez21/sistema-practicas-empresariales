@@ -5,18 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CatalogoPracticaRequest {
-    private int numeroPractica;
-    private String nombre;
-    private String materiaNucleo;
-    private String materiaNucleoCodigo;
-    private String descripcion;
+public class ProgramaParametroDto {
     private Long programaId;
-    private int cortesPorPractica;
-    private int duracionSemanas;
+    private int numeroPracticas;
+    private int corteseguimiento;
+    private BigDecimal notaMinima;
+    private int maxAsignacionesSimultaneas;
+    private int umbralInactividadDias;
     private String documentosRequeridos;
 }

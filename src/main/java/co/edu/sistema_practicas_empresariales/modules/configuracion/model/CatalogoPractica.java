@@ -34,6 +34,9 @@ public class CatalogoPractica {
     @Column(name = "materia_nucleo_codigo", nullable = false, length = 20)
     private String materiaNucleoCodigo;
 
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "programa_id", nullable = false)
     private Programa programa;

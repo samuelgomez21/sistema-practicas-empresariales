@@ -7,10 +7,12 @@ import { toast } from 'sonner'
 import { configuracionApi } from '../api/configuracionApi'
 
 const schema = z.object({
+  numeroPractica: z.coerce.number().min(1, 'Mínimo 1').max(10, 'Máximo 10'),
   nombre:        z.string().min(2, 'Mínimo 2 caracteres'),
   programaId:    z.coerce.number().min(1, 'Selecciona un programa'),
   materiaNucleo: z.string().min(3, 'Ingresa la materia núcleo'),
   descripcion:   z.string().min(10, 'Describe qué puede hacer el estudiante en esta práctica'),
+  documentosRequeridos: z.string().min(1, 'Especifica los documentos requeridos'),
 })
 
 export default function ModalCatalogoPractica({ item, programas, onClose, onGuardado }) {
@@ -18,7 +20,12 @@ export default function ModalCatalogoPractica({ item, programas, onClose, onGuar
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: item ?? {},
+    defaultValues: item ?? {
+      numeroPractica: 1,
+      cortesPorPractica: 3,
+      duracionSemanas: 16,
+      documentosRequeridos: 'HOJA_DE_VIDA,PAZ_Y_SALVO',
+    },
   })
 
   const mutation = useMutation({
@@ -56,22 +63,30 @@ export default function ModalCatalogoPractica({ item, programas, onClose, onGuar
         </div>
 
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col gap-1.5">
+              <label className={lc} style={ls}>N° práctica</label>
+              <input {...register('numeroPractica')} type="number" min="1" max="10"
+                className={ic} style={is} />
+              {errors.numeroPractica && <p className="text-xs" style={{ color: '#D91438' }}>{errors.numeroPractica.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5 col-span-2">
               <label className={lc} style={ls}>Nombre</label>
               <input {...register('nombre')} className={ic} style={is} placeholder="Ej: Práctica I" />
               {errors.nombre && <p className="text-xs" style={{ color: '#D91438' }}>{errors.nombre.message}</p>}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className={lc} style={ls}>Programa</label>
-              <select {...register('programaId')} className={ic} style={is}>
-                <option value="">Seleccionar...</option>
-                {programas.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
-              {errors.programaId && <p className="text-xs" style={{ color: '#D91438' }}>{errors.programaId.message}</p>}
-            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={lc} style={ls}>Programa</label>
+            <select {...register('programaId')} className={ic} style={is}>
+              <option value="">Seleccionar...</option>
+              {programas.map((p) => (
+                <option key={p.id} value={p.id}>{p.nombre}</option>
+              ))}
+            </select>
+            {errors.programaId && <p className="text-xs" style={{ color: '#D91438' }}>{errors.programaId.message}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -91,6 +106,16 @@ export default function ModalCatalogoPractica({ item, programas, onClose, onGuar
               style={is}
             />
             {errors.descripcion && <p className="text-xs" style={{ color: '#D91438' }}>{errors.descripcion.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={lc} style={ls}>Documentos requeridos</label>
+            <input {...register('documentosRequeridos')} className={ic} style={is}
+              placeholder="Ej: HOJA_DE_VIDA,PAZ_Y_SALVO,ARL" />
+            <p className="text-[10px]" style={{ color: '#8a9bb0' }}>
+              Lista separada por comas (sin espacios) de los documentos que el estudiante debe cargar.
+            </p>
+            {errors.documentosRequeridos && <p className="text-xs" style={{ color: '#D91438' }}>{errors.documentosRequeridos.message}</p>}
           </div>
 
           <div className="flex gap-2 justify-end mt-1">

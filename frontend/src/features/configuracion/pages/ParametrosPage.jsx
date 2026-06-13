@@ -22,7 +22,6 @@ export default function ParametrosPage() {
   const { data: programas = [] } = useQuery({
     queryKey: ['programas'],
     queryFn: () => configuracionApi.getProgramas(),
-    onSuccess: (data) => { if (!programaActivo && data[0]) setProgramaActivo(data[0]) },
   })
 
   const programa = programaActivo ?? programas[0]

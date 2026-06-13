@@ -5,11 +5,9 @@ import { z } from 'zod'
 import { Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMutation } from '@tanstack/react-query'
-import { useAuthStore } from '@/store/authStore'
 import { authApi } from '../api/authApi'
 import logoUAH from '@/assets/images/logo-uah.png'
 import { useLocation, useNavigate } from 'react-router-dom'
-
 
 const schema = z
   .object({
@@ -27,9 +25,11 @@ const schema = z
   })
 
 export default function CambiarPasswordPage() {
-  const navigate    = useNavigate()
-  const { user, login } = useAuthStore()
+  const navigate = useNavigate()
+  const location  = useLocation()
   const [ver, setVer] = useState({ actual: false, nueva: false, conf: false })
+
+  const email = location.state?.email
 
   const toggle = (campo) => setVer((v) => ({ ...v, [campo]: !v[campo] }))
 
@@ -40,45 +40,32 @@ export default function CambiarPasswordPage() {
   } = useForm({ resolver: zodResolver(schema) })
 
   const mutation = useMutation({
-    mutationFn: authApi.cambiarPassword,
-    onSuccess: ({ token, user: updatedUser }) => {
-      // Actualizamos el store con el nuevo token y usuario sin flag de cambio
-      login(token, updatedUser)
-      toast.success('Contraseña actualizada correctamente')
-      const RUTA_POR_ROL = {
-        ADMINISTRADOR:          '/dashboard/admin',
-        COORDINACION_ACADEMICA: '/dashboard/coordinacion-academica',
-        COORDINADOR_PRACTICA:   '/dashboard/coordinador-practica',
-        SECRETARIA:             '/dashboard/secretaria',
-        DOCENTE_ASESOR:         '/dashboard/docente',
-        EMPRESA:                '/dashboard/empresa',
-        TUTOR_EMPRESARIAL:      '/dashboard/tutor',
-        ESTUDIANTE:             '/dashboard/estudiante',
-        DIRECCION:              '/dashboard/direccion',
-      }
-      navigate(RUTA_POR_ROL[updatedUser.rol] ?? '/', { replace: true })
+    mutationFn: (formData) => authApi.cambiarPasswordInicial({
+      email,
+      currentPassword: formData.passwordActual,
+      newPassword: formData.passwordNueva,
+    }),
+    onSuccess: () => {
+      toast.success('Contraseña actualizada. Inicia sesión nuevamente.')
+      navigate('/login', { replace: true })
     },
     onError: (error) => {
-      toast.error(error.response?.data?.mensaje ?? 'Error al cambiar la contraseña')
+      const msg = error.response?.data?.message ?? 'Error al cambiar la contraseña'
+      toast.error(msg)
     },
   })
 
-  const onSubmit = async (formData) => {
-    try {
-      await authApi.cambiarPasswordInicial({
-        email:           state?.email,
-        currentPassword: state?.currentPassword,
-        newPassword:     formData.newPassword,
-      })
-      toast.success('Contraseña actualizada. Inicia sesión nuevamente.')
-      navigate('/login')
-    } catch {
-      toast.error('Error al cambiar la contraseña')
+  const onSubmit = (formData) => {
+    if (!email) {
+      toast.error('Sesión inválida. Inicia el proceso de login de nuevo.')
+      navigate('/login', { replace: true })
+      return
     }
+    mutation.mutate(formData)
   }
 
   // Campo de contraseña reutilizable
-  const PasswordField = ({ id, label, campo, fieldKey, error }) => (
+  const PasswordField = ({ id, label, campo, error }) => (
     <div className="flex flex-col gap-[7px]">
       <label className="text-[11px] font-semibold tracking-wide uppercase"
         style={{ color: '#023859' }}>
@@ -127,6 +114,11 @@ export default function CambiarPasswordPage() {
             Es tu primer ingreso. Por seguridad debes<br />
             establecer una nueva contraseña.
           </p>
+          {email && (
+            <p className="text-xs font-medium" style={{ color: '#0B416B' }}>
+              {email}
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">

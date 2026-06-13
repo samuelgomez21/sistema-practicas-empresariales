@@ -13,4 +13,6 @@ public interface VacanteFacade {
     
     List<VacanteResponse> listarVacantesPorEmpresa(Long empresaId);
     List<VacanteResponse> listarVacantesPendientes();
+    List<VacanteResponse> listarTodas();
+    VacanteResponse obtenerPorId(Long id);
 }

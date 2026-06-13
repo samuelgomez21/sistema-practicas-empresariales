@@ -16,4 +16,8 @@ public interface EmpresaFacade {
     
     java.util.List<TutorEmpresarialResponse> listarTutoresPorEmpresa(Long empresaId);
     void eliminarTutor(Long id);
+    EmpresaResponse obtenerPorUsuarioEmail(String email);
+    TutorEmpresarialResponse actualizarTutor(Long id, TutorEmpresarialRequest request);
+    void activarTutor(Long id);
+    java.util.List<TutorEmpresarialResponse> listarTodosLosTutores();
 }

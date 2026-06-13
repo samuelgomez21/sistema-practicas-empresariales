@@ -3,10 +3,9 @@ import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { empresasApi } from '../api/empresasApi'
 
-export default function DetalleEmpresaPage() {
+export default function DetalleEmpresaPage({ editMode = false }) {
   const { id } = useParams()
 
-  // Sobrescribe getMiEmpresa para usar el id de la URL
   const { data: empresa, isLoading } = useQuery({
     queryKey: ['empresa', id],
     queryFn:  () => empresasApi.getEmpresaById(id),
@@ -19,6 +18,5 @@ export default function DetalleEmpresaPage() {
     </div>
   )
 
-  // Reutiliza MiPerfilEmpresaPage en modo solo lectura
-  return <MiPerfilEmpresaPage soloLectura empresaOverride={empresa} />
+  return <MiPerfilEmpresaPage soloLectura={!editMode} empresaOverride={empresa} />
 }

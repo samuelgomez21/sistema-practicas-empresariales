@@ -1,33 +1,27 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { X, UserPlus } from 'lucide-react'
+import { toast } from 'sonner'
 import { vacantesApi } from '../api/vacantesApi'
 
-export default function ModalPostular({ vacante, onClose, onPostulado }) {
+export default function ModalPostular({ vacante, postuladosIds = [], onClose, onPostulado }) {
   const [estudianteId, setEstudianteId] = useState('')
-  const [loading, setLoading]           = useState(false)
 
   const { data: estudiantes = [] } = useQuery({
-    queryKey: ['estudiantes-disponibles'],
-    queryFn:  vacantesApi.getEstudiantesDisponibles,
+    queryKey: ['estudiantes-aptos'],
+    queryFn:  vacantesApi.getEstudiantesAptos,
   })
 
-  // Filtrar ya postulados
-  const yaPostulados = vacante.postulaciones.map(p => p.estudianteId)
-  const disponibles  = estudiantes.filter(e => !yaPostulados.includes(e.id))
+  const disponibles = estudiantes.filter(e => !postuladosIds.includes(e.id))
 
-  const handlePostular = async () => {
-    if (!estudianteId) return
-    setLoading(true)
-    try {
-      await vacantesApi.postularEstudiante(vacante.id, Number(estudianteId))
-      onPostulado()
-    } catch (e) {
-      alert(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const mutation = useMutation({
+    mutationFn: () => vacantesApi.crearPostulacion(vacante.id, Number(estudianteId)),
+    onSuccess: onPostulado,
+    onError: (err) => {
+      const msg = err?.response?.data?.message ?? 'Error al postular estudiante'
+      toast.error(msg)
+    },
+  })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -51,20 +45,25 @@ export default function ModalPostular({ vacante, onClose, onPostulado }) {
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-2"
               style={{ color: '#023859' }}>
-              Seleccionar estudiante
+              Seleccionar estudiante apto
             </p>
             <select
               value={estudianteId}
               onChange={e => setEstudianteId(e.target.value)}
               className="w-full h-10 px-3 rounded-lg text-sm outline-none"
               style={{ border: '1.5px solid #dce4ec', background: '#f7f9fb', color: '#023859' }}>
-              <option value="">Seleccionar estudiante apto...</option>
+              <option value="">Seleccionar estudiante...</option>
               {disponibles.map(e => (
                 <option key={e.id} value={e.id}>
-                  {e.nombre} — {e.programa} (Sem. {e.semestre})
+                  {e.nombre} — {e.nombrePrograma} (Sem. {e.semestre})
                 </option>
               ))}
             </select>
+            {disponibles.length === 0 && (
+              <p className="text-[10px] mt-1" style={{ color: '#8a9bb0' }}>
+                No hay estudiantes aptos disponibles para postular
+              </p>
+            )}
           </div>
 
           <div className="p-3 rounded-lg" style={{ background: '#f7f9fb', border: '0.5px solid #e2e8f0' }}>
@@ -72,12 +71,6 @@ export default function ModalPostular({ vacante, onClose, onPostulado }) {
               <p className="text-[10px]" style={{ color: '#8a9bb0' }}>Cupos disponibles</p>
               <p className="text-[10px] font-semibold" style={{ color: '#023859' }}>
                 {vacante.cuposDisponibles} de {vacante.cuposTotales}
-              </p>
-            </div>
-            <div className="flex justify-between py-1">
-              <p className="text-[10px]" style={{ color: '#8a9bb0' }}>Ya postulados</p>
-              <p className="text-[10px] font-semibold" style={{ color: '#023859' }}>
-                {vacante.postulaciones.length}
               </p>
             </div>
           </div>
@@ -89,12 +82,12 @@ export default function ModalPostular({ vacante, onClose, onPostulado }) {
               Cancelar
             </button>
             <button
-              onClick={handlePostular}
-              disabled={!estudianteId || loading}
+              onClick={() => mutation.mutate()}
+              disabled={!estudianteId || mutation.isPending}
               className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white"
-              style={{ background: !estudianteId || loading ? '#a0aab4' : '#0B416B' }}>
+              style={{ background: !estudianteId || mutation.isPending ? '#a0aab4' : '#0B416B' }}>
               <UserPlus size={13} />
-              {loading ? 'Postulando...' : 'Postular estudiante'}
+              {mutation.isPending ? 'Postulando...' : 'Postular estudiante'}
             </button>
           </div>
         </div>

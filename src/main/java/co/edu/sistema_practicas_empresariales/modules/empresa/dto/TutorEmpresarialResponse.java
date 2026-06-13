@@ -18,4 +18,5 @@ public class TutorEmpresarialResponse {
     private String cargo;
     private Long empresaId;
     private LocalDateTime fechaRegistro;
+    private Boolean activo;
 }

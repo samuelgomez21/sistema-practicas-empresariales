@@ -7,15 +7,14 @@ import { toast } from 'sonner'
 import { empresasApi } from '../api/empresasApi'
 
 const schema = z.object({
-  razonSocial:     z.string().min(3, 'Mínimo 3 caracteres'),
-  nit:             z.string().min(5, 'NIT inválido'),
-  sectorEconomico: z.string().min(1, 'Selecciona un sector'),
-  direccion:       z.string().min(5, 'Ingresa la dirección'),
-  municipio:       z.string().min(3, 'Ingresa el municipio'),
-  telefono:        z.string().min(7, 'Teléfono inválido'),
-  nombreContacto:  z.string().min(3, 'Ingresa el nombre del contacto'),
-  emailContacto:   z.string().email('Correo inválido'),
-  correoAcceso:    z.string().email('Correo de acceso inválido'),
+  razonSocial:             z.string().min(3, 'Mínimo 3 caracteres'),
+  nit:                     z.string().min(5, 'NIT inválido'),
+  sectorEconomico:         z.string().min(1, 'Selecciona un sector'),
+  direccion:               z.string().min(5, 'Ingresa la dirección'),
+  municipio:               z.string().min(3, 'Ingresa el municipio'),
+  telefono:                z.string().min(7, 'Teléfono inválido'),
+  contactoPrincipalNombre: z.string().min(3, 'Ingresa el nombre del contacto'),
+  contactoPrincipalEmail:  z.string().email('Correo inválido'),
 })
 
 const SECTORES = [
@@ -29,12 +28,15 @@ export default function ModalNuevaEmpresa({ onClose, onGuardado }) {
   })
 
   const mutation = useMutation({
-    mutationFn: empresasApi.crearEmpresaPerfil,
+    mutationFn: empresasApi.crearEmpresa,
     onSuccess: () => {
-      toast.success('Empresa creada. Se enviaron credenciales temporales al correo de acceso.')
+      toast.success('Empresa creada. Se enviaron credenciales temporales al correo de contacto.')
       onGuardado()
     },
-    onError: () => toast.error('Error al crear la empresa'),
+    onError: (err) => {
+      const msg = err?.response?.data?.message ?? 'Error al crear la empresa'
+      toast.error(msg)
+    },
   })
 
   const is = { border: '1.5px solid #dce4ec', background: '#f7f9fb', color: '#023859' }
@@ -42,7 +44,7 @@ export default function ModalNuevaEmpresa({ onClose, onGuardado }) {
   const lc = "text-[10px] font-bold uppercase tracking-wide"
   const ls = { color: '#023859' }
 
-  const Campo = ({ name, label, error, children }) => (
+  const Campo = ({ label, error, children }) => (
     <div className="flex flex-col gap-1.5">
       <label className={lc} style={ls}>{label}</label>
       {children}
@@ -60,14 +62,13 @@ export default function ModalNuevaEmpresa({ onClose, onGuardado }) {
           <div>
             <p className="text-sm font-bold" style={{ color: '#023859' }}>Nueva empresa</p>
             <p className="text-[10px] mt-0.5" style={{ color: '#8a9bb0' }}>
-              Se crearán credenciales temporales para el correo de acceso
+              Se crearán credenciales temporales para el correo de contacto
             </p>
           </div>
           <button onClick={onClose}><X size={18} className="text-gray-400" /></button>
         </div>
 
         <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
-
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-3"
               style={{ color: '#8a9bb0' }}>Información general</p>
@@ -103,26 +104,20 @@ export default function ModalNuevaEmpresa({ onClose, onGuardado }) {
 
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-3"
-              style={{ color: '#8a9bb0' }}>Contacto y acceso</p>
+              style={{ color: '#8a9bb0' }}>Contacto principal</p>
             <div className="grid grid-cols-2 gap-3">
-              <Campo label="Nombre del contacto principal" error={errors.nombreContacto}>
-                <input {...register('nombreContacto')} className={ic} style={is}
+              <Campo label="Nombre del contacto" error={errors.contactoPrincipalNombre}>
+                <input {...register('contactoPrincipalNombre')} className={ic} style={is}
                   placeholder="Nombre completo" />
               </Campo>
-              <Campo label="Email del contacto" error={errors.emailContacto}>
-                <input {...register('emailContacto')} className={ic} style={is}
+              <Campo label="Correo del contacto" error={errors.contactoPrincipalEmail}>
+                <input {...register('contactoPrincipalEmail')} className={ic} style={is}
                   placeholder="contacto@empresa.com" />
               </Campo>
-              <div className="col-span-2">
-                <Campo label="Correo de acceso al sistema" error={errors.correoAcceso}>
-                  <input {...register('correoAcceso')} className={ic} style={is}
-                    placeholder="correo para ingresar al portal" />
-                </Campo>
-                <p className="text-[10px] mt-1" style={{ color: '#8a9bb0' }}>
-                  A este correo se enviarán las credenciales temporales de acceso
-                </p>
-              </div>
             </div>
+            <p className="text-[10px] mt-2" style={{ color: '#8a9bb0' }}>
+              A este correo se enviarán las credenciales temporales de acceso al portal
+            </p>
           </div>
 
           <div className="flex gap-2 justify-end pt-2">

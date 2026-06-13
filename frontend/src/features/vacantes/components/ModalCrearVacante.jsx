@@ -1,10 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { vacantesApi } from '../api/vacantesApi'
+import { programasApi } from '@/features/configuracion/api/programasApi'
 
 const schema = z.object({
   titulo:          z.string().min(3, 'Mínimo 3 caracteres'),
@@ -18,27 +19,31 @@ const schema = z.object({
   salario:         z.coerce.number().optional().or(z.literal('')),
   horario:         z.string().optional(),
   habilidades:     z.string().optional(),
+  programaId:      z.coerce.number().optional().or(z.literal('')),
 })
 
-export default function ModalCrearVacante({ onClose, onCreada }) {
+export default function ModalCrearVacante({ empresaId, onClose, onCreada }) {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { semestreMinimo: 7, cuposTotales: 1, modalidad: 'PRESENCIAL', tipoContrato: 'CONTRATO_APRENDIZAJE' },
   })
 
+  const { data: programas = [] } = useQuery({
+    queryKey: ['programas-todos'],
+    queryFn:  programasApi.getProgramas,
+  })
+
   const mutation = useMutation({
     mutationFn: (data) => vacantesApi.crearVacante({
       ...data,
-      empresaId:    2,
-      empresaNombre: 'TechCo S.A.S.',
-      programaId:   1,
-      programaNombre: 'Ingeniería de Software',
-      habilidades: data.habilidades
-        ? data.habilidades.split(',').map(h => h.trim()).filter(Boolean)
-        : [],
+      empresaId,
+      programaId: data.programaId || null,
     }),
     onSuccess: onCreada,
-    onError: () => toast.error('Error al crear la vacante'),
+    onError: (err) => {
+      const msg = err?.response?.data?.message ?? 'Error al crear la vacante'
+      toast.error(msg)
+    },
   })
 
   const is = { border: '1.5px solid #dce4ec', background: '#f7f9fb', color: '#023859' }
@@ -64,7 +69,6 @@ export default function ModalCrearVacante({ onClose, onCreada }) {
 
         <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
 
-          {/* Información básica */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-3"
               style={{ color: '#8a9bb0' }}>Información básica</p>
@@ -74,6 +78,13 @@ export default function ModalCrearVacante({ onClose, onCreada }) {
                 <input {...register('titulo')} className={ic} style={is}
                   placeholder="Ej: Practicante Desarrollo Web" />
                 {errors.titulo && <p className="text-xs" style={{ color: '#D91438' }}>{errors.titulo.message}</p>}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className={lc} style={ls}>Programa académico (opcional)</label>
+                <select {...register('programaId')} className={ic} style={is}>
+                  <option value="">Cualquier programa</option>
+                  {programas.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className={lc} style={ls}>Modalidad</label>
@@ -119,7 +130,6 @@ export default function ModalCrearVacante({ onClose, onCreada }) {
             </div>
           </div>
 
-          {/* Descripción */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-3"
               style={{ color: '#8a9bb0' }}>Descripción y perfil</p>

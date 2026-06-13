@@ -220,8 +220,51 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .telefono(tutor.getTelefono())
                 .cargo(tutor.getCargo())
                 .empresaId(tutor.getEmpresa().getId())
+                .activo(tutor.isActivo())
                 .fechaRegistro(tutor.getFechaCreacion())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EmpresaResponse obtenerPorUsuarioEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No hay una empresa asociada a este usuario"));
+        return mapToEmpresaResponse(empresa);
+    }
+
+    @Override
+    @Transactional
+    public TutorEmpresarialResponse actualizarTutor(Long id, TutorEmpresarialRequest request) {
+        TutorEmpresarial tutor = tutorRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
+
+        if (request.getNombre() != null)   tutor.setNombreCompleto(request.getNombre());
+        if (request.getTelefono() != null) tutor.setTelefono(request.getTelefono());
+        if (request.getCargo() != null)    tutor.setCargo(request.getCargo());
+
+        tutor = tutorRepository.save(tutor);
+        return mapToTutorResponse(tutor);
+    }
+
+    @Override
+    @Transactional
+    public void activarTutor(Long id) {
+        TutorEmpresarial tutor = tutorRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tutor no encontrado"));
+        tutor.setActivo(true);
+        tutorRepository.save(tutor);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<TutorEmpresarialResponse> listarTodosLosTutores() {
+        return tutorRepository.findAll().stream()
+                .filter(TutorEmpresarial::isActivo)
+                .map(this::mapToTutorResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
 
 }

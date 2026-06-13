@@ -3,6 +3,38 @@ import { useQuery } from '@tanstack/react-query'
 import { Search, ScrollText } from 'lucide-react'
 import { bitacoraApi, ACCION_LABEL, MODULO_LABEL } from '../api/bitacoraApi'
 
+function describirDetalle(registro) {
+  try {
+    const parsed = JSON.parse(registro.detalles)
+    const params = parsed?.parametros ?? {}
+    const error  = parsed?.error
+
+    if (error) {
+      return `Error: ${error}`
+    }
+
+    const entries = Object.entries(params)
+    if (entries.length === 0) return 'Sin detalles adicionales'
+
+    const partes = entries.map(([key, value]) => {
+      if (value === null || value === undefined) return null
+      if (typeof value === 'object') {
+        const campos = ['nombre', 'email', 'titulo', 'estado', 'rol', 'identificacion']
+        const resumen = campos
+          .filter(c => value[c] !== undefined)
+          .map(c => `${c}: ${value[c]}`)
+          .join(', ')
+        return resumen || `${key}: ${JSON.stringify(value)}`
+      }
+      return `${key}: ${value}`
+    }).filter(Boolean)
+
+    return partes.join(' · ') || 'Sin detalles adicionales'
+  } catch {
+    return registro.detalles || 'Sin detalles'
+  }
+}
+
 export default function BitacoraPage() {
   const [busqueda,     setBusqueda]     = useState('')
   const [filtroModulo, setFiltroModulo] = useState('')
@@ -14,9 +46,11 @@ export default function BitacoraPage() {
   })
 
   const filtrados = registros.filter(r => {
+    const email   = r.usuarioEmail ?? ''
+    const detalle = r.detalles ?? ''
     const matchBusqueda = !busqueda ||
-      r.usuarioEmail.toLowerCase().includes(busqueda.toLowerCase()) ||
-      r.detalles.toLowerCase().includes(busqueda.toLowerCase())
+      email.toLowerCase().includes(busqueda.toLowerCase()) ||
+      detalle.toLowerCase().includes(busqueda.toLowerCase())
     const matchModulo = !filtroModulo || r.modulo === filtroModulo
     const matchAccion = !filtroAccion || r.accion === filtroAccion
     return matchBusqueda && matchModulo && matchAccion
@@ -102,9 +136,10 @@ export default function BitacoraPage() {
                       {MODULO_LABEL[r.modulo] ?? r.modulo}
                     </span>
                   </div>
-                  <p className="text-xs" style={{ color: '#023859' }}>{r.detalles}</p>
+                  <p className="text-xs" style={{ color: '#023859' }}>{describirDetalle(r)}</p>
                   <p className="text-[10px] mt-1" style={{ color: '#8a9bb0' }}>
-                    {r.usuarioEmail} · IP {r.ipAddress}
+                    {r.usuarioEmail === 'SISTEMA/ANÓNIMO' ? 'Sistema' : r.usuarioEmail}
+                    {r.ipAddress && ` · IP ${r.ipAddress}`}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">

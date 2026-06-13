@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * Entidad que representa un registro de auditoría en la bitácora del sistema.
  */
 @Entity
-@Table(name = "bitacora")
+@Table(name = "bitacora_auditoria")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,10 +21,10 @@ public class Bitacora {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "fecha_registro", nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "usuario_email", nullable = false, length = 150)
     private String usuarioEmail;
 
     @Column(nullable = false, length = 50)
@@ -36,7 +36,7 @@ public class Bitacora {
     @Column(columnDefinition = "TEXT")
     private String detalles;
 
-    @Column(length = 45)
+    @Column(name = "ip_address", length = 45)
     private String ipAddress;
 
     @PrePersist

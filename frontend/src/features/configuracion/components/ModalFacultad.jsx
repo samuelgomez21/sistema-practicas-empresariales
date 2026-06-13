@@ -7,9 +7,7 @@ import { toast } from 'sonner'
 import { configuracionApi } from '../api/configuracionApi'
 
 const schema = z.object({
-  nombre:              z.string().min(3, 'Mínimo 3 caracteres'),
-  coordinador:         z.string().min(3, 'Ingresa el nombre del coordinador'),
-  correoCoordinador:   z.string().email('Correo inválido'),
+  nombre: z.string().min(3, 'Mínimo 3 caracteres'),
 })
 
 export default function ModalFacultad({ facultad, onClose, onGuardado }) {
@@ -54,12 +52,6 @@ export default function ModalFacultad({ facultad, onClose, onGuardado }) {
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex flex-col gap-4">
           <Campo label="Nombre de la facultad" error={errors.nombre}>
             <input {...register('nombre')} placeholder="Ej: Ingeniería" />
-          </Campo>
-          <Campo label="Nombre del coordinador académico" error={errors.coordinador}>
-            <input {...register('coordinador')} placeholder="Nombre completo" />
-          </Campo>
-          <Campo label="Correo del coordinador" error={errors.correoCoordinador}>
-            <input {...register('correoCoordinador')} placeholder="correo@uah.edu.co" />
           </Campo>
 
           <div className="flex gap-2 justify-end mt-2">

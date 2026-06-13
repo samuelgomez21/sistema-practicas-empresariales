@@ -22,7 +22,6 @@ export default function ParametrosPage() {
   const { data: programas = [] } = useQuery({
     queryKey: ['programas'],
     queryFn: () => configuracionApi.getProgramas(),
-    onSuccess: (data) => { if (!programaActivo && data[0]) setProgramaActivo(data[0]) },
   })
 
   const programa = programaActivo ?? programas[0]
@@ -37,7 +36,7 @@ export default function ParametrosPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (data) => configuracionApi.editarPrograma(programa.id, data),
+    mutationFn: (data) => configuracionApi.editarParametrosPrograma(programa.id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['programas'] })
       toast.success('Parámetros actualizados — solo aplica a prácticas futuras')

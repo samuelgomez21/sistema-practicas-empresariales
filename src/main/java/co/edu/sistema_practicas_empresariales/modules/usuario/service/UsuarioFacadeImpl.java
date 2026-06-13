@@ -8,7 +8,10 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.model.CoordinadorP
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.CoordinadorProgramaRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
+import co.edu.sistema_practicas_empresariales.shared.email.templates.EmailTemplates;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +28,7 @@ import java.util.stream.Collectors;
  * los servicios de dominio de usuario. Centraliza la conversión entre Entidades (Usuario)
  * y DTOs (UsuarioDto), aislando al controlador de la complejidad del modelo de datos
  * y las reglas de mapeo.
- * 
+ *
  * @author Equipo de Desarrollo
  * @version 1.0
  */
@@ -39,6 +42,10 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     /**
      * Mapea una entidad Usuario a su correspondiente DTO.
@@ -71,13 +78,13 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         if (dto.getId() != null) {
             builder.id(dto.getId());
         }
-        
+
         if (dto.getRol() != null) {
-            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre rolNombre = 
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre rolNombre =
                     co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.valueOf(dto.getRol());
-            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol rol = 
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol rol =
                     rolRepository.findByNombre(rolNombre)
-                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRol()));
+                            .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRol()));
             builder.rol(rol);
         }
 
@@ -109,14 +116,26 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
         }
+
+        // Capturamos la contraseña en texto plano ANTES de cifrarla,
+        // para poder enviarla por correo al usuario.
+        String passwordTemporal;
         if (usuario.getPassword() != null) {
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            passwordTemporal = usuario.getPassword();
         } else {
-            String generated = java.util.UUID.randomUUID().toString().substring(0, 8);
-            usuario.setPassword(passwordEncoder.encode(generated));
+            passwordTemporal = java.util.UUID.randomUUID().toString().substring(0, 8);
         }
+        usuario.setPassword(passwordEncoder.encode(passwordTemporal));
         usuario.setDebeCambiarPassword(true);
+
         Usuario guardado = usuarioRepository.save(usuario);
+
+        emailService.sendEmail(
+                guardado.getEmail(),
+                "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
+                EmailTemplates.credencialesAcceso(guardado.getNombre(), guardado.getEmail(), passwordTemporal, frontendUrl)
+        );
+
         return mapToDto(guardado);
     }
 
@@ -125,10 +144,10 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     public UsuarioDto actualizar(Long id, UsuarioDto usuarioDto) {
         Usuario datosNuevos = mapToEntity(usuarioDto);
         Objects.requireNonNull(datosNuevos, "Usuario no puede ser null");
-        
+
         Usuario existente = usuarioRepository.findByIdAndEliminadoFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + id));
-                
+
         existente.setEmail(datosNuevos.getEmail());
         existente.setNombre(datosNuevos.getNombre());
         existente.setActivo(datosNuevos.isActivo());
@@ -136,9 +155,9 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
             existente.setRol(datosNuevos.getRol());
         }
         if (datosNuevos.getPassword() != null) {
-            existente.setPassword(datosNuevos.getPassword()); 
+            existente.setPassword(datosNuevos.getPassword());
         }
-        
+
         Usuario actualizado = usuarioRepository.save(existente);
         return mapToDto(actualizado);
     }
@@ -148,6 +167,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     public void eliminar(Long id) {
         usuarioRepository.softDelete(id);
     }
+
     @Override
     @Transactional
     public void activar(Long id) {

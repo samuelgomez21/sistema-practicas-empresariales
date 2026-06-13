@@ -10,7 +10,10 @@ import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
+import co.edu.sistema_practicas_empresariales.shared.email.EmailService;
+import co.edu.sistema_practicas_empresariales.shared.email.templates.EmailTemplates;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,23 +31,30 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Override
     @Transactional
     public EmpresaResponse registrarEmpresa(EmpresaRequest request) {
         String passwordTemporal = UUID.randomUUID().toString().substring(0, 8);
-        
+
+        boolean usuarioYaExistia = usuarioRepository.existsByEmail(request.getContactoPrincipalEmail());
+
         Usuario usuario = usuarioRepository.findByEmail(request.getContactoPrincipalEmail())
                 .orElseGet(() -> {
                     Rol rolEmpresa = rolRepository.findByNombre(Rol.Nombre.EMPRESA_VINCULADA)
                             .orElseThrow(() -> new IllegalStateException("Rol EMPRESA_VINCULADA no encontrado"));
-                    
+
                     Usuario nuevoUsuario = Usuario.builder()
                             .email(request.getContactoPrincipalEmail())
                             .nombre(request.getContactoPrincipalNombre())
                             .password(passwordEncoder.encode(passwordTemporal))
                             .rol(rolEmpresa)
                             .activo(true)
+                            .debeCambiarPassword(true)
                             .build();
                     return usuarioRepository.save(nuevoUsuario);
                 });
@@ -62,9 +72,19 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .build();
 
         empresa = empresaRepository.save(empresa);
-        
+
+        // Solo enviamos credenciales si el usuario se creó en este momento
+        // (si ya existía, su contraseña no cambió).
+        if (!usuarioYaExistia) {
+            emailService.sendEmail(
+                    usuario.getEmail(),
+                    "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
+                    EmailTemplates.credencialesAcceso(usuario.getNombre(), usuario.getEmail(), passwordTemporal, frontendUrl)
+            );
+        }
+
         eventPublisher.publishEvent(new EmpresaRegistradaEvent(this, empresa, passwordTemporal));
-        
+
         return mapToEmpresaResponse(empresa);
     }
 
@@ -75,6 +95,8 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
         String passwordTemporal = UUID.randomUUID().toString().substring(0, 8);
+
+        boolean usuarioYaExistia = usuarioRepository.existsByEmail(request.getCorreo());
 
         Usuario usuarioTutor = usuarioRepository.findByEmail(request.getCorreo())
                 .orElseGet(() -> {
@@ -87,6 +109,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                             .password(passwordEncoder.encode(passwordTemporal))
                             .rol(rolTutor)
                             .activo(true)
+                            .debeCambiarPassword(true)
                             .build();
                     return usuarioRepository.save(nuevoUsuario);
                 });
@@ -101,6 +124,15 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .build();
 
         tutor = tutorRepository.save(tutor);
+
+        if (!usuarioYaExistia) {
+            emailService.sendEmail(
+                    usuarioTutor.getEmail(),
+                    "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
+                    EmailTemplates.credencialesAcceso(usuarioTutor.getNombre(), usuarioTutor.getEmail(), passwordTemporal, frontendUrl)
+            );
+        }
+
         return mapToTutorResponse(tutor);
     }
 
@@ -141,7 +173,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
     public EmpresaResponse actualizarEmpresa(Long id, EmpresaRequest request) {
         Empresa empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
-                
+
         if (request.getRazonSocial() != null) empresa.setRazonSocial(request.getRazonSocial());
         if (request.getSectorEconomico() != null) empresa.setSectorEconomico(request.getSectorEconomico());
         if (request.getDireccion() != null) empresa.setDireccion(request.getDireccion());
@@ -149,7 +181,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
         if (request.getTelefono() != null) empresa.setTelefono(request.getTelefono());
         if (request.getContactoPrincipalNombre() != null) empresa.setContactoPrincipalNombre(request.getContactoPrincipalNombre());
         if (request.getContactoPrincipalEmail() != null) empresa.setContactoPrincipalEmail(request.getContactoPrincipalEmail());
-        
+
         empresa = empresaRepository.save(empresa);
         return mapToEmpresaResponse(empresa);
     }
@@ -191,6 +223,5 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .fechaRegistro(tutor.getFechaCreacion())
                 .build();
     }
-
 
 }

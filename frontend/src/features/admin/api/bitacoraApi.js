@@ -29,4 +29,8 @@ export const MODULO_LABEL = {
   ENCUESTAS:    'Encuestas',
   EMPRESAS:     'Empresas',
   EVALUACIONES: 'Evaluaciones',
+  FACULTADES:          'Facultades',
+  PROGRAMAS:           'Programas',
+  PARAMETROS_PROGRAMA: 'Parámetros de programa',
+  CATALOGO_PRACTICAS:  'Catálogo de prácticas',  
 }

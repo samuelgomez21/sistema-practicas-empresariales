@@ -90,10 +90,6 @@ export default function FacultadesPage() {
                   <p className="text-xs font-semibold" style={{ color: '#023859' }}>{f.nombre}</p>
                 </td>
                 <td className="px-5 py-3">
-                  <p className="text-xs" style={{ color: '#023859' }}>{f.coordinador}</p>
-                  <p className="text-[10px]" style={{ color: '#8a9bb0' }}>{f.correoCoordinador}</p>
-                </td>
-                <td className="px-5 py-3">
                   <p className="text-xs" style={{ color: '#6b7a8d' }}>
                     {f.programas?.length ?? 0} programa(s)
                   </p>

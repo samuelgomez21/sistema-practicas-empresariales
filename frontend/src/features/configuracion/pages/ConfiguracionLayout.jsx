@@ -16,8 +16,8 @@ const SECCIONES_POR_ROL = {
     { label: 'Programas',          path: '/configuracion/programas',    icon: BookOpen },
     { label: 'Parámetros',         path: '/configuracion/parametros',   icon: Settings2 },
     { label: 'Catálogo prácticas', path: '/configuracion/catalogo',     icon: ClipboardList },
-    { label: 'Plantillas correo',  path: '/configuracion/plantillas',   icon: Mail },
-    { label: 'Catálogos maestros', path: '/configuracion/catalogos',    icon: Table },
+/*     { label: 'Plantillas correo',  path: '/configuracion/plantillas',   icon: Mail },
+    { label: 'Catálogos maestros', path: '/configuracion/catalogos',    icon: Table }, */
   ],
   [ROLES.COORDINACION_ACADEMICA]: [
     { label: 'Facultades',         path: '/configuracion/facultades',   icon: School },

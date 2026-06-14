@@ -29,7 +29,7 @@ public class PracticaController {
     // ── Listados ────────────────────────────────────────────────────
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','SECRETARIA', 'ESTUDIANTE')")
     public ResponseEntity<List<PracticaResumenDto>> listarTodas() {
         return ResponseEntity.ok(practicaFacade.listarTodas());
     }

@@ -32,6 +32,7 @@ public class Rol {
         ESTUDIANTE,
         DOCENTE_ASESOR,
         TUTOR_EMPRESARIAL,
-        EMPRESA_VINCULADA
+        EMPRESA_VINCULADA,
+        DIRECCION
     }
 }

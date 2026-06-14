@@ -1,10 +1,6 @@
 import api from '@/lib/axios'
 import { subirArchivo } from '@/lib/cloudinary'
-import { useAuthStore } from '@/store/authStore'
 
-// ─── Normalización de práctica ──────────────────────────────────────────────
-// PracticaDetalleDto del backend tiene campos distintos al mock anterior.
-// Esta función adapta la respuesta al shape que usan las páginas.
 function normalizarPractica(p) {
   if (!p) return null
   return {
@@ -13,7 +9,6 @@ function normalizarPractica(p) {
     programa:       p.nombrePrograma ?? p.programa,
     numeroPractica: p.numeroPractica ?? p.numero,
     estado:         p.estado,
-    // Empresa — cubre todos los campos posibles
     empresaId: p.empresaId,
     empresa: p.empresa ?? (
       p.empresaId || p.empresaNombre ? {
@@ -30,7 +25,7 @@ function normalizarPractica(p) {
       correo: p.emailDocenteAsesor ?? p.correoDocente ?? '—',
       id:     p.docenteAsesorId    ?? null,
     } : null),
-    tutor: p.tutorId ?? (p.nombreTutor ? {
+    tutor: p.tutor ?? (p.nombreTutor ? {
       nombre:   p.nombreTutor,
       cargo:    p.cargoTutor    ?? '—',
       telefono: p.telefonoTutor ?? '—',
@@ -48,22 +43,20 @@ function normalizarPractica(p) {
 function normalizarPostulacion(p) {
   return {
     ...p,
-    vacanteId:       p.vacanteId,
-    tituloVacante:   p.tituloVacante ?? p.vacanteTitulo,
-    empresaNombre:   p.empresaNombre ?? `Vacante: ${p.tituloVacante}`,
-    modalidad:       p.modalidad ?? null,
-    salario:         p.salario   ?? null,
-    horario:         p.horario   ?? null,
+    vacanteId:        p.vacanteId,
+    tituloVacante:    p.tituloVacante ?? p.vacanteTitulo,
+    empresaNombre:    p.empresaNombre ?? `Vacante: ${p.tituloVacante}`,
+    modalidad:        p.modalidad  ?? null,
+    salario:          p.salario    ?? null,
+    horario:          p.horario    ?? null,
     fechaPostulacion: p.fechaPostulacion,
-    estado:          typeof p.estado === 'object' ? p.estado.name?.() : p.estado,
-    observacion:     p.observaciones ?? null,
+    estado:           typeof p.estado === 'object' ? p.estado.name?.() : p.estado,
+    observacion:      p.observaciones ?? null,
   }
 }
 
-// ── API ──────────────────────────────────────────────────────────────────────
 export const estudianteApi = {
 
-  // ── Práctica activa ────────────────────────────────────────────────────────
   getMiPractica: async () => {
     try {
       const { data } = await api.get('/estudiantes/mi-practica-activa')
@@ -73,23 +66,20 @@ export const estudianteApi = {
     }
   },
 
-  // ── Avances ────────────────────────────────────────────────────────────────
   getAvances: async () => {
     try {
       const { data: practicaRaw } = await api.get('/estudiantes/mi-practica-activa')
       if (!practicaRaw?.id) return []
-
       const { data: resp } = await api.get(`/practicas/${practicaRaw.id}/avances`)
       const lista = resp?.data ?? resp ?? []
-
       return lista.map(a => ({
         id:                a.id,
         titulo:            a.titulo,
         descripcion:       a.descripcion,
         estado:            a.estado,
-        archivoUrl:        a.archivoUrl     ?? null,
-        fechaEntrega:      a.createdAt      ?? a.fechaEntrega ?? null,
-        comentarioDocente: a.comentarioDocente ?? null,  // ← asegurar que se mapea
+        archivoUrl:        a.archivoUrl        ?? null,
+        fechaEntrega:      a.createdAt         ?? a.fechaEntrega ?? null,
+        comentarioDocente: a.comentarioDocente ?? null,
       }))
     } catch {
       return []
@@ -100,17 +90,11 @@ export const estudianteApi = {
     const practicaRes = await api.get('/estudiantes/mi-practica-activa')
     if (!practicaRes.data?.id) throw new Error('No tienes una práctica activa')
     const { data } = await api.post(`/practicas/${practicaRes.data.id}/avances`, {
-      titulo,
-      corteNumero,
-      descripcion,
-      archivoUrl: archivoUrl ?? null,
+      titulo, corteNumero, descripcion, archivoUrl: archivoUrl ?? null,
     })
     return data
   },
 
-  /**
-   * Sube el archivo de avance a Firebase y luego registra el avance.
-   */
   getMisDocumentos: async () => {
     try {
       const practicaRes = await api.get('/estudiantes/mi-practica-activa')
@@ -118,8 +102,8 @@ export const estudianteApi = {
       const { data } = await api.get(`/practicas/${practicaRes.data.id}/documentos`)
       const mapa = {}
       ;(data ?? []).forEach(d => {
-        // Convertir categoria ARL → arl, INFORME_EJECUTIVO → informeEjecutivo
-        const key = d.categoria?.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+        const key = d.categoria?.toLowerCase()
+          .replace(/_([a-z])/g, (_, c) => c.toUpperCase())
         mapa[key] = {
           url:        d.url,
           nombre:     d.nombre,
@@ -137,11 +121,8 @@ export const estudianteApi = {
     const practicaRes = await api.get('/estudiantes/mi-practica-activa')
     if (!practicaRes.data?.id) throw new Error('No tienes una práctica activa')
     const practicaId = practicaRes.data.id
-
-    // El backend recibe multipart: @RequestParam categoria + @RequestPart archivo
     const formData = new FormData()
     formData.append('archivo', archivo)
-
     const { data } = await api.post(
       `/practicas/${practicaId}/documentos?categoria=${encodeURIComponent(categoria)}`,
       formData,
@@ -150,27 +131,63 @@ export const estudianteApi = {
     return { url: data?.informeEjecutivoUrl ?? data?.url ?? null, estado: data?.estado ?? 'PENDIENTE' }
   },
 
-  // ── Checklist ──────────────────────────────────────────────────────────────
+  // ── Checklist — usa checklist-completo que calcula en tiempo real ──────────
   getChecklist: async () => {
     try {
       const practicaRes = await api.get('/estudiantes/mi-practica-activa')
       if (!practicaRes.data?.id) return []
-      const { data } = await api.get(`/practicas/${practicaRes.data.id}/checklist`)
-      return (data ?? []).map(c => ({
-        id:          c.clave ?? c.id,
-        label:       c.label,
-        completado:  c.completado,
-      }))
+
+      const { data } = await api.get(
+        `/cierre/practica/${practicaRes.data.id}/checklist-completo`
+      )
+
+      // ChecklistResponse → array de items para el frontend
+      return [
+        {
+          id:        'nota_docente',
+          label:     'Nota del docente registrada',
+          completado: data.notaDocenteRegistrada ?? false,
+        },
+        {
+          id:        'nota_tutor',
+          label:     'Nota del tutor empresarial registrada',
+          completado: data.notaTutorRegistrada ?? false,
+        },
+        {
+          id:        'nota_final',
+          label:     'Nota final registrada',
+          completado: data.notaFinalRegistrada ?? false,
+        },
+        {
+          id:        'encuesta_estudiante',
+          label:     'Encuesta de satisfacción completada',
+          completado: data.estadoEncuestaEstudiante === 'COMPLETADA',
+        },
+        {
+          id:        'encuesta_tutor',
+          label:     'Evaluación del tutor completada',
+          completado: data.estadoEncuestaTutor === 'COMPLETADA',
+        },
+        {
+          id:        'documentos',
+          label:     'Documentos aprobados (ARL, Planeador, Informe, Presentación)',
+          completado: data.documentosAprobados ?? false,
+        },
+        {
+          id:        'informe_final',
+          label:     'Documento final aprobado',
+          completado: data.informeFinalAprobado ?? false,
+        },
+      ]
     } catch {
       return []
     }
   },
 
-  // ── Encuesta ───────────────────────────────────────────────────────────────
   getPlantillaEncuesta: async () => {
     try {
       const { data } = await api.get('/encuestas/plantilla/ESTUDIANTE')
-      return data // EncuestaPlantillaDto: { id, tipo, secciones: [{ preguntas: [] }] }
+      return data
     } catch {
       return null
     }
@@ -203,7 +220,6 @@ export const estudianteApi = {
     return data
   },
 
-  // ── Postulaciones ──────────────────────────────────────────────────────────
   getMisPostulaciones: async () => {
     try {
       const { data } = await api.get('/postulaciones/mis-postulaciones')
@@ -213,7 +229,6 @@ export const estudianteApi = {
     }
   },
 
-  // ── Hoja de vida ───────────────────────────────────────────────────────────
   getMiHojaVida: async () => {
     try {
       const { data } = await api.get('/estudiantes/mi-perfil')
@@ -228,24 +243,17 @@ export const estudianteApi = {
   },
 
   subirHojaVida: async (archivo) => {
-    // Obtener el id del estudiante desde el perfil
     const { data: perfil } = await api.get('/estudiantes/mi-perfil')
     const estudianteId = perfil.id
-
     const path = `hojas-vida/est_${estudianteId}_${Date.now()}_${archivo.name}`
     const url  = await subirArchivo(archivo, path)
-
     await api.patch(`/estudiantes/${estudianteId}/hoja-vida`, { hojaVidaUrl: url })
-
     return {
       url,
       fechaCarga: new Date().toISOString().split('T')[0],
       nombre:     archivo.name,
     }
   },
-
 }
 
-// Preguntas de encuesta — se obtienen del backend ahora, pero mantenemos
-// el export por compatibilidad con páginas que lo importen directamente.
 export const PREGUNTAS_ENCUESTA = []

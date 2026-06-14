@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class CierreController {
 
     private final CierreService cierreService;
-    private ChecklistCierreService checklistCierreService;
+    private final ChecklistCierreService checklistCierreService;
 
 
     /**

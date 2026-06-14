@@ -31,4 +31,5 @@ public class PracticaResumenDto {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private Boolean tienePazYSalvo;
+    private String resultado;
 }

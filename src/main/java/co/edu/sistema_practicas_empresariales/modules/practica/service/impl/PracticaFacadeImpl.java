@@ -3,6 +3,7 @@ package co.edu.sistema_practicas_empresariales.modules.practica.service.impl;
 import co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
+import co.edu.sistema_practicas_empresariales.modules.empresa.repository.TutorEmpresarialRepository;
 import co.edu.sistema_practicas_empresariales.modules.infraestructura.storage.ArchivoStorageService;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
@@ -54,6 +55,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
     private final HistorialCargaDocenteRepository historialCargaDocenteRepository;
     private final ArchivoStorageService      storageService;
     private final EmpresaRepository empresaRepository;
+    private final TutorEmpresarialRepository tutorRepository;
     private final co.edu.sistema_practicas_empresariales.modules.practica.builder.ContratoBuilder contratoBuilder;
     private final co.edu.sistema_practicas_empresariales.modules.infraestructura.export.GeneradorDocumentoPlantilla generadorDocumentoPlantilla;
 
@@ -439,16 +441,40 @@ public class PracticaFacadeImpl implements PracticaFacade {
     //
 
     private PracticaResumenDto toResumen(Practica p) {
+        // Resolver nombre de empresa
+        String nombreEmpresa = null;
+        if (p.getEmpresaId() != null) {
+            nombreEmpresa = empresaRepository.findById(p.getEmpresaId())
+                    .map(Empresa::getRazonSocial)
+                    .orElse(null);
+        }
+        System.out.println(nombreEmpresa);
+
+        // Resolver nombre de tutor
+        String nombreTutor = null;
+        if (p.getTutorEmpresarialId() != null) {
+            nombreTutor = tutorRepository.findById(p.getTutorEmpresarialId())
+                    .map(t -> t.getNombreCompleto())
+                    .orElse(null);
+        }
         return PracticaResumenDto.builder()
                 .id(p.getId())
+                .numeroPractica(p.getNumeroPractica())
                 .nombrePractica(p.getNombre())
                 .materiaNucleo(p.getMateriaNucleo())
+                .programa(p.getEstudiante().getPrograma().getNombre())
+                .semestre(p.getEstudiante().getSemestre())
+                .emailEstudiante(p.getEstudiante().getUsuario().getEmail())
                 .estudianteId(p.getEstudiante().getId())
                 .nombreEstudiante(p.getEstudiante().getUsuario().getNombre())
                 .empresaId(p.getEmpresaId())
+                .nombreEmpresa(nombreEmpresa)
                 .docenteId(p.getDocenteAsesor() != null ? p.getDocenteAsesor().getId() : null)
                 .nombreDocente(p.getDocenteAsesor() != null ? p.getDocenteAsesor().getNombre() : null)
+                .tutorId(p.getTutorEmpresarialId())
+                .nombreTutor(nombreTutor)
                 .estado(p.getEstado())
+                .resultado(p.getResultado())
                 .fechaInicio(p.getFechaInicio())
                 .fechaFin(p.getFechaFin())
                 .tienePazYSalvo(tienePazYSalvo(p.getId()))

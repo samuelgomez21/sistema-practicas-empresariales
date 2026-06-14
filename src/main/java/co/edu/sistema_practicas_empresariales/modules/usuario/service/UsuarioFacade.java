@@ -16,4 +16,5 @@ public interface UsuarioFacade {
     void asignarProgramas(Long usuarioId, List<Long> programaIds);
     List<DocenteCargaDto> listarDocentesConCarga();
     void actualizarMaxEstudiantes(Long docenteId, int max);
+    UsuarioDto obtenerPorEmail(String email);
 }

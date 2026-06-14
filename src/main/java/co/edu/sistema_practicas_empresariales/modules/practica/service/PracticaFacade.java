@@ -16,7 +16,9 @@ public interface PracticaFacade {
     List<PracticaResumenDto> listarPorDocente(Long docenteId);
     PracticaDetalleDto obtenerPracticaActivaEstudiante(Long estudianteId);
     PracticaDetalleDto obtenerDetalle(Long practicaId);
-    
+    List<PracticaResumenDto> listarMisPracticasDocente(String email);
+
+
     // Creación
     PracticaDetalleDto crearPracticaAutomatica(Long estudianteId, Long catalogoId);
     

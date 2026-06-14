@@ -1,18 +1,17 @@
 import { useRef, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Upload, FileText, ExternalLink } from 'lucide-react'
+import { Upload, FileText, ExternalLink, MessageSquare } from 'lucide-react'
 import { estudianteApi } from '../api/estudianteApi'
-import { subirArchivo } from '@/lib/cloudinary'
 import api from '@/lib/axios'
 import BadgeEstadoAvance from '../components/BadgeEstadoAvance'
 
 export default function AvancesPage() {
   const qc      = useQueryClient()
   const fileRef = useRef(null)
-  const [form,      setForm]      = useState({ titulo: '', descripcion: '' })
-  const [archivo,   setArchivo]   = useState(null)
-  const [subiendo,  setSubiendo]  = useState(false)
+  const [form,        setForm]        = useState({ titulo: '', descripcion: '' })
+  const [archivo,     setArchivo]     = useState(null)
+  const [subiendo,    setSubiendo]    = useState(false)
   const [mostrarForm, setMostrarForm] = useState(false)
 
   const { data: practica } = useQuery({
@@ -20,10 +19,10 @@ export default function AvancesPage() {
     queryFn:  estudianteApi.getMiPractica,
   })
 
-  const { data: avances = [], isLoading } = useQuery({
-    queryKey: ['mis-avances', practica?.id],   // ← incluir practica.id
+  const { data: avances = [], isLoading, refetch: refetchAvances } = useQuery({
+    queryKey: ['mis-avances'],           // ← sin practica.id para que la invalidación sea simple
     queryFn:  estudianteApi.getAvances,
-    enabled:  !!practica?.id, 
+    enabled:  !!practica?.id,
   })
 
   const handleSubir = async () => {
@@ -37,38 +36,23 @@ export default function AvancesPage() {
     }
     setSubiendo(true)
     try {
-      // El backend recibe multipart/form-data con dos partes:
-      // - "datos": JSON con título y descripción
-      // - "archivo": archivo opcional
-
       const formData = new FormData()
-
-      // Parte "datos" — debe ser un Blob con content-type application/json
       formData.append(
         'datos',
         new Blob(
-          [JSON.stringify({
-            titulo:      form.titulo,
-            descripcion: form.descripcion,
-          })],
+          [JSON.stringify({ titulo: form.titulo, descripcion: form.descripcion })],
           { type: 'application/json' }
         )
       )
-
-      // Parte "archivo" — opcional
       if (archivo) {
         formData.append('archivo', archivo)
       }
 
-      await api.post(
-        `/practicas/${practica.id}/avances`,
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      )
+      await api.post(`/practicas/${practica.id}/avances`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
 
-      qc.invalidateQueries({ queryKey: ['mis-avances'] })
+      await refetchAvances()                           // ← refetch directo en vez de invalidate
       toast.success('Avance registrado correctamente')
       setForm({ titulo: '', descripcion: '' })
       setArchivo(null)
@@ -161,7 +145,7 @@ export default function AvancesPage() {
         </div>
       )}
 
-      {/* Lista de avances */}
+      {/* Lista */}
       {isLoading ? (
         <div className="flex flex-col gap-2">
           {[1,2,3].map(i => (
@@ -170,7 +154,8 @@ export default function AvancesPage() {
           ))}
         </div>
       ) : avances.length === 0 ? (
-        <div className="bg-white rounded-xl p-8 text-center" style={{ border: '0.5px solid #e2e8f0' }}>
+        <div className="bg-white rounded-xl p-8 text-center"
+          style={{ border: '0.5px solid #e2e8f0' }}>
           <FileText size={28} className="mx-auto mb-2" style={{ color: '#8a9bb0' }} />
           <p className="text-sm font-semibold" style={{ color: '#023859' }}>
             Sin avances registrados
@@ -184,7 +169,9 @@ export default function AvancesPage() {
           {[...avances].reverse().map(a => (
             <div key={a.id} className="bg-white rounded-xl p-5"
               style={{ border: '0.5px solid #e2e8f0' }}>
-              <div className="flex items-start justify-between gap-3">
+
+              {/* Cabecera */}
+              <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: '#023859' }}>
                     {a.titulo}
@@ -195,9 +182,9 @@ export default function AvancesPage() {
                     </p>
                   )}
                   <p className="text-[10px] mt-1" style={{ color: '#8a9bb0' }}>
-                    {a.fechaCarga
-                      ? new Date(a.fechaCarga).toLocaleDateString('es-CO', {
-                          day: '2-digit', month: 'long', year: 'numeric'
+                    {a.fechaEntrega
+                      ? new Date(a.fechaEntrega).toLocaleDateString('es-CO', {
+                          day: '2-digit', month: 'long', year: 'numeric',
                         })
                       : 'Sin fecha de entrega'}
                   </p>
@@ -213,6 +200,27 @@ export default function AvancesPage() {
                   )}
                 </div>
               </div>
+
+              {/* ── Comentario del docente ── */}
+              {a.comentarioDocente && (
+                <div className="mt-3 pt-3 flex items-start gap-2"
+                  style={{ borderTop: '0.5px solid #f0f2f5' }}>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: '#eaf7f0' }}>
+                    <MessageSquare size={11} style={{ color: '#1a7a4a' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-semibold mb-0.5"
+                      style={{ color: '#1a7a4a' }}>
+                      Retroalimentación del docente
+                    </p>
+                    <p className="text-xs italic leading-relaxed"
+                      style={{ color: '#2d6a4f' }}>
+                      "{a.comentarioDocente}"
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -5,6 +5,7 @@ import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.Programa
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.MaxEstudiantesRequest;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
+import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.UsuarioFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -85,5 +86,15 @@ public class UsuarioController {
     public ResponseEntity<Void> actualizarMaxEstudiantes(@PathVariable Long id, @RequestBody MaxEstudiantesRequest request) {
         usuarioFacade.actualizarMaxEstudiantes(id, request.getMax());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Perfil del usuario autenticado — cualquier rol puede consultar su propio perfil.
+     */
+    @GetMapping("/mi-perfil")
+    public ResponseEntity<UsuarioDto> miPerfil(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(usuarioFacade.obtenerPorEmail(userDetails.getUsername()));
     }
 }

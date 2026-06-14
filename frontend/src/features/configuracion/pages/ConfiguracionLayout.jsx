@@ -27,8 +27,8 @@ const SECCIONES_POR_ROL = {
   ],
   [ROLES.COORDINADOR_PRACTICA]: [
     { label: 'Catálogo prácticas', path: '/configuracion/catalogo',     icon: ClipboardList },
-    { label: 'Plantillas correo',  path: '/configuracion/plantillas',   icon: Mail },
-    { label: 'Catálogos maestros', path: '/configuracion/catalogos',    icon: Table },
+    //{ label: 'Plantillas correo',  path: '/configuracion/plantillas',   icon: Mail },
+    //{ label: 'Catálogos maestros', path: '/configuracion/catalogos',    icon: Table },
   ],
 }
 

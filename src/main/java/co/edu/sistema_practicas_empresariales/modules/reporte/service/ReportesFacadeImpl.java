@@ -1,462 +1,381 @@
 package co.edu.sistema_practicas_empresariales.modules.reporte.service;
 
-import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
-import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.model.Encuesta;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRepository;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.model.EncuestaItemRespuesta;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.model.EncuestaRespuesta;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRespuestaRepository;
+import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
+import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.EstudianteRepository;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.repository.EvaluacionRepository;
-import co.edu.sistema_practicas_empresariales.modules.infraestructura.export.ExportadorReporte;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
-import co.edu.sistema_practicas_empresariales.modules.reporte.builder.ReporteBuilder;
-import co.edu.sistema_practicas_empresariales.modules.reporte.builder.ReporteBuilder.Reporte;
-import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
+import co.edu.sistema_practicas_empresariales.modules.reporte.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
 import co.edu.sistema_practicas_empresariales.modules.vacante.state.EstadoVacanteTipo;
-import co.edu.sistema_practicas_empresariales.modules.practica.repository.AvanceRepository;
-import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaDocumentoRepository;
-import co.edu.sistema_practicas_empresariales.modules.practica.model.PracticaDocumento;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class ReportesIndicadoresFacade {
+@Transactional(readOnly = true)
+public class ReportesFacadeImpl implements ReporteFacade {
 
-    private static final String HEADER_ESTUDIANTE = "Estudiante";
-    private static final String FILTRO_PROGRAMA = "Programa";
-    private static final String FILTRO_PERIODO = "Periodo Académico";
-    private static final String PENDIENTE_LABEL = "Pendiente";
-    private static final String PENDIENTE_ESTADO = "PENDIENTE";
+    private final EstudianteRepository    estudianteRepository;
+    private final PracticaRepository      practicaRepository;
+    private final EvaluacionRepository    evaluacionRepository;
+    private final EmpresaRepository       empresaRepository;
+    private final VacanteRepository       vacanteRepository;
+    private final EncuestaRespuestaRepository encuestaRespuestaRepository;
 
-    private final PracticaRepository practicaRepository;
-    private final EvaluacionRepository evaluacionRepository;
-    private final EncuestaRepository encuestaRepository;
-    private final EmpresaRepository empresaRepository;
-    private final VacanteRepository vacanteRepository;
-    private final ProgramaRepository programaRepository;
-    private final AvanceRepository avanceRepository;
-    private final PracticaDocumentoRepository practicaDocumentoRepository;
+    // ── 1. Estado del proceso ─────────────────────────────────────────────────
 
-    @org.springframework.beans.factory.annotation.Autowired
-    @org.springframework.beans.factory.annotation.Qualifier("excelExportAdapter")
-    private ExportadorReporte excelExportAdapter;
+    @Override
+    public List<ReporteEstadoProcesoDto> reporteEstadoProceso(
+            Long programaId, Long facultadId, String periodo, Integer numeroPractica) {
 
-    @org.springframework.beans.factory.annotation.Autowired
-    @org.springframework.beans.factory.annotation.Qualifier("pdfExportAdapter")
-    private ExportadorReporte pdfExportAdapter;
+        List<Estudiante> estudiantes = estudianteRepository.findByActivoTrue();
 
-    @Transactional(readOnly = true)
-    public byte[] generarReporteEstadoProceso(Long programaId, String periodo, String format) {
+        // Filtros
+        if (programaId != null) {
+            estudiantes = estudiantes.stream()
+                    .filter(e -> e.getPrograma().getId().equals(programaId))
+                    .toList();
+        }
+        if (facultadId != null) {
+            estudiantes = estudiantes.stream()
+                    .filter(e -> e.getPrograma().getFacultad() != null
+                            && e.getPrograma().getFacultad().getId().equals(facultadId))
+                    .toList();
+        }
+
+        // Agrupar por programa + numeroPractica
+        Map<String, List<Estudiante>> grupos = estudiantes.stream()
+                .collect(Collectors.groupingBy(e ->
+                        e.getPrograma().getId() + "_" + e.getPrograma().getNombre()
+                ));
+
+        return grupos.entrySet().stream().map(entry -> {
+            String[] parts   = entry.getKey().split("_", 2);
+            List<Estudiante> grupo = entry.getValue();
+
+            // Prácticas activas de este grupo
+            List<Practica> practicas = practicaRepository.findAll().stream()
+                    .filter(p -> p.isActivo()
+                            && grupo.stream().anyMatch(e -> e.getId().equals(p.getEstudiante().getId())))
+                    .filter(p -> numeroPractica == null || p.getNumeroPractica() == numeroPractica)
+                    .toList();
+
+            long enPractica    = count(practicas, EstadoPracticaTipo.EN_PRACTICA);
+            long completadas   = count(practicas, EstadoPracticaTipo.COMPLETADA);
+            long reprobadas    = count(practicas, EstadoPracticaTipo.REPROBADA);
+            long canceladas    = count(practicas, EstadoPracticaTipo.CANCELADA);
+            long vinculada     = count(practicas, EstadoPracticaTipo.VINCULADA);
+            long enVinculacion = count(practicas, EstadoPracticaTipo.EN_PROCESO_VINCULACION);
+            long asignada      = count(practicas, EstadoPracticaTipo.ASIGNADA_PENDIENTE_INICIO);
+
+            long aptos    = grupo.stream().filter(e ->
+                    e.getEstadoAptitud() == Estudiante.EstadoAptitud.APTO).count();
+            long noAptos  = grupo.stream().filter(e ->
+                    e.getEstadoAptitud() == Estudiante.EstadoAptitud.NO_APTO).count();
+            long sinEval  = grupo.stream().filter(e ->
+                    e.getEstadoAptitud() == Estudiante.EstadoAptitud.SIN_EVALUAR
+                            || e.getEstadoAptitud() == Estudiante.EstadoAptitud.EN_REVISION).count();
+
+            return ReporteEstadoProcesoDto.builder()
+                    .programa(parts.length > 1 ? parts[1] : parts[0])
+                    .facultad(grupo.get(0).getPrograma().getFacultad() != null
+                            ? grupo.get(0).getPrograma().getFacultad().getNombre() : '—' + "")
+                    .numeroPractica(numeroPractica)
+                    .periodo(periodo)
+                    .sinEvaluar(sinEval)
+                    .aptos(aptos)
+                    .noAptos(noAptos)
+                    .asignadaPendienteInicio(asignada)
+                    .enProcesoVinculacion(enVinculacion)
+                    .vinculada(vinculada)
+                    .enPractica(enPractica)
+                    .completadas(completadas)
+                    .reprobadas(reprobadas)
+                    .canceladas(canceladas)
+                    .totalEstudiantes(grupo.size())
+                    .build();
+        }).toList();
+    }
+
+    private long count(List<Practica> practicas, EstadoPracticaTipo estado) {
+        return practicas.stream().filter(p -> p.getEstado() == estado).count();
+    }
+
+    // ── 2. Notas ──────────────────────────────────────────────────────────────
+
+    @Override
+    public List<ReporteNotasDto> reporteNotas(
+            Long programaId, String periodo, Long docenteId, Long empresaId, String resultado) {
+
         List<Practica> practicas = practicaRepository.findAll().stream()
-                .filter(p -> p.getEstudiante() != null && p.getEstudiante().isActivo())
-                .collect(Collectors.toList());
+                .filter(Practica::isActivo)
+                .toList();
 
+        // Filtros
         if (programaId != null) {
             practicas = practicas.stream()
                     .filter(p -> p.getEstudiante().getPrograma().getId().equals(programaId))
-                    .collect(Collectors.toList());
+                    .toList();
         }
-
-        if (periodo != null) {
-            LocalDateTime[] rango = parsePeriodo(periodo);
+        if (docenteId != null) {
             practicas = practicas.stream()
-                    .filter(p -> p.getFechaCreacion().isAfter(rango[0]) && p.getFechaCreacion().isBefore(rango[1]))
-                    .collect(Collectors.toList());
+                    .filter(p -> p.getDocenteAsesor() != null
+                            && p.getDocenteAsesor().getId().equals(docenteId))
+                    .toList();
         }
-
-        ReporteBuilder builder = new ReporteBuilder("Reporte de Estado del Proceso de Prácticas");
-        builder.headers(List.of("ID Práctica", HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Número Práctica", "Estado", "Fecha Creación"));
-
-        if (programaId != null) {
-            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro(FILTRO_PROGRAMA, prog.getNombre()));
-        }
-        if (periodo != null) {
-            builder.filtro(FILTRO_PERIODO, periodo);
-        }
-
-        for (Practica p : practicas) {
-            builder.fila(Arrays.asList(
-                    p.getId(),
-                    p.getEstudiante().getUsuario().getNombre(),
-                    p.getEstudiante().getPrograma().getNombre(),
-                    p.getNumeroPractica(),
-                    p.getEstado().name(),
-                    p.getFechaCreacion().toString()
-            ));
-        }
-
-        // Totales por estado al pie
-        Map<EstadoPracticaTipo, Long> conteoEstados = practicas.stream()
-                .collect(Collectors.groupingBy(Practica::getEstado, Collectors.counting()));
-                
-        builder.total("TOTAL GENERAL: " + practicas.size());
-        for (Map.Entry<EstadoPracticaTipo, Long> entry : conteoEstados.entrySet()) {
-            builder.total(entry.getKey().name() + ": " + entry.getValue());
-        }
-
-        Reporte reporte = builder.build();
-        if ("pdf".equalsIgnoreCase(format)) {
-            return pdfExportAdapter.exportar(reporte);
-        } else {
-            return excelExportAdapter.exportar(reporte);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public byte[] generarReporteNotas(Long programaId, String periodo, String format) {
-        List<Evaluacion> evaluaciones = evaluacionRepository.findAll().stream()
-                .filter(e -> e.isActivo() && e.getPractica() != null)
-                .collect(Collectors.toList());
-
-        if (programaId != null) {
-            evaluaciones = evaluaciones.stream()
-                    .filter(e -> e.getPractica().getEstudiante().getPrograma().getId().equals(programaId))
-                    .collect(Collectors.toList());
-        }
-
-        if (periodo != null) {
-            LocalDateTime[] rango = parsePeriodo(periodo);
-            evaluaciones = evaluaciones.stream()
-                    .filter(e -> e.getCreatedAt().isAfter(rango[0]) && e.getCreatedAt().isBefore(rango[1]))
-                    .collect(Collectors.toList());
-        }
-
-        ReporteBuilder builder = new ReporteBuilder("Reporte de Calificaciones de Prácticas");
-        builder.headers(List.of(HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Número Práctica", "Nota Docente", "Nota Tutor", "Nota Final", "Resultado"));
-
-        if (programaId != null) {
-            programaRepository.findById(programaId).ifPresent(prog -> builder.filtro(FILTRO_PROGRAMA, prog.getNombre()));
-        }
-        if (periodo != null) {
-            builder.filtro(FILTRO_PERIODO, periodo);
-        }
-
-        for (Evaluacion e : evaluaciones) {
-            builder.fila(mapEvaluacionFila(e));
-        }
-
-        Reporte reporte = builder.build();
-        if ("pdf".equalsIgnoreCase(format)) {
-            return pdfExportAdapter.exportar(reporte);
-        } else {
-            return excelExportAdapter.exportar(reporte);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public byte[] generarReporteEmpresasVacantes(Long programaId, String periodo) {
-        List<Empresa> empresas = empresaRepository.findAll().stream()
-                .filter(Empresa::isActivo)
-                .collect(Collectors.toList());
-
-        ReporteBuilder builder = new ReporteBuilder("Reporte de Empresas y Vacantes");
-        builder.headers(List.of("NIT", "Razón Social", "Sector", "Vacantes Pendientes", "Vacantes Activas", "Vacantes Cerradas", "Practicantes Activos", "Practicantes Históricos", "Tasa Finalización Exitosa (%)"));
-
-        if (periodo != null) {
-            builder.filtro(FILTRO_PERIODO, periodo);
-        }
-
-        for (Empresa e : empresas) {
-            List<Vacante> vacantes = vacanteRepository.findByEmpresaId(e.getId());
-            long pendientes = vacantes.stream().filter(v -> v.getEstado() == EstadoVacanteTipo.PENDIENTE).count();
-            long activas = vacantes.stream().filter(v -> v.getEstado() == EstadoVacanteTipo.APROBADA).count();
-            long cerradas = vacantes.stream().filter(v -> v.getEstado() == EstadoVacanteTipo.CERRADA).count();
-
-            List<Practica> practicas = practicaRepository.findByEmpresaId(e.getId());
-            if (programaId != null) {
-                practicas = practicas.stream()
-                        .filter(p -> p.getEstudiante() != null
-                                && p.getEstudiante().getPrograma() != null
-                                && programaId.equals(p.getEstudiante().getPrograma().getId()))
-                        .collect(Collectors.toList());
-            }
-            long activos = practicas.stream().filter(p -> p.getEstado() != EstadoPracticaTipo.COMPLETADA && p.getEstado() != EstadoPracticaTipo.REPROBADA && p.getEstado() != EstadoPracticaTipo.CANCELADA).count();
-            long historicos = practicas.size();
-
-            // Calcular tasa finalización
-            long completadas = practicas.stream().filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA).count();
-            long totalIniciadas = practicas.stream().filter(p -> p.getEstado() != EstadoPracticaTipo.CANCELADA).count();
-            
-            BigDecimal tasa = BigDecimal.ZERO;
-            if (totalIniciadas > 0) {
-                tasa = BigDecimal.valueOf(completadas)
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(totalIniciadas), 2, RoundingMode.HALF_UP);
-            }
-
-            builder.fila(Arrays.asList(
-                    e.getNit(),
-                    e.getRazonSocial(),
-                    e.getSectorEconomico() != null ? e.getSectorEconomico() : "No especificado",
-                    pendientes,
-                    activas,
-                    cerradas,
-                    activos,
-                    historicos,
-                    tasa.doubleValue() + "%"
-            ));
-        }
-
-        return excelExportAdapter.exportar(builder.build());
-    }
-
-    @Transactional(readOnly = true)
-    public byte[] generarReporteEncuestas(Long programaId, String periodo) {
-        List<Practica> practicas = practicaRepository.findAll().stream()
-                .filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA || p.getEstado() == EstadoPracticaTipo.REPROBADA)
-                .collect(Collectors.toList());
-
-        if (programaId != null) {
+        if (empresaId != null) {
             practicas = practicas.stream()
-                    .filter(p -> p.getEstudiante().getPrograma().getId().equals(programaId))
-                    .collect(Collectors.toList());
+                    .filter(p -> empresaId.equals(p.getEmpresaId()))
+                    .toList();
         }
 
-        if (periodo != null) {
-            LocalDateTime[] rango = parsePeriodo(periodo);
-            practicas = practicas.stream()
-                    .filter(p -> p.getFechaCreacion().isAfter(rango[0]) && p.getFechaCreacion().isBefore(rango[1]))
-                    .collect(Collectors.toList());
-        }
+        return practicas.stream().map(p -> {
+                    Evaluacion eval = null;
+                    try {
+                        eval = evaluacionRepository.findByPracticaIdAndActivoTrue(p.getId()).orElse(null);
+                    } catch (Exception ignored) {}
 
-        ReporteBuilder builder = new ReporteBuilder("Reporte Consolidado de Encuestas de Satisfacción");
-        builder.headers(List.of("ID Práctica", HEADER_ESTUDIANTE, FILTRO_PROGRAMA, "Estado Encuesta Estudiante", "Comentarios Estudiante", "Estado Encuesta Tutor", "Comentarios Tutor"));
+                    String resultadoCalc = p.getResultado() != null
+                            ? p.getResultado()
+                            : (eval != null && eval.getNotaFinal() != null ? p.getResultado() : "PENDIENTE");
 
-        for (Practica p : practicas) {
-            Optional<Encuesta> estEnc = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(p.getId(), Encuesta.TipoActor.ESTUDIANTE);
-            Optional<Encuesta> tutEnc = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(p.getId(), Encuesta.TipoActor.TUTOR_EMPRESARIAL);
+                    if (resultadoCalc == null) resultadoCalc = "PENDIENTE";
 
-            String estadoEst = estEnc.map(e -> e.getEstado().name()).orElse(PENDIENTE_ESTADO);
-            String comentarioEst = estEnc.map(Encuesta::getComentarios).orElse("");
+                    // Filtro resultado
+                    if (resultado != null && !resultado.isBlank()
+                            && !resultado.equalsIgnoreCase(resultadoCalc)) {
+                        return null;
+                    }
 
-            String estadoTut = tutEnc.map(e -> e.getEstado().name()).orElse(PENDIENTE_ESTADO);
-            String comentarioTut = tutEnc.map(Encuesta::getComentarios).orElse("");
+                    // Nombre empresa
+                    String empresaNombre = "—";
+                    if (p.getEmpresaId() != null) {
+                        try {
+                            empresaNombre = empresaRepository.findById(p.getEmpresaId())
+                                    .map(e -> e.getRazonSocial()).orElse("Empresa #" + p.getEmpresaId());
+                        } catch (Exception ignored) {}
+                    }
 
-            builder.fila(Arrays.asList(
-                    p.getId(),
-                    p.getEstudiante().getUsuario().getNombre(),
-                    p.getEstudiante().getPrograma().getNombre(),
-                    estadoEst,
-                    comentarioEst,
-                    estadoTut,
-                    comentarioTut
-            ));
-        }
-
-        return excelExportAdapter.exportar(builder.build());
-    }
-
-    @Transactional(readOnly = true)
-    public Map<String, Object> obtenerDashboardGerencial(String periodo) {
-        List<Practica> practicas = practicaRepository.findAll();
-
-        if (periodo != null) {
-            LocalDateTime[] rango = parsePeriodo(periodo);
-            practicas = practicas.stream()
-                    .filter(p -> p.getFechaCreacion().isAfter(rango[0]) && p.getFechaCreacion().isBefore(rango[1]))
-                    .collect(Collectors.toList());
-        }
-
-        // Indicador 1: Total de practicantes activos (no cerradas ni canceladas)
-        List<Practica> practicasActivas = practicas.stream()
-                .filter(p -> p.getEstado() != EstadoPracticaTipo.COMPLETADA 
-                        && p.getEstado() != EstadoPracticaTipo.REPROBADA 
-                        && p.getEstado() != EstadoPracticaTipo.CANCELADA)
-                .collect(Collectors.toList());
-        long activos = practicasActivas.size();
-
-        // Indicador 2: Tasa de aprobación global
-        long completadas = practicas.stream().filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA).count();
-        long reprobadas = practicas.stream().filter(p -> p.getEstado() == EstadoPracticaTipo.REPROBADA).count();
-        long totalEvaluados = completadas + reprobadas;
-        
-        BigDecimal tasaAprobacion = BigDecimal.ZERO;
-        if (totalEvaluados > 0) {
-            tasaAprobacion = BigDecimal.valueOf(completadas)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(totalEvaluados), 2, RoundingMode.HALF_UP);
-        }
-
-        // Indicador 3: Empresas activas
-        long empresasActivas = empresaRepository.findAll().stream().filter(Empresa::isActivo).count();
-
-        // Indicador 4: Tiempo promedio de gestión (días desde creación hasta inicio de la práctica)
-        double tiempoPromedio = practicas.stream()
-                .filter(p -> p.getFechaInicio() != null)
-                .mapToLong(p -> {
-                    LocalDateTime inicio = p.getFechaInicio().atStartOfDay();
-                    return ChronoUnit.DAYS.between(p.getFechaCreacion(), inicio);
+                    return ReporteNotasDto.builder()
+                            .practicaId(p.getId())
+                            .estudianteNombre(p.getEstudiante().getUsuario().getNombre())
+                            .estudianteIdentificacion(p.getEstudiante().getIdentificacion())
+                            .programa(p.getEstudiante().getPrograma().getNombre())
+                            .numeroPractica(p.getNumeroPractica())
+                            .empresaNombre(empresaNombre)
+                            .docenteNombre(p.getDocenteAsesor() != null
+                                    ? p.getDocenteAsesor().getNombre() : "—")
+                            .notaDocente(eval != null ? eval.getNotaDocente() : null)
+                            .notaTutor(eval   != null ? eval.getNotaTutor()   : null)
+                            .notaFinal(eval   != null ? eval.getNotaFinal()   : null)
+                            .resultado(resultadoCalc)
+                            .build();
                 })
-                .average()
-                .orElse(14.5); // Fallback si no hay datos
-
-        // Nuevos Indicadores Requeridos:
-        // 1. practicasCerradas (total de prácticas completadas y reprobadas)
-        long practicasCerradas = completadas + reprobadas;
-
-        // 2. porcentajePrácticasConSeguimiento (porcentaje de prácticas activas que tienen al menos un avance registrado)
-        long activasConSeguimiento = calcularActivasConSeguimiento(practicasActivas);
-        double porcentajePracticasConSeguimiento = 0.0;
-        if (activos > 0) {
-            porcentajePracticasConSeguimiento = BigDecimal.valueOf(activasConSeguimiento)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(activos), 2, RoundingMode.HALF_UP)
-                    .doubleValue();
-        }
-
-        // 3. porcentajePrácticasConEvaluacionFinal (porcentaje de prácticas cerradas que tienen la evaluación final registrada)
-        List<Practica> practicasCerradasList = practicas.stream()
-                .filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA || p.getEstado() == EstadoPracticaTipo.REPROBADA)
-                .collect(Collectors.toList());
-        long conEvaluacionFinal = calcularConEvaluacionFinal(practicasCerradasList);
-        double porcentajePracticasConEvaluacionFinal = 0.0;
-        if (practicasCerradas > 0) {
-            porcentajePracticasConEvaluacionFinal = BigDecimal.valueOf(conEvaluacionFinal)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(practicasCerradas), 2, RoundingMode.HALF_UP)
-                    .doubleValue();
-        }
-
-        // 4. documentosPendientes (cantidad de documentos en estado "PENDIENTE" en el repositorio)
-        long documentosPendientes = calcularDocumentosPendientes(practicas);
-
-        // 5. porcentajeDocumentacionCompleta (porcentaje promedio de documentación cargada sobre el total requerido)
-        double porcentajeDocumentacionCompleta = calcularPorcentajeDocumentacionCompleta(practicas);
-
-        Map<String, Object> metrics = new HashMap<>();
-        metrics.put("practicantesActivos", activos);
-        metrics.put("tasaAprobacion", tasaAprobacion.doubleValue());
-        metrics.put("empresasActivas", empresasActivas);
-        metrics.put("tiempoPromedioPlacementDias", Math.round(tiempoPromedio * 10.0) / 10.0);
-        metrics.put("tiempoPromedioRespuesta", Math.round(tiempoPromedio * 10.0) / 10.0);
-        metrics.put("periodo", periodo);
-
-        // Agregamos con y sin acentos para mayor compatibilidad con llamadas frontend o pruebas
-        metrics.put("practicasCerradas", practicasCerradas);
-        metrics.put("porcentajePracticasConSeguimiento", porcentajePracticasConSeguimiento);
-        metrics.put("porcentajePrácticasConSeguimiento", porcentajePracticasConSeguimiento);
-        metrics.put("porcentajePracticasConEvaluacionFinal", porcentajePracticasConEvaluacionFinal);
-        metrics.put("porcentajePrácticasConEvaluacionFinal", porcentajePracticasConEvaluacionFinal);
-        metrics.put("documentosPendientes", documentosPendientes);
-        metrics.put("porcentajeDocumentacionCompleta", porcentajeDocumentacionCompleta);
-
-        // Agrupación por Facultad para gráficos
-        Map<String, Long> porFacultad = practicas.stream()
-                .filter(p -> p.getEstudiante() != null)
-                .collect(Collectors.groupingBy(p -> p.getEstudiante().getPrograma().getFacultad().getNombre(), Collectors.counting()));
-        metrics.put("distribucionPorFacultad", porFacultad);
-
-        return metrics;
+                .filter(Objects::nonNull)
+                .toList();
     }
 
-    private long calcularActivasConSeguimiento(List<Practica> practicasActivas) {
-        long count = 0;
-        for (Practica p : practicasActivas) {
-            if (!avanceRepository.findByPracticaIdOrderByCreatedAtDesc(p.getId()).isEmpty()) {
-                count++;
+    // ── 3. Empresas y vacantes ────────────────────────────────────────────────
+
+    @Override
+    public List<ReporteEmpresaVacanteDto> reporteEmpresasVacantes(
+            String sector, Long programaId, String periodo) {
+
+        return empresaRepository.findAll().stream()
+                .filter(e -> e.isActivo())
+                .filter(e -> sector == null || sector.isBlank()
+                        || sector.equalsIgnoreCase(e.getSectorEconomico()))
+                .map(empresa -> {
+                    // Vacantes
+                    var vacantes = vacanteRepository.findByEmpresaId(empresa.getId());
+                    long vPendientes = vacantes.stream()
+                            .filter(v -> v.getEstado() == EstadoVacanteTipo.PENDIENTE).count();
+                    long vActivas = vacantes.stream()
+                            .filter(v -> v.getEstado() == EstadoVacanteTipo.APROBADA).count();
+                    long vCerradas = vacantes.stream()
+                            .filter(v -> v.getEstado() == EstadoVacanteTipo.CERRADA).count();
+
+                    // Prácticas
+                    var practicas = practicaRepository.findByEmpresaIdAndActivoTrue(empresa.getId());
+                    long historicos   = practicas.size();
+                    long activos      = practicas.stream()
+                            .filter(p -> p.getEstado() == EstadoPracticaTipo.EN_PRACTICA).count();
+                    long completados  = practicas.stream()
+                            .filter(p -> p.getEstado() == EstadoPracticaTipo.COMPLETADA).count();
+                    long reprobados   = practicas.stream()
+                            .filter(p -> p.getEstado() == EstadoPracticaTipo.REPROBADA).count();
+
+                    double tasa = historicos > 0
+                            ? (double) completados / historicos * 100.0 : 0.0;
+
+                    return ReporteEmpresaVacanteDto.builder()
+                            .empresaId(empresa.getId())
+                            .razonSocial(empresa.getRazonSocial())
+                            .nit(empresa.getNit())
+                            .sector(empresa.getSectorEconomico())
+                            .municipio(empresa.getMunicipio())
+                            .vacantesPendientes(vPendientes)
+                            .vacantesActivas(vActivas)
+                            .vacantesCerradas(vCerradas)
+                            .totalVacantes(vacantes.size())
+                            .practicantesHistoricos(historicos)
+                            .practicantesActivos(activos)
+                            .practicantesCompletados(completados)
+                            .practicantesReprobados(reprobados)
+                            .tasaFinalizacionExitosa(Math.round(tasa * 10.0) / 10.0)
+                            .build();
+                })
+                .toList();
+    }
+
+    // ── 4. Encuestas ──────────────────────────────────────────────────────────
+
+    @Override
+    public ReporteEncuestasDto reporteEncuestas(Long programaId, String periodo, String tipo) {
+
+        List<EncuestaRespuesta> respuestas = encuestaRespuestaRepository.findAll();
+
+        // Filtro tipo
+        if (tipo != null && !tipo.isBlank()) {
+            respuestas = respuestas.stream()
+                    .filter(r -> tipo.equalsIgnoreCase(r.getTipo().name()))
+                    .toList();
+        }
+
+        // Filtro programa — a través de la práctica
+        if (programaId != null) {
+            final Long pid = programaId;
+            respuestas = respuestas.stream()
+                    .filter(r -> {
+                        try {
+                            return practicaRepository.findById(r.getPracticaId())
+                                    .map(p -> p.getEstudiante().getPrograma().getId().equals(pid))
+                                    .orElse(false);
+                        } catch (Exception e) { return false; }
+                    })
+                    .toList();
+        }
+
+        int totalRespuestas = respuestas.size();
+        long totalPracticas = practicaRepository.count();
+        double tasaRespuesta = totalPracticas > 0
+                ? (double) totalRespuestas / totalPracticas * 100.0 : 0.0;
+
+        // Promedios por pregunta
+        Map<Long, List<Integer>> porPregunta = new LinkedHashMap<>();
+        Map<Long, String>        textoPregunta = new LinkedHashMap<>();
+
+        for (EncuestaRespuesta r : respuestas) {
+            for (EncuestaItemRespuesta item : r.getItems()) {
+                if (item.getValorEscala() != null) {
+                    Long pid2 = item.getPregunta().getId();
+                    porPregunta.computeIfAbsent(pid2, k -> new ArrayList<>())
+                            .add(item.getValorEscala());
+                    textoPregunta.putIfAbsent(pid2, item.getPregunta().getTexto());
+                }
             }
         }
-        return count;
-    }
 
-    private long calcularConEvaluacionFinal(List<Practica> practicasCerradas) {
-        long count = 0;
-        for (Practica p : practicasCerradas) {
-            Optional<Evaluacion> eval = evaluacionRepository.findByPracticaIdAndActivoTrue(p.getId());
-            if (eval.isPresent() && eval.get().getNotaFinal() != null) {
-                count++;
-            }
-        }
-        return count;
-    }
+        List<ReporteEncuestasDto.PromedioPreguntaDto> promediosPregunta = porPregunta.entrySet()
+                .stream().map(e -> ReporteEncuestasDto.PromedioPreguntaDto.builder()
+                        .preguntaId(e.getKey())
+                        .textoPregunta(textoPregunta.get(e.getKey()))
+                        .promedio(e.getValue().stream().mapToInt(i -> i).average().orElse(0.0))
+                        .totalRespuestas(e.getValue().size())
+                        .build())
+                .toList();
 
-    private long calcularDocumentosPendientes(List<Practica> practicas) {
-        long count = 0;
-        for (Practica p : practicas) {
-            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
-            count += docs.stream()
-                    .filter(d -> PENDIENTE_ESTADO.equalsIgnoreCase(d.getEstado()))
-                    .count();
-        }
-        return count;
-    }
+        // Promedios por empresa — agrupando a través de practica → empresa
+        Map<Long, List<Double>> porEmpresa      = new LinkedHashMap<>();
+        Map<Long, String>       nombreEmpresa   = new LinkedHashMap<>();
 
-    private double calcularPorcentajeDocumentacionCompleta(List<Practica> practicas) {
-        double sumaPorcentajes = 0.0;
-        List<String> obligatorios = List.of("ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION", "DOCUMENTO_FINAL");
-        for (Practica p : practicas) {
-            List<PracticaDocumento> docs = practicaDocumentoRepository.findByPracticaId(p.getId());
-            long uploadedUniqueCategories = docs.stream()
-                    .map(d -> d.getCategoria().toUpperCase())
-                    .filter(obligatorios::contains)
-                    .distinct()
-                    .count();
-            sumaPorcentajes += (uploadedUniqueCategories * 100.0) / 5.0;
-        }
-        if (practicas.isEmpty()) {
-            return 0.0;
-        }
-        return BigDecimal.valueOf(sumaPorcentajes)
-                .divide(BigDecimal.valueOf(practicas.size()), 2, RoundingMode.HALF_UP)
-                .doubleValue();
-    }
+        for (EncuestaRespuesta r : respuestas) {
+            try {
+                Practica practica = practicaRepository.findById(r.getPracticaId()).orElse(null);
+                if (practica == null || practica.getEmpresaId() == null) continue;
 
-    private List<Object> mapEvaluacionFila(Evaluacion e) {
-        return List.of(
-                e.getPractica().getEstudiante().getUsuario().getNombre(),
-                e.getPractica().getEstudiante().getPrograma().getNombre(),
-                e.getPractica().getNumeroPractica(),
-                e.getNotaDocente() != null ? e.getNotaDocente() : PENDIENTE_LABEL,
-                e.getNotaTutor() != null ? e.getNotaTutor() : PENDIENTE_LABEL,
-                e.getNotaFinal() != null ? e.getNotaFinal() : PENDIENTE_LABEL,
-                e.getPractica().getResultado() != null ? e.getPractica().getResultado() : "En Proceso"
-        );
-    }
+                Long empId = practica.getEmpresaId();
+                double prom = r.getItems().stream()
+                        .filter(i -> i.getValorEscala() != null)
+                        .mapToInt(EncuestaItemRespuesta::getValorEscala)
+                        .average().orElse(0.0);
 
-    private LocalDateTime[] parsePeriodo(String periodo) {
-        // Formato esperado: "YYYY-1" o "YYYY-2"
-        if (periodo == null) {
-            throw new IllegalArgumentException("El periodo no puede ser null");
+                porEmpresa.computeIfAbsent(empId, k -> new ArrayList<>()).add(prom);
+
+                if (!nombreEmpresa.containsKey(empId)) {
+                    empresaRepository.findById(empId).ifPresent(em ->
+                            nombreEmpresa.put(empId, em.getRazonSocial()));
+                }
+            } catch (Exception ignored) {}
         }
 
-        String[] parts = periodo.split("-");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Periodo inválido. Formato esperado: YYYY-1 o YYYY-2");
+        List<ReporteEncuestasDto.PromedioEmpresaDto> promediosEmpresa = porEmpresa.entrySet()
+                .stream().map(e -> {
+                    int total = e.getValue().size();
+                    double avg = e.getValue().stream().mapToDouble(d -> d).average().orElse(0.0);
+                    return ReporteEncuestasDto.PromedioEmpresaDto.builder()
+                            .empresaId(e.getKey())
+                            .empresaNombre(nombreEmpresa.getOrDefault(e.getKey(), "Empresa #" + e.getKey()))
+                            .promedioGeneral(Math.round(avg * 10.0) / 10.0)
+                            .totalRespuestas(total)
+                            .suficientesRespuestas(total >= 5) // confidencialidad
+                            .build();
+                })
+                .toList();
+
+        // Promedios por programa
+        Map<Long, List<Double>> porPrograma    = new LinkedHashMap<>();
+        Map<Long, String>       nombrePrograma = new LinkedHashMap<>();
+
+        for (EncuestaRespuesta r : respuestas) {
+            try {
+                Practica practica = practicaRepository.findById(r.getPracticaId()).orElse(null);
+                if (practica == null) continue;
+
+                Long progId = practica.getEstudiante().getPrograma().getId();
+                double prom = r.getItems().stream()
+                        .filter(i -> i.getValorEscala() != null)
+                        .mapToInt(EncuestaItemRespuesta::getValorEscala)
+                        .average().orElse(0.0);
+
+                porPrograma.computeIfAbsent(progId, k -> new ArrayList<>()).add(prom);
+                nombrePrograma.putIfAbsent(progId,
+                        practica.getEstudiante().getPrograma().getNombre());
+            } catch (Exception ignored) {}
         }
 
-        final int year;
-        final int semester;
-        try {
-            year = Integer.parseInt(parts[0]);
-            semester = Integer.parseInt(parts[1]);
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Periodo inválido. Formato esperado: YYYY-1 o YYYY-2", ex);
-        }
+        List<ReporteEncuestasDto.PromedioPrograma> promediosPrograma = porPrograma.entrySet()
+                .stream().map(e -> {
+                    double avg = e.getValue().stream().mapToDouble(d -> d).average().orElse(0.0);
+                    return ReporteEncuestasDto.PromedioPrograma.builder()
+                            .programaId(e.getKey())
+                            .programaNombre(nombrePrograma.getOrDefault(e.getKey(), "—"))
+                            .promedioGeneral(Math.round(avg * 10.0) / 10.0)
+                            .totalRespuestas(e.getValue().size())
+                            .build();
+                })
+                .toList();
 
-        if (semester != 1 && semester != 2) {
-            throw new IllegalArgumentException("Periodo inválido. El semestre debe ser 1 o 2");
-        }
-
-        LocalDateTime start;
-        LocalDateTime end;
-        if (semester == 1) {
-            start = LocalDateTime.of(year, 1, 1, 0, 0);
-            end = LocalDateTime.of(year, 6, 30, 23, 59, 59);
-        } else {
-            start = LocalDateTime.of(year, 7, 1, 0, 0);
-            end = LocalDateTime.of(year, 12, 31, 23, 59, 59);
-        }
-        return new LocalDateTime[]{start, end};
+        return ReporteEncuestasDto.builder()
+                .totalRespuestas(totalRespuestas)
+                .totalPracticas((int) totalPracticas)
+                .tasaRespuesta(Math.round(tasaRespuesta * 10.0) / 10.0)
+                .promediosPorPregunta(promediosPregunta)
+                .promediosPorEmpresa(promediosEmpresa)
+                .promediosPorPrograma(promediosPrograma)
+                .build();
     }
 }

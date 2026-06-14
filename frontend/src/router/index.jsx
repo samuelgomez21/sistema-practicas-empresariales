@@ -97,6 +97,9 @@ import PracticasActivasPage from '@/features/coordinacion-empresarial/pages/Prac
 
 import DocumentosEmpresasPage from '@/features/coordinacion-empresarial/pages/DocumentosEmpresasPage'
 
+import ReportesPage from '@/features/coordinacion-empresarial/pages/ReportesPage'
+
+
 
 
 // Redirige al dashboard del rol activo
@@ -403,6 +406,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
             <EncuestasCoordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/reportes',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <ReportesPage />
           </ProtectedRoute>
         ),
       },

@@ -30,8 +30,8 @@ function normalizarPractica(p) {
       correo: p.emailDocenteAsesor ?? p.correoDocente ?? '—',
       id:     p.docenteAsesorId    ?? null,
     } : null),
-    tutor: p.tutor ?? (p.nombreTutorEmpresarial ? {
-      nombre:   p.nombreTutorEmpresarial,
+    tutor: p.tutorId ?? (p.nombreTutor ? {
+      nombre:   p.nombreTutor,
       cargo:    p.cargoTutor    ?? '—',
       telefono: p.telefonoTutor ?? '—',
       correo:   p.correoTutor   ?? '—',
@@ -76,20 +76,26 @@ export const estudianteApi = {
   // ── Avances ────────────────────────────────────────────────────────────────
   getAvances: async () => {
     try {
-      // El backend expone avances por práctica; necesitamos el id primero
-      const practicaRes = await api.get('/estudiantes/mi-practica-activa')
-      if (!practicaRes.data?.id) return []
-      const { data } = await api.get(`/practicas/${practicaRes.data.id}/avances`)
-      return (data ?? []).map(a => ({
+      // 1. Obtener práctica activa para sacar el ID
+      const { data: practicaRaw } = await api.get('/estudiantes/mi-practica-activa')
+      if (!practicaRaw?.id) return []
+
+      // 2. Obtener avances de esa práctica
+      const { data: resp } = await api.get(`/practicas/${practicaRaw.id}/avances`)
+
+      // 3. El backend devuelve ApiResponse: { success, message, data: [...] }
+      const lista = resp?.data ?? resp ?? []
+
+      return lista.map(a => ({
         id:                a.id,
-        practicaId:        a.practicaId,
-        corteNumero:       a.corteNumero ?? a.numeroCorte ?? 1,
         titulo:            a.titulo,
+        fechaCarga: a.createdAt,
         descripcion:       a.descripcion,
-        archivoUrl:        a.archivoUrl,
-        fechaEntrega:      a.fechaEntrega ?? a.fechaCreacion?.split('T')[0],
-        comentarioDocente: a.comentarioDocente ?? a.comentario,
         estado:            a.estado,
+        archivoUrl:        a.archivoUrl     ?? a.urlArchivo ?? null,
+        fechaEntrega:      a.fechaCreacion  ?? a.fechaEntrega ?? null,
+        corteNumero:       a.corteNumero    ?? a.corte?.numero ?? 1,
+        comentarioDocente: a.comentarioDocente ?? null,
       }))
     } catch {
       return []

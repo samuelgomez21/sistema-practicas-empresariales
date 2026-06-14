@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class CrearAvanceRequest {
 
-    @NotNull(message = "El corte es obligatorio")
     private Long corteId;
 
     @NotBlank(message = "El título es obligatorio")

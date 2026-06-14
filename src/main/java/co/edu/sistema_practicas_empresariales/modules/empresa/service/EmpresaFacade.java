@@ -21,4 +21,6 @@ public interface EmpresaFacade {
     java.util.List<TutorEmpresarialResponse> listarTodosLosTutores();
     List<EmpresaDocumentoResponse> listarDocumentos(Long empresaId);
     EmpresaDocumentoResponse guardarDocumento(Long empresaId, EmpresaDocumentoRequest request);
+    List<EmpresaDocumentoResponse> listarTodosLosDocumentos();
+
 }

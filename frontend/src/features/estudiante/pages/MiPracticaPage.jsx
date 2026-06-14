@@ -133,6 +133,7 @@ export default function EstudianteDashboardPage() {
         {[
           { label: 'Empresa',       value: practica.empresa?.razonSocial ?? '—', color: '#023859' },
           { label: 'Docente asesor', value: practica.docente?.nombre ?? '—',     color: '#023859' },
+          { label: 'Tutor empresarial', value: practica.tutor?.nombre ?? '—', color: '#023859' },
           { label: 'Corte actual',   value: `${obtenerCorteActual(practica, avances)} / ${practica.cortes.length}`, color: '#0B416B' },
         ].map(c => (
           <div key={c.label} className="bg-white rounded-xl p-4"

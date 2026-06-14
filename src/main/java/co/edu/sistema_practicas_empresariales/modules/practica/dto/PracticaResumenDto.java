@@ -22,6 +22,8 @@ public class PracticaResumenDto {
     private String nombreEstudiante;
     private Long estudianteId;
     private String nombreEmpresa;
+    private Long tutorId;
+    private String nombreTutor;
     private Long empresaId;
     private String nombreDocente;
     private Long docenteId;

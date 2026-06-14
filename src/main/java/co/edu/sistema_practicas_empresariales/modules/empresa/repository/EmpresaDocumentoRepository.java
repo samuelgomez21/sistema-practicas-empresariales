@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface EmpresaDocumentoRepository extends JpaRepository<EmpresaDocumento, Long> {
     List<EmpresaDocumento> findByEmpresaIdAndActivoTrue(Long empresaId);
     Optional<EmpresaDocumento> findByEmpresaIdAndTipoAndActivoTrue(Long empresaId, String tipo);
+    List<EmpresaDocumento> findAllByActivoTrueOrderByFechaCargaDesc();
+
 }

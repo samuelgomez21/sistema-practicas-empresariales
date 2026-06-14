@@ -69,12 +69,21 @@ export const empresasApi = {
 
   // Agregar a empresasApi:
 
+  getTodosLosDocumentos: async () => {
+    try {
+      const { data } = await api.get('/empresas/documentos')
+      return data ?? []
+    } catch {
+      return []
+    }
+  },
+
   getDocumentosEmpresa: async (empresaId) => {
     const { data } = await api.get(`/empresas/${empresaId}/documentos`)
     return data
     // [{ id, tipo, url, nombreArchivo, fechaVigencia, fechaCarga }]
   },
-
+  
   subirDocumentoEmpresa: async (empresaId, tipo, archivo, fechaVigencia = null) => {
     // 1. Subir a Cloudinary
     const { subirArchivo } = await import('@/lib/cloudinary')

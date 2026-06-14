@@ -511,6 +511,12 @@ public class PracticaFacadeImpl implements PracticaFacade {
                         .empresaId(p.getEmpresaId())
                         .nombreDocente(p.getDocenteAsesor() != null
                                 ? p.getDocenteAsesor().getNombre() : null)
+                        .tutorId(p.getTutorEmpresarialId())
+                        .nombreTutor(p.getTutorEmpresarialId() != null
+                                ? usuarioRepository.findById(p.getTutorEmpresarialId())
+                                .map(Usuario::getNombre)
+                                .orElse(null)
+                                : null)
                         .fechaInicio(p.getFechaInicio())
                         .fechaFin(p.getFechaFin())
                         .build()

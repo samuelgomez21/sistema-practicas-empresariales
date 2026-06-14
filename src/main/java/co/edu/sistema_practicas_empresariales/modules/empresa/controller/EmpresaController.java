@@ -173,4 +173,13 @@ public class EmpresaController {
             @RequestBody EmpresaDocumentoRequest request) {
         return ResponseEntity.ok(empresaFacade.guardarDocumento(empresaId, request));
     }
+
+    /**
+     * Lista todos los documentos de todas las empresas — para coordinador.
+     */
+    @GetMapping("/documentos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<List<EmpresaDocumentoResponse>> listarTodosLosDocumentos() {
+        return ResponseEntity.ok(empresaFacade.listarTodosLosDocumentos());
+    }
 }

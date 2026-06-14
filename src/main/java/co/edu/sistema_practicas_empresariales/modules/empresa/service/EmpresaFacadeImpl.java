@@ -280,6 +280,13 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .map(this::mapToDocResponse)
                 .collect(java.util.stream.Collectors.toList());
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmpresaDocumentoResponse> listarTodosLosDocumentos() {
+        return documentoRepository.findAllByActivoTrueOrderByFechaCargaDesc().stream()
+                .map(this::mapToDocResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
 
     @Override
     @Transactional

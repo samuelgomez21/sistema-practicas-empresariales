@@ -44,7 +44,9 @@ export default function MisEstudiantesTutorPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {estudiantes.map(e => {
-            const cfg = ESTADO_PRACTICA_LABEL_TUTOR[e.estado] ?? ESTADO_PRACTICA_LABEL_TUTOR.EN_PRACTICA
+            const cfg = ESTADO_PRACTICA_LABEL_TUTOR[e.estado]
+              ?? ESTADO_PRACTICA_LABEL_TUTOR.EN_PRACTICA
+
             return (
               <button key={e.id}
                 onClick={() => navigate(`/tutor/estudiantes/${e.id}`)}
@@ -54,32 +56,41 @@ export default function MisEstudiantesTutorPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0"
                     style={{ background: '#fde6ea', color: '#D91438' }}>
-                    {e.nombre[0]}
+                    {e.nombre?.[0] ?? '?'}
                   </div>
                   <div>
-                    <p className="text-sm font-bold" style={{ color: '#023859' }}>{e.nombre}</p>
+                    <p className="text-sm font-bold" style={{ color: '#023859' }}>
+                      {e.nombre}
+                    </p>
                     <p className="text-[10px]" style={{ color: '#8a9bb0' }}>
                       {e.programa} · Sem. {e.semestre} · Práctica #{e.numeroPractica}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="flex items-center gap-1 text-[10px]" style={{ color: '#8a9bb0' }}>
-                        <Calendar size={10} />
-                        {new Date(e.fechaInicio).toLocaleDateString('es-CO')} - {new Date(e.fechaFinEstimada).toLocaleDateString('es-CO')}
-                      </span>
-                      <span className="flex items-center gap-1 text-[10px]" style={{ color: '#8a9bb0' }}>
-                        <User size={10} /> {e.docenteNombre}
-                      </span>
+                      {e.fechaInicio && (
+                        <span className="flex items-center gap-1 text-[10px]"
+                          style={{ color: '#8a9bb0' }}>
+                          <Calendar size={10} />
+                          {new Date(e.fechaInicio).toLocaleDateString('es-CO')}
+                          {e.fechaFinEstimada && ` → ${new Date(e.fechaFinEstimada).toLocaleDateString('es-CO')}`}
+                        </span>
+                      )}
+                      {e.docenteNombre && e.docenteNombre !== '—' && (
+                        <span className="flex items-center gap-1 text-[10px]"
+                          style={{ color: '#8a9bb0' }}>
+                          <User size={10} /> {e.docenteNombre}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {e.notaTutor == null && (
-                        <span className="text-[9px] font-bold px-2 py-1 rounded-full"
-                            style={{ background: '#fde6ea', color: '#D91438' }}>
-                            Nota pendiente
-                        </span>
-                    )}
+                  {e.notaTutor == null && (
+                    <span className="text-[9px] font-bold px-2 py-1 rounded-full"
+                      style={{ background: '#fde6ea', color: '#D91438' }}>
+                      Nota pendiente
+                    </span>
+                  )}
                   {!e.encuestaCompletada && (
                     <span className="text-[9px] font-bold px-2 py-1 rounded-full"
                       style={{ background: '#fff8e6', color: '#a07010' }}>

@@ -32,13 +32,43 @@ export const coordEmpresarialApi = {
 
   // ── Seguimiento — compuesto desde el nuevo endpoint ─────────────
   getEstudiantesSeguimiento: async () => {
-    const res = await api.get('/coordinacion-empresarial/seguimiento')
-    return (res.data ?? []).map(e => ({
-      ...mapEstudiante(e),
-      postulaciones:      (e.postulaciones ?? []).map(mapPostulacion),
-      historialPracticas: (e.historialPracticas ?? []).map(mapPractica),
-      checklist:          e.checklist ?? [],
-    }))
+    try {
+      // Obtener prácticas activas
+      const { data } = await api.get('/coordinacion-empresarial/practicas-activas')
+      const lista = data ?? []
+
+      // Para cada práctica, obtener su checklist
+      const resultados = await Promise.all(
+        lista.map(async item => {
+          const p   = item.practica ?? item
+          const est = item.estudiante ?? {}
+
+          let checklist = []
+          try {
+            const { data: ck } = await api.get(`/practicas/${p.id}/checklist`)
+            checklist = (ck ?? []).map(c => ({
+              clave:      c.clave,
+              label:      c.label,
+              completado: c.completado,
+            }))
+          } catch { /* sin checklist */ }
+
+          return {
+            id:           p.estudianteId ?? est.id,
+            nombre:       p.nombreEstudiante ?? est.nombre ?? '—',
+            programa:     p.programa         ?? est.programa ?? '—',
+            empresaNombre: p.empresaNombre   ?? '—',
+            estado:       p.estado,
+            categoria:    p.estado,  // mismo valor, usado para filtrar EN_PRACTICA
+            practicaId:   p.id,
+            checklist,
+          }
+        })
+      )
+      return resultados
+    } catch {
+      return []
+    }
   },
 
   getEstudianteHistorial: async (id) => {

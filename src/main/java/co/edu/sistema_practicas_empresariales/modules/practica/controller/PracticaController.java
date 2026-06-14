@@ -164,6 +164,22 @@ public class PracticaController {
                 practicaFacade.subirDocumento(id, categoria, archivo, userDetails.getUsername()));
     }
 
+    @GetMapping("/{id}/documentos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','ESTUDIANTE')")
+    public ResponseEntity<List<co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaDocumentoDto>> listarDocumentos(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(practicaFacade.listarDocumentos(id));
+    }
+
+    @PatchMapping("/{practicaId}/documentos/{documentoId}/aprobar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR')")
+    public ResponseEntity<Void> aprobarDocumento(
+            @PathVariable Long practicaId,
+            @PathVariable Long documentoId) {
+        practicaFacade.aprobarDocumento(practicaId, documentoId);
+        return ResponseEntity.noContent().build();
+    }
+
     // ── Nota final ──────────────────────────────────────────────────
 
     @PatchMapping("/{id}/nota-final")

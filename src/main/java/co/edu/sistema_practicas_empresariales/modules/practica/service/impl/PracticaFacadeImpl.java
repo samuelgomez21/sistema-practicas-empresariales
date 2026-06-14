@@ -287,6 +287,36 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practicaRepository.save(p));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PracticaDocumentoDto> listarDocumentos(Long practicaId) {
+        return documentoRepository.findByPracticaId(practicaId).stream()
+                .map(d -> PracticaDocumentoDto.builder()
+                        .id(d.getId())
+                        .nombre(d.getNombre())
+                        .url(d.getUrl())
+                        .categoria(d.getCategoria())
+                        .fechaCarga(d.getFechaCarga())
+                        .cargadoPorEmail(d.getCargadoPorEmail())
+                        .estado(d.getEstado())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void aprobarDocumento(Long practicaId, Long documentoId) {
+        PracticaDocumento doc = documentoRepository.findById(documentoId)
+                .orElseThrow(() -> new IllegalArgumentException("Documento no encontrado"));
+        if (!doc.getPractica().getId().equals(practicaId)) {
+            throw new IllegalArgumentException("El documento no pertenece a esta práctica");
+        }
+        doc.setEstado("APROBADO");
+        documentoRepository.save(doc);
+        // Verificar si todos los documentos requeridos están aprobados
+        verificarYActualizarDocumentos(doc.getPractica());
+    }
+
     // NOTA FINAL
     @Override
     @Transactional

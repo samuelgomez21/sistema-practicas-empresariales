@@ -348,6 +348,20 @@ public class EncuestaServiceImpl implements EncuestaService {
         plantillaRepository.save(pregunta.getSeccion().getPlantilla());
     }
 
+    @Transactional(readOnly = true)
+    public List<EncuestaRespuestaDto> listarTodasLasRespuestas() {
+        return respuestaRepository.findAll().stream()
+                .map(this::toRespuestaDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EncuestaRespuestaDto> listarRespuestasPorTipo(TipoEncuesta tipo) {
+        return respuestaRepository.findByTipo(tipo).stream()
+                .map(this::toRespuestaDto)
+                .toList();
+    }
+
 // ── Helpers privados ───────────────────────────────────────────
 
     private EncuestaSeccion obtenerSeccionById(Long seccionId) {

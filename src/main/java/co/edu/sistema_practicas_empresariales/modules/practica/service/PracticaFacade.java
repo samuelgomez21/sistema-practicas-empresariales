@@ -52,4 +52,6 @@ public interface PracticaFacade {
     
     // Borrado logico
     void eliminarPractica(Long practicaId);
+    List<PracticaResumenDto> listarPorEmpresa(Long empresaId);
+
 }

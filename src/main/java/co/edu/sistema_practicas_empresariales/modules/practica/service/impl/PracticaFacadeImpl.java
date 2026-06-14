@@ -1,6 +1,8 @@
 package co.edu.sistema_practicas_empresariales.modules.practica.service.impl;
 
 import co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable;
+import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
+import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
 import co.edu.sistema_practicas_empresariales.modules.infraestructura.storage.ArchivoStorageService;
 import co.edu.sistema_practicas_empresariales.modules.practica.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.*;
@@ -51,6 +53,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
     private final UsuarioRepository          usuarioRepository;
     private final HistorialCargaDocenteRepository historialCargaDocenteRepository;
     private final ArchivoStorageService      storageService;
+    private final EmpresaRepository empresaRepository;
     private final co.edu.sistema_practicas_empresariales.modules.practica.builder.ContratoBuilder contratoBuilder;
     private final co.edu.sistema_practicas_empresariales.modules.infraestructura.export.GeneradorDocumentoPlantilla generadorDocumentoPlantilla;
 
@@ -94,10 +97,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(p);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // CREACIÃ“N AUTOMÃTICA
     // PatrÃ³n estrategia
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Crea la instancia de prÃ¡ctica automÃ¡ticamente cuando el coordinador
@@ -236,10 +237,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practicaRepository.save(p));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // DOCUMENTOS â€” Firebase Storage
     // PatrÃ³n Adapter
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Sube un documento a Firebase Storage y lo registra en BD.
@@ -280,7 +279,6 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practicaRepository.save(p));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // NOTA FINAL
     @Override
     @Transactional
@@ -290,7 +288,7 @@ public class PracticaFacadeImpl implements PracticaFacade {
         practica.setActivo(false); // Soft delete
         practicaRepository.save(practica);
     }
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    //
 
     /**
      * Registra la nota final y determina el resultado.
@@ -309,10 +307,10 @@ public class PracticaFacadeImpl implements PracticaFacade {
         return toDetalle(practicaRepository.save(p));
     }
 
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    //
     // CHECKLIST PAZ Y SALVO
     // Patr├│n Chain of Responsibility
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    //
 
     @Transactional(readOnly = true)
     public List<ChecklistDto> obtenerChecklist(Long practicaId) {
@@ -338,9 +336,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
         actualizarChecklist(practicaId, CK_ENCUESTA_TUTOR);
     }
 
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    //
     // PRIVADOS
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
 
 
@@ -400,9 +397,8 @@ public class PracticaFacadeImpl implements PracticaFacade {
                 .orElseThrow(() -> new RuntimeException("Pr├íctica no encontrada: " + id));
     }
 
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     // MAPPERS
-    // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    //
 
     private PracticaResumenDto toResumen(Practica p) {
         return PracticaResumenDto.builder()
@@ -448,6 +444,11 @@ public class PracticaFacadeImpl implements PracticaFacade {
                 .estudianteId(p.getEstudiante().getId())
                 .nombreEstudiante(p.getEstudiante().getUsuario().getNombre())
                 .empresaId(p.getEmpresaId())
+                .empresaNombre(p.getEmpresaId() != null
+                        ? empresaRepository.findById(p.getEmpresaId())
+                        .map(Empresa::getRazonSocial)
+                        .orElse(null)
+                        : null)
                 .docenteId(p.getDocenteAsesor() != null ? p.getDocenteAsesor().getId() : null)
                 .nombreDocente(p.getDocenteAsesor() != null ? p.getDocenteAsesor().getNombre() : null)
                 .tutorId(p.getTutorEmpresarialId())
@@ -491,5 +492,29 @@ public class PracticaFacadeImpl implements PracticaFacade {
         java.util.Map<String, Object> variables = contratoBuilder.construirVariablesContrato(practica);
         // Cuando exista la plantilla, pasar la ruta real. Por ahora pasamos un placeholder.
         return generadorDocumentoPlantilla.generarDesdePlantilla("plantilla_contrato_placeholder.pdf", variables);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PracticaResumenDto> listarPorEmpresa(Long empresaId) {
+        return practicaRepository.findByEmpresaIdAndActivoTrue(empresaId).stream()
+                .map(p -> PracticaResumenDto.builder()
+                        .id(p.getId())
+                        .numeroPractica(p.getNumeroPractica())
+                        .nombrePractica(p.getNombre())
+                        .estado(p.getEstado())
+                        .estudianteId(p.getEstudiante().getId())
+                        .nombreEstudiante(p.getEstudiante().getUsuario().getNombre())
+                        .emailEstudiante(p.getEstudiante().getUsuario().getEmail())
+                        .semestre(p.getEstudiante().getSemestre())
+                        .programa(p.getEstudiante().getPrograma().getNombre())
+                        .empresaId(p.getEmpresaId())
+                        .nombreDocente(p.getDocenteAsesor() != null
+                                ? p.getDocenteAsesor().getNombre() : null)
+                        .fechaInicio(p.getFechaInicio())
+                        .fechaFin(p.getFechaFin())
+                        .build()
+                )
+                .toList();
     }
 }

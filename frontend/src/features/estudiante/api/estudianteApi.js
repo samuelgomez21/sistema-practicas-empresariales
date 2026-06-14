@@ -9,47 +9,38 @@ function normalizarPractica(p) {
   if (!p) return null
   return {
     ...p,
-    // Identificadores usados en las pages
-    id:             p.id,
     nombrePractica: p.nombre,
-    materiaNucleo:  p.materiaNucleo,
-    descripcion:    p.descripcion ?? '',
     programa:       p.nombrePrograma ?? p.programa,
     numeroPractica: p.numeroPractica ?? p.numero,
-    semestre:       p.semestre,
-    // Estado — el backend usa EstadoPracticaTipo
     estado:         p.estado,
-    fechaInicio:    p.fechaInicio,
-    fechaFin:       p.fechaFin,
-    // Empresa
-    empresa: p.empresa ?? (p.empresaNombre ? {
-      razonSocial:    p.empresaNombre,
-      municipio:      p.municipio   ?? '—',
-      sector:         p.sector      ?? '—',
-      telefono:       p.telefono    ?? '—',
-      nombreContacto: p.contactoNombre ?? '—',
-      emailContacto:  p.contactoEmail  ?? '—',
+    // Empresa — cubre todos los campos posibles
+    empresaId: p.empresaId,
+    empresa: p.empresa ?? (
+      p.empresaId || p.empresaNombre ? {
+        razonSocial:    p.empresaNombre ?? `Empresa #${p.empresaId}`,
+        municipio:      p.municipio     ?? '—',
+        sector:         p.sector        ?? '—',
+        telefono:       p.telefono      ?? '—',
+        nombreContacto: p.contactoNombre ?? '—',
+        emailContacto:  p.contactoEmail  ?? '—',
+      } : null
+    ),
+    docente: p.docente ?? (p.nombreDocente ? {
+      nombre: p.nombreDocente,
+      correo: p.emailDocenteAsesor ?? p.correoDocente ?? '—',
+      id:     p.docenteAsesorId    ?? null,
     } : null),
-    // Docente
-    docente: p.docente ?? (p.nombreDocenteAsesor ? {
-      nombre: p.nombreDocenteAsesor,
-      correo: p.correoDocente ?? '—',
-    } : null),
-    // Tutor
     tutor: p.tutor ?? (p.nombreTutorEmpresarial ? {
       nombre:   p.nombreTutorEmpresarial,
-      cargo:    p.cargoTutor   ?? '—',
+      cargo:    p.cargoTutor    ?? '—',
       telefono: p.telefonoTutor ?? '—',
-      correo:   p.correoTutor  ?? '—',
+      correo:   p.correoTutor   ?? '—',
     } : null),
-    // Cortes de seguimiento
-    cortes: p.cortes ?? p.cortesConfig ?? [],
-    // Planeador
+    cortes:   p.cortes   ?? p.cortesConfig ?? [],
     planeador: p.planeador ?? (p.planeadorUrl ? {
       url:        p.planeadorUrl,
-      fechaCarga: p.fechaCreacion,
+      fechaCarga: p.fechaCreacion?.split('T')[0],
     } : null),
-    // Nota final
     notaFinal: p.notaFinal,
   }
 }

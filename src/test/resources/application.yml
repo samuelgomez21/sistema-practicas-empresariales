@@ -18,4 +18,4 @@ app:
     expiration-ms: 86400000
   firebase:
     config-path: firebase-config.json
-    storage-bucket: dummy.appspot.com
+

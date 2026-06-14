@@ -13,6 +13,9 @@ import java.time.LocalDate;
 @Builder
 public class PracticaResumenDto {
     private Long id;
+    private int numeroPractica;
+    private String emailEstudiante;
+    private int semestre;
     private String nombrePractica;
     private String materiaNucleo;
     private String programa;

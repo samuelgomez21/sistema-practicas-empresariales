@@ -10,7 +10,7 @@ import BadgeEstadoAvance from '../../estudiante/components/BadgeEstadoAvance'
 const ESTADO_PRACTICA_LABEL = {
   ASIGNADA_PENDIENTE_INICIO: 'Pendiente inicio',
   EN_PROCESO_VINCULACION:    'En vinculación',
-  CONVENIO_REGISTRADO:       'Convenio registrado',
+  VINCULADA:       'Convenio registrado',
   EN_PRACTICA:               'En práctica',
   COMPLETADA:                'Completada',
   REPROBADA:                 'Reprobada',

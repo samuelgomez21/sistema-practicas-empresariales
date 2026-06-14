@@ -7,9 +7,13 @@ import co.edu.sistema_practicas_empresariales.modules.postulacion.model.Postulac
 import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.EstudianteRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
+import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +21,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostulacionFacadeImpl implements PostulacionFacade {
 
     private final PostulacionRepository postulacionRepository;
-    private final VacanteRepository vacanteRepository;
-    private final EstudianteRepository estudianteRepository;
+    private final VacanteRepository     vacanteRepository;
+    private final EstudianteRepository  estudianteRepository;
+    private final PracticaRepository    practicaRepository;
 
+    // ── Crear postulación ──────────────────────────────────────────────────────
 
     @Override
     @Transactional
@@ -48,9 +55,10 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
                 .estado(EstadoPostulacionTipo.POSTULADO)
                 .build();
 
-        postulacion = postulacionRepository.save(postulacion);
-        return mapToResponse(postulacion);
+        return mapToResponse(postulacionRepository.save(postulacion));
     }
+
+    // ── Actualizar estado ──────────────────────────────────────────────────────
 
     @Override
     @Transactional
@@ -58,24 +66,61 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
         Postulacion postulacion = postulacionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Postulacion no encontrada"));
 
-        EstadoPostulacionTipo nuevoEstado;
-        try {
-            nuevoEstado = EstadoPostulacionTipo.valueOf(estado.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Estado no válido: " + estado);
-        }
+        EstadoPostulacionTipo nuevoEstado = parsearEstado(estado);
 
         validarTransicion(postulacion.getEstado(), nuevoEstado);
         postulacion.setEstado(nuevoEstado);
-
         postulacion = postulacionRepository.save(postulacion);
+
+        if (nuevoEstado == EstadoPostulacionTipo.SELECCIONADO) {
+            asignarEmpresaAPractica(postulacion);
+        }
+
         return mapToResponse(postulacion);
     }
 
+    // ── Lógica de negocio al seleccionar ──────────────────────────────────────
+
     /**
-     * Valida que la transición de estado sea permitida según el flujo
-     * de selección definido para postulaciones.
+     * Cuando un estudiante es SELECCIONADO, asigna automáticamente la empresa
+     * de la vacante a su práctica activa (si aún no tiene empresa asignada).
      */
+    private void asignarEmpresaAPractica(Postulacion postulacion) {
+        Long estudianteId = postulacion.getEstudiante().getId();
+        Long empresaId    = postulacion.getVacante().getEmpresa().getId();
+
+        practicaRepository.findPracticaActivaByEstudiante(estudianteId).ifPresentOrElse(
+                practica -> {
+                    if (practica.getEmpresaId() != null) {
+                        log.info("Estudiante {} ya tiene empresa {} — no se sobreescribe",
+                                estudianteId, practica.getEmpresaId());
+                        return;
+                    }
+                    practica.setEmpresaId(empresaId);
+
+                    // Transicionar estado si está en ASIGNADA_PENDIENTE_INICIO
+                    if (practica.getEstado() == EstadoPracticaTipo.ASIGNADA_PENDIENTE_INICIO) {
+                        practica.iniciarVinculacion(); // → EN_PROCESO_VINCULACION
+                    }
+
+                    practicaRepository.save(practica);
+                    log.info("Empresa {} asignada y práctica {} en vinculación — estudiante {}",
+                            empresaId, practica.getId(), estudianteId);
+                },
+                () -> log.warn("Estudiante {} sin práctica activa", estudianteId)
+        );
+    }
+
+    // ── Validación de transiciones ─────────────────────────────────────────────
+
+    private EstadoPostulacionTipo parsearEstado(String estado) {
+        try {
+            return EstadoPostulacionTipo.valueOf(estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado no válido: " + estado);
+        }
+    }
+
     private void validarTransicion(EstadoPostulacionTipo actual, EstadoPostulacionTipo nuevo) {
         boolean valido = switch (actual) {
             case POSTULADO     -> nuevo == EstadoPostulacionTipo.EN_SELECCION
@@ -93,12 +138,15 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
         }
     }
 
+    // ── Consultas ──────────────────────────────────────────────────────────────
+
     @Override
     @Transactional(readOnly = true)
     public PostulacionResponseDto obtenerPostulacion(Long id) {
-        Postulacion postulacion = postulacionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Postulacion no encontrada"));
-        return mapToResponse(postulacion);
+        return mapToResponse(
+                postulacionRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Postulacion no encontrada"))
+        );
     }
 
     @Override
@@ -126,6 +174,14 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<PostulacionResponseDto> listarPorEstudianteEmail(String email) {
+        Estudiante estudiante = estudianteRepository.findByUsuario_Email(email)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        return listarPorEstudiante(estudiante.getId());
+    }
+
+    @Override
     @Transactional
     public void eliminarPostulacion(Long id) {
         if (!postulacionRepository.existsById(id)) {
@@ -133,6 +189,8 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
         }
         postulacionRepository.deleteById(id);
     }
+
+    // ── Mapeo ──────────────────────────────────────────────────────────────────
 
     private PostulacionResponseDto mapToResponse(Postulacion p) {
         return PostulacionResponseDto.builder()
@@ -145,14 +203,5 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
                 .fechaPostulacion(p.getFechaPostulacion())
                 .observaciones(p.getObservaciones())
                 .build();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PostulacionResponseDto> listarPorEstudianteEmail(String email) {
-        co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante est =
-                estudianteRepository.findByUsuario_Email(email)
-                        .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
-        return listarPorEstudiante(est.getId());
     }
 }

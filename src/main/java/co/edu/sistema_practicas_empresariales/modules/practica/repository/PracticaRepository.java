@@ -50,4 +50,6 @@ public interface PracticaRepository extends JpaRepository<Practica, Long> {
             AND p.estado NOT IN ('COMPLETADA', 'REPROBADA', 'CANCELADA')
         """)
     List<Practica> findAsignadasActivasByDocente(@Param("docenteId") Long docenteId);
+
+    List<Practica> findByEmpresaIdAndActivoTrue(Long empresaId);
 }

@@ -9,6 +9,7 @@ import { empresasApi } from '../api/empresasApi'
 import TutoresAdminPage from './TutoresAdminPage'
 import { useRef } from 'react'
 import { Upload, ExternalLink, CheckCircle, Clock } from 'lucide-react'
+import api from '@/lib/axios'
 
 const schema = z.object({
   razonSocial:             z.string().min(3),
@@ -180,7 +181,10 @@ export default function MiPerfilEmpresaPage({ soloLectura = false, empresaOverri
           </form>
         )}
       </div>
-
+      {/* Asignar tutor a práctica — solo visible para empresa */}
+      {!soloLectura && empresa?.id && (
+        <AsignarTutorPractica empresa={empresa} />
+      )}
       {/* Tutores de esta empresa */}
       {empresa?.id && (
         <TutoresAdminPage empresaIdFijo={empresa.id} />
@@ -313,6 +317,95 @@ function DocumentosEmpresaSection({ empresaId, soloLectura }) {
           )
         })}
       </div>
+    </div>
+  )
+}
+
+function AsignarTutorPractica({ empresa }) {
+  const qc = useQueryClient()
+  const [practicaId, setPracticaId] = useState('')
+  const [tutorId,    setTutorId]    = useState('')
+
+  const { data: practicas = [] } = useQuery({
+    queryKey: ['practicas-empresa', empresa?.id],
+    queryFn:  async () => {
+      const { data } = await api.get(`/practicas/empresa/${empresa.id}`)
+      // Solo mostrar prácticas que no tienen tutor asignado aún
+      return (data ?? []).filter(p =>
+        !p.tutorId && p.estado !== 'COMPLETADA' && p.estado !== 'CANCELADA'
+      )
+    },
+    enabled: !!empresa?.id,
+  })
+
+  const { data: tutores = [] } = useQuery({
+    queryKey: ['tutores', empresa?.id],
+    queryFn:  () => empresasApi.getTutoresByEmpresa(empresa.id),
+    enabled:  !!empresa?.id,
+  })
+
+  const mutation = useMutation({
+    mutationFn: () => api.patch(`/practicas/${practicaId}/asignar-tutor`, {
+      tutorId: Number(tutorId),
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['practicas-empresa', empresa?.id] })
+      toast.success('Tutor asignado correctamente a la práctica')
+      setPracticaId('')
+      setTutorId('')
+    },
+    onError: (err) => toast.error(err?.response?.data?.message ?? 'Error al asignar tutor'),
+  })
+
+  if (practicas.length === 0) return null
+
+  const is = { border: '1.5px solid #dce4ec', background: '#f7f9fb', color: '#023859' }
+  const ic = "w-full h-10 px-3 rounded-lg text-sm outline-none"
+  const lc = "text-[10px] font-bold uppercase tracking-wide mb-1.5 block"
+  const ls = { color: '#023859' }
+
+  return (
+    <div className="bg-white rounded-xl p-5" style={{ border: '0.5px solid #e2e8f0' }}>
+      <p className="text-xs font-bold mb-4 pb-2"
+        style={{ color: '#023859', borderBottom: '0.5px solid #f0f2f5' }}>
+        Asignar tutor a práctica
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={lc} style={ls}>Práctica del estudiante</label>
+          <select value={practicaId} onChange={e => setPracticaId(e.target.value)}
+            className={ic} style={is}>
+            <option value="">Seleccionar práctica...</option>
+            {practicas.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.nombreEstudiante} — {p.nombrePractica ?? p.nombre} ({p.estado})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={lc} style={ls}>Tutor empresarial</label>
+          <select value={tutorId} onChange={e => setTutorId(e.target.value)}
+            className={ic} style={is}>
+            <option value="">Seleccionar tutor...</option>
+            {tutores.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.nombre} — {t.cargo}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <button
+        onClick={() => mutation.mutate()}
+        disabled={!practicaId || !tutorId || mutation.isPending}
+        className="mt-3 h-9 px-4 rounded-lg text-xs font-bold text-white"
+        style={{ background: !practicaId || !tutorId ? '#a0aab4' : '#D91438' }}>
+        {mutation.isPending ? 'Asignando...' : 'Asignar tutor a práctica'}
+      </button>
+      <p className="text-[10px] mt-2" style={{ color: '#8a9bb0' }}>
+        Solo aparecen prácticas sin tutor asignado aún
+      </p>
     </div>
   )
 }

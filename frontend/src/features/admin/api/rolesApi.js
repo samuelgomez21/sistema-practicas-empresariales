@@ -18,6 +18,7 @@ export const ROL_LABEL = {
   DOCENTE_ASESOR:          'Docente Asesor',
   TUTOR_EMPRESARIAL:       'Tutor Empresarial',
   EMPRESA_VINCULADA:       'Empresa',
+  DIRECCION:               'Direccion',
 }
 
 export function etiquetaRol(nombre) {

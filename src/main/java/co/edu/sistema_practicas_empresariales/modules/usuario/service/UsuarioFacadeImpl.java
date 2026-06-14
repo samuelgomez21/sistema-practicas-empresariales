@@ -131,13 +131,13 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         usuario.setDebeCambiarPassword(true);
 
         Usuario guardado = usuarioRepository.save(usuario);
-
+        System.out.println("antes de el email");
         emailService.sendEmail(
                 guardado.getEmail(),
                 "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
                 EmailTemplates.credencialesAcceso(guardado.getNombre(), guardado.getEmail(), passwordTemporal, frontendUrl)
         );
-
+        System.out.println("despues de el email");
         return mapToDto(guardado);
     }
 

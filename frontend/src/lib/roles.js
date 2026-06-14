@@ -130,7 +130,7 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Seguimientos', icon: 'clipboard-list', path: '/docente/seguimientos' },
         { label: 'Visitas',      icon: 'map-pin',        path: '/docente/visitas' },
-        { label: 'Evaluaciones', icon: 'star',           path: '/docente/evaluaciones' },
+        // { label: 'Evaluaciones', icon: 'star',           path: '/docente/evaluaciones' },
       ],
     },
   ],
@@ -186,9 +186,9 @@ export const MENU_POR_ROL = {
     { section: 'Principal',
       items: [
         { label: 'Dashboard',   icon: 'layout-dashboard', path: '/dashboard/direccion' },
-        { label: 'Reportes',    icon: 'chart-bar',        path: '/direccion/reportes' },
+/*         { label: 'Reportes',    icon: 'chart-bar',        path: '/direccion/reportes' },
         { label: 'Indicadores', icon: 'chart-line',       path: '/direccion/indicadores' },
-        { label: 'Empresas',    icon: 'building',         path: '/direccion/empresas' },
+        { label: 'Empresas',    icon: 'building',         path: '/direccion/empresas' }, */
       ],
     },
   ],

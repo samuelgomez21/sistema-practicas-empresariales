@@ -62,6 +62,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
+    private final co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository empresaRepository;
+    private final co.edu.sistema_practicas_empresariales.modules.empresa.repository.TutorEmpresarialRepository tutorEmpresarialRepository;
     private final CoordinadorProgramaRepository coordinadorProgramaRepository;
     private final @org.springframework.context.annotation.Lazy
     co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade practicaFacade;
@@ -367,6 +369,21 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     }
 
     private PracticaResponse mapToPracticaResponse(Practica p) {
+
+        String nombreEmpresa = null;
+        if (p.getEmpresaId() != null) {
+            nombreEmpresa = empresaRepository.findById(p.getEmpresaId())
+                    .map(e -> e.getRazonSocial())
+                    .orElse(null);
+        }
+
+        String nombreTutor = null;
+        if (p.getTutorEmpresarialId() != null) {
+            nombreTutor = tutorEmpresarialRepository.findById(p.getTutorEmpresarialId())
+                    .map(t -> t.getNombreCompleto())
+                    .orElse(null);
+        }
+
         return PracticaResponse.builder()
                 .id(p.getId())
                 .numeroPractica(p.getNumeroPractica())
@@ -375,9 +392,10 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .materiaNucleoCodigo(p.getMateriaNucleoCodigo())
                 .duracionSemanas(p.getDuracionSemanas())
                 .estado(p.getEstado().name())
-                .nombreEmpresa(p.getEmpresaId() != null ? "Empresa ID: " + p.getEmpresaId() : null)
-                .nombreDocenteAsesor(p.getDocenteAsesor() != null ? p.getDocenteAsesor().getNombre() : null)
-                .nombreTutorEmpresarial(p.getTutorEmpresarialId() != null ? "Tutor ID: " + p.getTutorEmpresarialId() : null)
+                .nombreEmpresa(nombreEmpresa)                                              // ← resuelto
+                .nombreDocenteAsesor(p.getDocenteAsesor() != null
+                        ? p.getDocenteAsesor().getNombre() : null)
+                .nombreTutorEmpresarial(nombreTutor)                                       // ← resuelto
                 .notaFinal(p.getNotaFinal())
                 .resultado(p.getResultado())
                 .fechaInicio(p.getFechaInicio())

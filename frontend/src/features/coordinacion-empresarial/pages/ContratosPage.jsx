@@ -40,7 +40,7 @@ export default function ContratosPage() {
       tipoContrato:     form.tipoContrato,
       fechaInicio:      form.fechaInicio,
       fechaFin:         form.fechaFin,
-      valorMensual:     Number(form.valorMensual),
+      valorMensual:     form.valorMensual ? Number(form.valorMensual) : null,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['contratos'] })
@@ -49,7 +49,12 @@ export default function ContratosPage() {
       setEmpresaId(''); setEstudianteId('')
       setForm({ fechaInicio: '', fechaFin: '', tipoContrato: 'Contrato de aprendizaje', tipoRemuneracion: 'Auxilio de práctica', valorMensual: '' })
     },
-    onError: () => toast.error('Error al generar el contrato'),
+    onError: (err) => {
+      console.error('Error contrato:', err.response?.data)
+      toast.error(err?.response?.data?.message
+        ?? JSON.stringify(err?.response?.data)
+        ?? 'Error al generar el contrato')
+    },
   })
 
   const is = { border: '1.5px solid #dce4ec', background: '#f7f9fb', color: '#023859' }
@@ -59,7 +64,7 @@ export default function ContratosPage() {
   const ro = { ...is, background: '#f0f2f5', color: '#6b7a8d' }
 
   const puedeGenerar = empresaId && estudianteId && form.fechaInicio && form.fechaFin
-    && form.tipoContrato && form.valorMensual
+    && form.tipoContrato && Number(form.valorMensual)
 
   return (
     <div className="flex flex-col gap-4">

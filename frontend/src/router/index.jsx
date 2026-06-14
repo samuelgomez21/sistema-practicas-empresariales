@@ -99,7 +99,10 @@ import DocumentosEmpresasPage from '@/features/coordinacion-empresarial/pages/Do
 
 import ReportesPage from '@/features/coordinacion-empresarial/pages/ReportesPage'
 
+import VisitasPage from '@/features/coordinacion-empresarial/pages/VisitasPage'
 
+import HistorialPracticasCoordPage from '@/features/coordinacion-empresarial/pages/HistorialPracticasCoordPage'
+import HistorialPracticasPage      from '@/features/estudiante/pages/HistorialPracticasPage'
 
 
 // Redirige al dashboard del rol activo
@@ -275,6 +278,7 @@ const router = createBrowserRouter([
           { path: 'encuestas',   element: <EncuestasPage /> },
           { path: 'paz-salvo',   element: <PazYSalvoPage /> },
           { path: 'postulaciones', element: <MisPostulacionesPage /> },
+          {path:'historial', element: <HistorialPracticasPage/>}
         ],
       },
       {
@@ -334,6 +338,7 @@ const router = createBrowserRouter([
           { path: 'seguimientos',    element: <SeguimientosPage /> },
           { path: 'visitas',         element: <VisitasDocentePage /> },
           { path: 'perfil', element: <MiPerfilDocentePage /> },
+          {path: 'visitas', elemenet: <VisitasPage/>},
 
         ]
       },
@@ -378,10 +383,18 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/coordinacion-empresarial/historial',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <HistorialPracticasCoordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/coordinacion-empresarial/visitas',
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
-            <VisitasCoordinadoraPage />
+            <VisitasPage />
           </ProtectedRoute>
         ),
       },

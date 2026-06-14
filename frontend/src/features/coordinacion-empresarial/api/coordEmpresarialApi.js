@@ -33,11 +33,9 @@ export const coordEmpresarialApi = {
   // ── Seguimiento — compuesto desde el nuevo endpoint ─────────────
   getEstudiantesSeguimiento: async () => {
     try {
-      // Obtener prácticas activas
       const { data } = await api.get('/coordinacion-empresarial/practicas-activas')
       const lista = data ?? []
 
-      // Para cada práctica, obtener su checklist
       const resultados = await Promise.all(
         lista.map(async item => {
           const p   = item.practica ?? item
@@ -45,22 +43,31 @@ export const coordEmpresarialApi = {
 
           let checklist = []
           try {
-            const { data: ck } = await api.get(`/practicas/${p.id}/checklist`)
-            checklist = (ck ?? []).map(c => ({
-              clave:      c.clave,
-              label:      c.label,
-              completado: c.completado,
-            }))
+            const { data: ck } = await api.get(
+              `/cierre/practica/${p.id}/checklist-completo`
+            )
+            checklist = [
+              { clave: 'nota_docente',         label: 'Nota docente',           completado: ck.notaDocenteRegistrada ?? false },
+              { clave: 'nota_tutor',           label: 'Nota tutor',             completado: ck.notaTutorRegistrada   ?? false },
+              { clave: 'nota_final',           label: 'Nota final',             completado: ck.notaFinalRegistrada   ?? false },
+              { clave: 'encuesta_estudiante',  label: 'Encuesta estudiante',    completado: ck.estadoEncuestaEstudiante === 'COMPLETADA' },
+              { clave: 'encuesta_tutor',       label: 'Encuesta tutor',         completado: ck.estadoEncuestaTutor    === 'COMPLETADA' },
+              { clave: 'documentos_aprobados', label: 'Documentos aprobados',   completado: ck.documentosAprobados   ?? false },
+              { clave: 'informe_final',        label: 'Informe final aprobado', completado: ck.informeFinalAprobado  ?? false },
+            ]
           } catch { /* sin checklist */ }
 
           return {
-            id:           p.estudianteId ?? est.id,
-            nombre:       p.nombreEstudiante ?? est.nombre ?? '—',
-            programa:     p.programa         ?? est.programa ?? '—',
-            empresaNombre: p.empresaNombre   ?? '—',
-            estado:       p.estado,
-            categoria:    p.estado,  // mismo valor, usado para filtrar EN_PRACTICA
-            practicaId:   p.id,
+            id:             p.estudianteId  ?? est.id,
+            nombre:         p.nombreEstudiante ?? est.nombre   ?? '—',
+            programa:       p.programa         ?? est.programa ?? '—',
+            semestre:       p.semestre         ?? est.semestre ?? '—',
+            empresaNombre:  p.nombreEmpresa    ?? p.empresaNombre ?? '—',
+            estado:         p.estado,
+            categoria:      p.estado,
+            practicaId:     p.id,
+            numeroPractica: p.numeroPractica   ?? 1,
+            postulaciones:  [],
             checklist,
           }
         })

@@ -29,7 +29,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'SECRETARIA_COORDINACION', 'COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'SECRETARIA_COORDINACION', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR')")
     public ResponseEntity<UsuarioDto> obtenerUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioFacade.obtenerPorId(id));
     }

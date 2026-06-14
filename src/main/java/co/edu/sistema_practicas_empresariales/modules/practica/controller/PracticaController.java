@@ -29,7 +29,7 @@ public class PracticaController {
     // ── Listados ────────────────────────────────────────────────────
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINACION_ACADEMICA','COORDINADOR_PRACTICA','SECRETARIA', 'ESTUDIANTE')")
     public ResponseEntity<List<PracticaResumenDto>> listarTodas() {
         return ResponseEntity.ok(practicaFacade.listarTodas());
     }
@@ -49,7 +49,7 @@ public class PracticaController {
     }
 
     @GetMapping("/empresa/{empresaId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','EMPRESA_VINCULADA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','EMPRESA_VINCULADA', 'TUTOR_EMPRESARIAL')")
     public ResponseEntity<List<PracticaResumenDto>> listarPorEmpresa(
             @PathVariable Long empresaId) {
         return ResponseEntity.ok(practicaFacade.listarPorEmpresa(empresaId));

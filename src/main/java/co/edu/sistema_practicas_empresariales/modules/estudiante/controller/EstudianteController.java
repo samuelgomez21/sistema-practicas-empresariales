@@ -139,7 +139,7 @@ public class EstudianteController {
      * Obtiene el historial de prácticas (anteriores y actuales) de un estudiante.
      */
     @GetMapping("/{estudianteId}/practicas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR','ESTUDIANTE')")
     public ResponseEntity<List<PracticaResponse>> obtenerHistorialPracticas(@PathVariable Long estudianteId) {
         return ResponseEntity.ok(estudianteFacade.obtenerHistorialPracticas(estudianteId));
     }

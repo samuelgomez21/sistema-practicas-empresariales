@@ -6,6 +6,7 @@ import co.edu.sistema_practicas_empresariales.modules.cierre.event.RecordatorioE
 import co.edu.sistema_practicas_empresariales.modules.cierre.service.chain.ValidadorNotaDocente;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.ProgramaParametro;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaParametroRepository;
+import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.model.Encuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRepository;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
@@ -34,7 +35,8 @@ public class ChecklistCierreService {
     private final ValidadorNotaDocente validadorNotaDocente;
     private final PracticaRepository practicaRepository;
     private final EvaluacionRepository evaluacionRepository;
-    private final EncuestaRepository encuestaRepository;
+    private final co.edu.sistema_practicas_empresariales.modules.encuesta.repository
+            .EncuestaRespuestaRepository encuestaRepository;
     private final PracticaDocumentoRepository practicaDocumentoRepository;
     private final ProgramaParametroRepository programaParametroRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -50,41 +52,46 @@ public class ChecklistCierreService {
             throw new BusinessException("No se encontró la práctica con ID: " + practicaId);
         }
 
-        Optional<Evaluacion> evalOpt = evaluacionRepository.findByPracticaIdAndActivoTrue(practicaId);
+        Optional<Evaluacion> evalOpt = evaluacionRepository
+                .findByPracticaIdAndActivoTrue(practicaId);
+
         boolean notaDocenteRegistrada = evalOpt.map(e -> e.getNotaDocente() != null).orElse(false);
-        boolean notaTutorRegistrada = evalOpt.map(e -> e.getNotaTutor() != null).orElse(false);
-        boolean notaFinalRegistrada = evalOpt.map(e -> e.getNotaFinal() != null).orElse(false);
+        boolean notaTutorRegistrada   = evalOpt.map(e -> e.getNotaTutor()   != null).orElse(false);
+        boolean notaFinalRegistrada   = evalOpt.map(e -> e.getNotaFinal()   != null).orElse(false);
 
-        Optional<Encuesta> estEncOpt = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(practicaId, Encuesta.TipoActor.ESTUDIANTE);
-        Optional<Encuesta> tutEncOpt = encuestaRepository.findByPracticaIdAndTipoActorAndActivoTrue(practicaId, Encuesta.TipoActor.TUTOR_EMPRESARIAL);
+        //  Usa encuesta_respuesta (nuevo sistema)
+        boolean encuestaEstCompletada = encuestaRepository
+                .existsByPracticaIdAndTipo(practicaId, TipoEncuesta.ESTUDIANTE);
+        boolean encuestaTutCompletada = encuestaRepository
+                .existsByPracticaIdAndTipo(practicaId, TipoEncuesta.TUTOR);
 
-        String estadoEncEst = estEncOpt.map(e -> e.getEstado().name()).orElse("PENDIENTE");
-        String estadoEncTut = tutEncOpt.map(e -> e.getEstado().name()).orElse("PENDIENTE");
+        String estadoEncEst = encuestaEstCompletada ? "COMPLETADA" : "PENDIENTE";
+        String estadoEncTut = encuestaTutCompletada ? "COMPLETADA" : "PENDIENTE";
 
-        LocalDateTime reminderEst = estEncOpt.map(Encuesta::getFechaUltimoRecordatorio).orElse(null);
-        LocalDateTime reminderTut = tutEncOpt.map(Encuesta::getFechaUltimoRecordatorio).orElse(null);
-
-        List<PracticaDocumento> documentos = practicaDocumentoRepository.findByPracticaId(practicaId);
+        List<PracticaDocumento> documentos = practicaDocumentoRepository
+                .findByPracticaId(practicaId);
         Map<String, List<PracticaDocumento>> docsPorCategoria = documentos.stream()
                 .collect(Collectors.groupingBy(d -> d.getCategoria().toUpperCase()));
 
-        List<String> docsObligatorios = List.of("ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION");
+        List<String> docsObligatorios = List.of(
+                "ARL", "PLANEADOR", "INFORME_EJECUTIVO", "PRESENTACION");
         boolean documentosAprobados = true;
         for (String cat : docsObligatorios) {
             List<PracticaDocumento> docs = docsPorCategoria.get(cat);
-            if (docs == null || docs.isEmpty() || docs.stream().noneMatch(d -> "APROBADO".equalsIgnoreCase(d.getEstado()))) {
+            if (docs == null || docs.isEmpty()
+                    || docs.stream().noneMatch(d -> "APROBADO".equalsIgnoreCase(d.getEstado()))) {
                 documentosAprobados = false;
                 break;
             }
         }
 
         List<PracticaDocumento> docFinal = docsPorCategoria.get("DOCUMENTO_FINAL");
-        boolean informeFinalAprobado = docFinal != null && !docFinal.isEmpty() &&
-                docFinal.stream().anyMatch(d -> "APROBADO".equalsIgnoreCase(d.getEstado()));
+        boolean informeFinalAprobado = docFinal != null && !docFinal.isEmpty()
+                && docFinal.stream().anyMatch(d -> "APROBADO".equalsIgnoreCase(d.getEstado()));
 
-        boolean todoListo = notaDocenteRegistrada && notaTutorRegistrada && notaFinalRegistrada &&
-                "COMPLETADA".equalsIgnoreCase(estadoEncEst) && "COMPLETADA".equalsIgnoreCase(estadoEncTut) &&
-                documentosAprobados && informeFinalAprobado;
+        boolean todoListo = notaDocenteRegistrada && notaTutorRegistrada && notaFinalRegistrada
+                && encuestaEstCompletada && encuestaTutCompletada
+                && documentosAprobados && informeFinalAprobado;
 
         return ChecklistResponse.builder()
                 .notaDocenteRegistrada(notaDocenteRegistrada)
@@ -92,8 +99,8 @@ public class ChecklistCierreService {
                 .notaFinalRegistrada(notaFinalRegistrada)
                 .estadoEncuestaEstudiante(estadoEncEst)
                 .estadoEncuestaTutor(estadoEncTut)
-                .fechaUltimoRecordatorioEstudiante(reminderEst)
-                .fechaUltimoRecordatorioTutor(reminderTut)
+                .fechaUltimoRecordatorioEstudiante(null)  // ya no aplica
+                .fechaUltimoRecordatorioTutor(null)
                 .documentosAprobados(documentosAprobados)
                 .informeFinalAprobado(informeFinalAprobado)
                 .todoListo(todoListo)
@@ -121,7 +128,7 @@ public class ChecklistCierreService {
         eventPublisher.publishEvent(new CierreFormalEvent(practicaId, practica.getResultado(), coordinadorEmail));
     }
 
-    @Transactional
+/*    @Transactional
     public void enviarRecordatorio(Long practicaId, String actorType) {
         if (actorType == null || actorType.trim().isEmpty()) {
             throw new BusinessException("El tipo de actor no puede estar vacío.");
@@ -150,5 +157,5 @@ public class ChecklistCierreService {
 
         // Publicar evento de recordatorio
         eventPublisher.publishEvent(new RecordatorioEncuestaEvent(practicaId, actor));
-    }
+    }*/
 }

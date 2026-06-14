@@ -87,6 +87,7 @@ export const MENU_POR_ROL = {
         { label: 'Reportes',          icon: 'chart-bar',      path: '/coordinacion-empresarial/reportes' },
         { label: 'Visitas',           icon: 'map-pin',        path: '/coordinacion-empresarial/visitas'   },
         { label: 'Paz y Salvo',       icon: 'award',          path: '/coordinacion-empresarial/paz-salvo' },
+        {label: 'Historial Practicas', icon: '', path:'coordinacion-empresarial/historial' }
       ],
     },
     { section: 'Gestion',
@@ -112,6 +113,7 @@ export const MENU_POR_ROL = {
     { section: 'Seguimiento',
       items: [
         { label: 'Prácticas activas', icon: 'clipboard-list', path: '/secretaria/activas' },
+
       ],
     },
   ],
@@ -175,6 +177,7 @@ export const MENU_POR_ROL = {
         { label: 'Encuestas',         icon: 'forms',          path: '/estudiante/encuestas' },
         { label: 'Paz y salvo',       icon: 'shield-check',   path: '/estudiante/paz-salvo' },
         { label: 'Mis postulaciones', icon: 'send',           path: '/estudiante/postulaciones' },
+        { label: 'Mi Historial', icon: '',           path: '/estudiante/historial' },
       ],
     },
   ],

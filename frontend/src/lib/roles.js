@@ -84,7 +84,7 @@ export const MENU_POR_ROL = {
     { section: 'Seguimiento',
       items: [
         { label: 'Prácticas activas', icon: 'clipboard-list', path: '/coordinacion-empresarial/practicas' },
-        { label: 'Reportes',          icon: 'chart-bar',      path: '/practica/reportes' },
+        { label: 'Reportes',          icon: 'chart-bar',      path: '/coordinacion-empresarial/reportes' },
         { label: 'Visitas',           icon: 'map-pin',        path: '/coordinacion-empresarial/visitas'   },
         { label: 'Paz y Salvo',       icon: 'award',          path: '/coordinacion-empresarial/paz-salvo' },
       ],

@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReportesIndicadoresFacadeTest {
+class ReportesFacadeImplTest {
 
     @Mock private PracticaRepository practicaRepository;
     @Mock private EvaluacionRepository evaluacionRepository;
@@ -49,7 +49,7 @@ class ReportesIndicadoresFacadeTest {
     @Mock private ExportadorReporte excelExportAdapter;
     @Mock private ExportadorReporte pdfExportAdapter;
     @InjectMocks
-    private ReportesIndicadoresFacade facade;
+    private ReportesFacadeImpl facade;
 
     @BeforeEach
     void setup() {

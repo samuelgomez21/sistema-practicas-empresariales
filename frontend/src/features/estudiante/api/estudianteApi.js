@@ -111,27 +111,21 @@ export const estudianteApi = {
   /**
    * Sube el archivo de avance a Firebase y luego registra el avance.
    */
-  subirAvanceConArchivo: async ({ titulo, corteNumero, descripcion, archivo }) => {
-    let archivoUrl = null
-    if (archivo) {
-      const user = useAuthStore.getState().user
-      const path = `avances/${user?.id ?? 'est'}_${Date.now()}_${archivo.name}`
-      archivoUrl = await subirArchivo(archivo, path)
-    }
-    return estudianteApi.crearAvance({ titulo, corteNumero, descripcion, archivoUrl })
-  },
-
-  // ── Documentos de la práctica ──────────────────────────────────────────────
   getMisDocumentos: async () => {
     try {
       const practicaRes = await api.get('/estudiantes/mi-practica-activa')
       if (!practicaRes.data?.id) return {}
       const { data } = await api.get(`/practicas/${practicaRes.data.id}/documentos`)
-      // Agrupar por categoría para el frontend
       const mapa = {}
       ;(data ?? []).forEach(d => {
+        // Convertir categoria ARL → arl, INFORME_EJECUTIVO → informeEjecutivo
         const key = d.categoria?.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-        mapa[key] = { url: d.url, fechaCarga: d.fechaCarga ?? d.fechaCreacion?.split('T')[0], estado: d.estado }
+        mapa[key] = {
+          url:        d.url,
+          nombre:     d.nombre,
+          fechaCarga: d.fechaCarga ?? null,
+          estado:     d.estado,
+        }
       })
       return mapa
     } catch {
@@ -139,26 +133,21 @@ export const estudianteApi = {
     }
   },
 
-  /**
-   * Sube un documento a Firebase y lo registra en el backend.
-   * categoria: 'ARL' | 'PLANEADOR' | 'INFORME_EJECUTIVO' | 'PRESENTACION' | 'DOCUMENTO_FINAL'
-   */
   subirDocumento: async (categoria, archivo) => {
     const practicaRes = await api.get('/estudiantes/mi-practica-activa')
     if (!practicaRes.data?.id) throw new Error('No tienes una práctica activa')
+    const practicaId = practicaRes.data.id
 
-    const user   = useAuthStore.getState().user
-    const path   = `documentos-practica/${practicaRes.data.id}/${categoria}_${Date.now()}_${archivo.name}`
-    const url    = await subirArchivo(archivo, path)
+    // El backend recibe multipart: @RequestParam categoria + @RequestPart archivo
+    const formData = new FormData()
+    formData.append('archivo', archivo)
 
-    const { data } = await api.post(`/practicas/${practicaRes.data.id}/documentos`, {
-      categoria,
-      url,
-      nombre: archivo.name,
-    }, {
-      headers: { 'Content-Type': 'application/json' },
-    })
-    return { url, estado: data?.estado ?? 'PENDIENTE' }
+    const { data } = await api.post(
+      `/practicas/${practicaId}/documentos?categoria=${encodeURIComponent(categoria)}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return { url: data?.informeEjecutivoUrl ?? data?.url ?? null, estado: data?.estado ?? 'PENDIENTE' }
   },
 
   // ── Checklist ──────────────────────────────────────────────────────────────

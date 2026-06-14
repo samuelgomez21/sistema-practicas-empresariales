@@ -33,4 +33,7 @@ public interface EncuestaService {
     EncuestaRespuestaDto obtenerRespuesta(Long practicaId, TipoEncuesta tipo);
     boolean estaCompletada(Long practicaId, TipoEncuesta tipo);
 
+    List<EncuestaRespuestaDto> listarTodasLasRespuestas();
+    List<EncuestaRespuestaDto> listarRespuestasPorTipo(TipoEncuesta tipo);
+
 }

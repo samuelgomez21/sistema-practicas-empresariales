@@ -142,4 +142,23 @@ public class EncuestaController {
         return ResponseEntity.ok(
                 Map.of("completada", encuestaService.estaCompletada(practicaId, tipo)));
     }
+
+    /**
+     * Lista todas las respuestas de encuestas — para el coordinador.
+     */
+    @GetMapping("/respuestas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<List<EncuestaRespuestaDto>> listarTodasLasRespuestas() {
+        return ResponseEntity.ok(encuestaService.listarTodasLasRespuestas());
+    }
+
+    /**
+     * Lista respuestas filtradas por tipo.
+     */
+    @GetMapping("/respuestas/tipo/{tipo}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<List<EncuestaRespuestaDto>> listarRespuestasPorTipo(
+            @PathVariable TipoEncuesta tipo) {
+        return ResponseEntity.ok(encuestaService.listarRespuestasPorTipo(tipo));
+    }
 }

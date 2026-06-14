@@ -14,4 +14,6 @@ public interface EncuestaRespuestaRepository extends JpaRepository<EncuestaRespu
     boolean existsByPracticaIdAndTipo(Long practicaId, TipoEncuesta tipo);
 
     List<EncuestaRespuesta> findByPracticaId(Long practicaId);
+    List<EncuestaRespuesta> findByTipo(TipoEncuesta tipo);
+
 }

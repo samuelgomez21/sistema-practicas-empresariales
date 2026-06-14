@@ -93,6 +93,7 @@ export const MENU_POR_ROL = {
       items: [
         { label: 'Contratos',     icon: 'file-text', path: '/coordinacion-empresarial/contratos' },
         { label: 'Configuración', icon: 'settings-2', path: '/configuracion/facultades' },
+        { label: 'Encuestas', icon: '', path: '/coordinacion-empresarial/encuestas' },
       ],
     },
   ],

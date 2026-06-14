@@ -40,7 +40,10 @@ public interface PracticaFacade {
     
     // Documentos
     PracticaDetalleDto subirDocumento(Long practicaId, String categoria, MultipartFile archivo, String subidoPor);
-    
+    List<PracticaDocumentoDto> listarDocumentos(Long practicaId);
+    void aprobarDocumento(Long practicaId, Long documentoId);
+
+
     // Checklist
     List<ChecklistDto> obtenerChecklist(Long practicaId);
     boolean tienePazYSalvo(Long practicaId);

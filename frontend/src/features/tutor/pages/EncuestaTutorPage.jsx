@@ -1,20 +1,148 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CheckCircle, Clock, Award, Star } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Clock, Award, Star, ExternalLink, FileText } from 'lucide-react'
 import { toast } from 'sonner'
+import api from '@/lib/axios'
 import { tutorApi } from '../api/tutorApi'
 
+// ── Badge estado avance ───────────────────────────────────────────────────────
+
+const AVANCE_ESTADO = {
+  PENDIENTE: { label: 'Pendiente revisión', bg: '#fff8e6', color: '#a07010' },
+  REVISADO:  { label: 'Revisado',           bg: '#eaf7f0', color: '#1a7a4a' },
+  ENTREGADO: { label: 'Entregado',          bg: '#e6f0fb', color: '#0B416B' },
+}
+
+function BadgeAvance({ estado }) {
+  const cfg = AVANCE_ESTADO[estado] ?? AVANCE_ESTADO.PENDIENTE
+  return (
+    <span className="text-[9px] font-bold px-2 py-1 rounded-full flex-shrink-0"
+      style={{ background: cfg.bg, color: cfg.color }}>
+      {cfg.label}
+    </span>
+  )
+}
+
+// ── Sección avances — solo lectura ────────────────────────────────────────────
+
+function AvancesTutorSection({ practicaId }) {
+  const { data: avances = [], isLoading } = useQuery({
+    queryKey: ['avances-tutor', practicaId],
+    queryFn:  async () => {
+      const { data } = await api.get(`/practicas/${practicaId}/avances`)
+      const lista = data?.data ?? data ?? []
+      return lista.map(a => ({
+        id:                a.id,
+        titulo:            a.titulo,
+        descripcion:       a.descripcion,
+        estado:            a.estado,
+        archivoUrl:        a.archivoUrl   ?? null,
+        archivoNombre:     a.archivoNombre ?? null,
+        fechaEntrega:      a.createdAt    ?? a.fechaEntrega ?? null,
+        comentarioDocente: a.comentarioDocente ?? null,
+      }))
+    },
+    enabled: !!practicaId,
+  })
+
+  return (
+    <div className="bg-white rounded-xl p-5" style={{ border: '0.5px solid #e2e8f0' }}>
+      <div className="flex items-center justify-between mb-3 pb-2"
+        style={{ borderBottom: '0.5px solid #f0f2f5' }}>
+        <p className="text-xs font-bold flex items-center gap-2" style={{ color: '#023859' }}>
+          <FileText size={13} style={{ color: '#D91438' }} />
+          Avances del estudiante
+        </p>
+        <span className="text-[10px] font-semibold px-2 py-1 rounded-full"
+          style={{ background: '#e6f0fb', color: '#0B416B' }}>
+          {avances.length} entregado(s)
+        </span>
+      </div>
+
+      {isLoading ? (
+        <div className="flex flex-col gap-2">
+          {[1,2].map(i => (
+            <div key={i} className="h-16 rounded-lg animate-pulse"
+              style={{ background: '#f7f9fb' }} />
+          ))}
+        </div>
+      ) : avances.length === 0 ? (
+        <div className="p-4 rounded-lg text-center"
+          style={{ background: '#f7f9fb', border: '0.5px solid #e2e8f0' }}>
+          <p className="text-xs" style={{ color: '#8a9bb0' }}>
+            El estudiante aún no ha entregado avances
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {avances.map(a => (
+            <div key={a.id} className="p-4 rounded-lg"
+              style={{ background: '#f7f9fb', border: '0.5px solid #e2e8f0' }}>
+
+              {/* Cabecera */}
+              <div className="flex items-start justify-between mb-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold truncate" style={{ color: '#023859' }}>
+                    {a.titulo}
+                  </p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#8a9bb0' }}>
+                    {a.fechaEntrega
+                      ? new Date(a.fechaEntrega).toLocaleDateString('es-CO', {
+                          day: '2-digit', month: 'long', year: 'numeric',
+                        })
+                      : 'Sin fecha'}
+                  </p>
+                </div>
+                <BadgeAvance estado={a.estado} />
+              </div>
+
+              {/* Descripción */}
+              {a.descripcion && (
+                <p className="text-xs mb-2 leading-relaxed" style={{ color: '#6b7a8d' }}>
+                  {a.descripcion}
+                </p>
+              )}
+
+              {/* Archivo */}
+              {a.archivoUrl && (
+                <a href={a.archivoUrl} target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 h-7 px-2 rounded text-[10px] font-semibold mb-2"
+                  style={{ background: '#e6f0fb', color: '#0B416B' }}>
+                  <ExternalLink size={10} /> {a.archivoNombre ?? 'Ver archivo'}
+                </a>
+              )}
+
+              {/* Retroalimentación del docente — solo lectura */}
+              {a.comentarioDocente && (
+                <div className="mt-2 p-2.5 rounded-lg"
+                  style={{ background: '#eaf7f0', border: '0.5px solid #b6e8cf' }}>
+                  <p className="text-[10px] font-semibold mb-0.5" style={{ color: '#1a7a4a' }}>
+                    Retroalimentación del docente:
+                  </p>
+                  <p className="text-[11px] italic leading-relaxed" style={{ color: '#2d6a4f' }}>
+                    "{a.comentarioDocente}"
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Página principal ──────────────────────────────────────────────────────────
+
 export default function EncuestaTutorPage() {
-  const { id }   = useParams()   // id del estudiante
+  const { id }   = useParams()
   const navigate = useNavigate()
   const qc       = useQueryClient()
 
   const [respondiendo,  setRespondiendo]  = useState(false)
   const [respuestas,    setRespuestas]    = useState({})
   const [observaciones, setObservaciones] = useState('')
-
-  // ── Datos ──────────────────────────────────────────────────────────────────
 
   const { data: estudiante, isLoading: loadingEst } = useQuery({
     queryKey: ['estudiante-tutor', id],
@@ -24,8 +152,8 @@ export default function EncuestaTutorPage() {
   const { data: plantilla, isLoading: loadingPlantilla } = useQuery({
     queryKey: ['plantilla-encuesta-tutor'],
     queryFn:  tutorApi.getPlantillaEncuestaTutor,
-    retry:    false,   // ← no reintentar en 500
-    staleTime: 1000 * 60 * 5,  // cachear 5 min
+    retry:    false,
+    staleTime: 1000 * 60 * 5,
   })
 
   const { data: respuestaExistente, isLoading: loadingResp } = useQuery({
@@ -33,8 +161,6 @@ export default function EncuestaTutorPage() {
     queryFn:  () => tutorApi.getEncuestaTutor(estudiante.practicaId),
     enabled:  !!estudiante?.practicaId,
   })
-
-  // ── Enviar encuesta ────────────────────────────────────────────────────────
 
   const todasLasPreguntas = plantilla?.secciones?.flatMap(s => s.preguntas) ?? []
 
@@ -49,14 +175,14 @@ export default function EncuestaTutorPage() {
 
   const encuestaMutation = useMutation({
     mutationFn: () => tutorApi.enviarEncuestaTutor(estudiante.practicaId, {
-      plantillaId: plantilla.id,
+      plantillaId:   plantilla.id,
       observaciones: observaciones || null,
       respuestas: todasLasPreguntas.map(p => {
         const valor = respuestas[p.id]
         return {
           preguntaId:    p.id,
-          valorEscala:   p.tipo === 'ESCALA'   ? Number(valor) : null,
-          valorTexto:    p.tipo === 'TEXTO'    ? String(valor) : null,
+          valorEscala:   p.tipo === 'ESCALA'   ? Number(valor)  : null,
+          valorTexto:    p.tipo === 'TEXTO'    ? String(valor)  : null,
           valorBooleano: p.tipo === 'BOOLEANO' ? Boolean(valor) : null,
         }
       }),
@@ -107,6 +233,11 @@ export default function EncuestaTutorPage() {
         onSuccess={() => qc.invalidateQueries({ queryKey: ['mis-estudiantes-tutor'] })}
       />
 
+      {/* ── Avances del estudiante — solo lectura ── */}
+      {estudiante.practicaId && (
+        <AvancesTutorSection practicaId={estudiante.practicaId} />
+      )}
+
       {/* ── Encuesta ── */}
       {!respondiendo && (
         <div className="bg-white rounded-xl p-6"
@@ -116,8 +247,7 @@ export default function EncuestaTutorPage() {
               style={{ background: yaRespondida ? '#eaf7f0' : '#e6f0fb' }}>
               {yaRespondida
                 ? <CheckCircle size={28} style={{ color: '#1a7a4a' }} />
-                : <Clock       size={28} style={{ color: '#0B416B' }} />
-              }
+                : <Clock       size={28} style={{ color: '#0B416B' }} />}
             </div>
             <div className="flex-1">
               <h2 className="text-base font-bold mb-1" style={{ color: '#023859' }}>
@@ -166,7 +296,7 @@ export default function EncuestaTutorPage() {
         </div>
       )}
 
-      {/* ── Formulario ── */}
+      {/* ── Formulario encuesta ── */}
       {respondiendo && !yaRespondida && plantilla && (
         <div className="bg-white rounded-xl p-5"
           style={{ border: '0.5px solid #e2e8f0' }}>
@@ -216,12 +346,8 @@ export default function EncuestaTutorPage() {
                             ))}
                           </div>
                           <div className="flex justify-between mt-1">
-                            <span className="text-[9px]" style={{ color: '#8a9bb0' }}>
-                              Muy insatisfecho
-                            </span>
-                            <span className="text-[9px]" style={{ color: '#8a9bb0' }}>
-                              Muy satisfecho
-                            </span>
+                            <span className="text-[9px]" style={{ color: '#8a9bb0' }}>Muy insatisfecho</span>
+                            <span className="text-[9px]" style={{ color: '#8a9bb0' }}>Muy satisfecho</span>
                           </div>
                         </>
                       )}
@@ -258,7 +384,6 @@ export default function EncuestaTutorPage() {
             ))}
           </div>
 
-          {/* Observaciones */}
           <div className="mt-6">
             <p className="text-xs font-semibold mb-2" style={{ color: '#023859' }}>
               Observaciones generales (opcional)
@@ -273,7 +398,6 @@ export default function EncuestaTutorPage() {
             />
           </div>
 
-          {/* Acciones */}
           <div className="flex items-center justify-between mt-5">
             <p className="text-[10px]"
               style={{ color: todasRespondidas ? '#1a7a4a' : '#8a9bb0' }}>
@@ -299,10 +423,7 @@ export default function EncuestaTutorPage() {
                 onClick={() => encuestaMutation.mutate()}
                 disabled={!todasRespondidas || encuestaMutation.isPending}
                 className="h-9 px-5 rounded-lg text-xs font-bold text-white"
-                style={{
-                  background: !todasRespondidas || encuestaMutation.isPending
-                    ? '#a0aab4' : '#D91438',
-                }}>
+                style={{ background: !todasRespondidas || encuestaMutation.isPending ? '#a0aab4' : '#D91438' }}>
                 {encuestaMutation.isPending ? 'Enviando...' : 'Enviar evaluación'}
               </button>
             </div>
@@ -359,7 +480,6 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
         </p>
       </div>
 
-      {/* Ya registrada */}
       {yaRegistrada && !editando && (
         <div className="flex items-start justify-between p-3 rounded-lg"
           style={{ background: '#eaf7f0', border: '0.5px solid #b6e8cf' }}>
@@ -384,11 +504,7 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
             )}
           </div>
           <button
-            onClick={() => {
-              setNota(String(notaExistente.nota))
-              setObs(notaExistente.observaciones ?? '')
-              setEditando(true)
-            }}
+            onClick={() => { setNota(String(notaExistente.nota)); setObs(notaExistente.observaciones ?? ''); setEditando(true) }}
             className="text-[10px] font-semibold flex-shrink-0"
             style={{ color: '#0B416B' }}>
             Editar
@@ -396,7 +512,6 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
         </div>
       )}
 
-      {/* Sin registrar o editando */}
       {(!yaRegistrada || editando) && (
         <div className="flex flex-col gap-3">
           {!yaRegistrada && (
@@ -426,7 +541,6 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
               )}
             </div>
 
-            {/* Preview nota */}
             {notaValida && (
               <div className="flex flex-col items-center justify-center rounded-lg"
                 style={{
@@ -457,7 +571,7 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
               value={obs}
               onChange={e => setObs(e.target.value)}
               rows={3}
-              placeholder="Comentarios sobre el desempeño general del estudiante durante la práctica..."
+              placeholder="Comentarios sobre el desempeño general del estudiante..."
               className="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none"
               style={is} />
           </div>
@@ -475,9 +589,7 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
               disabled={!notaValida || mutation.isPending}
               className="h-9 px-5 rounded-lg text-xs font-bold text-white"
               style={{ background: !notaValida || mutation.isPending ? '#a0aab4' : '#D91438' }}>
-              {mutation.isPending
-                ? 'Guardando...'
-                : yaRegistrada ? 'Actualizar nota' : 'Registrar nota'}
+              {mutation.isPending ? 'Guardando...' : yaRegistrada ? 'Actualizar nota' : 'Registrar nota'}
             </button>
           </div>
         </div>
@@ -486,12 +598,12 @@ function NotaTutorSection({ practicaId, notaActual, observacionesActual, onSucce
   )
 }
 
-// ── Resumen de encuesta ya respondida ─────────────────────────────────────────
+// ── Resumen encuesta respondida ───────────────────────────────────────────────
 
 function ResumenEncuesta({ respuesta }) {
   if (!respuesta?.items?.length) return null
 
-  const escalas = respuesta.items.filter(i => i.tipoPregunta === 'ESCALA' && i.valorEscala != null)
+  const escalas  = respuesta.items.filter(i => i.tipoPregunta === 'ESCALA' && i.valorEscala != null)
   const promedio = escalas.length
     ? (escalas.reduce((a, i) => a + i.valorEscala, 0) / escalas.length).toFixed(1)
     : null

@@ -8,12 +8,20 @@ import BadgeEstadoVacante from '../components/BadgeEstadoVacante'
 import TagHabilidad from '../components/TagHabilidad'
 import ModalPostular from '../components/ModalPostular'
 import ModalRechazar from '../components/ModalRechazar'
+import { useAuthStore } from '@/store/authStore'
+import { ROLES } from '@/lib/roles'
 
 export default function VacantesListadoPage() {
   const qc       = useQueryClient()
   const navigate = useNavigate()
-  const [busqueda,     setBusqueda]     = useState('')
-  const [filtroEstado, setFiltroEstado] = useState('')
+  const { user } = useAuthStore()
+
+  // Secretaría NO puede aprobar vacantes ni postular estudiantes
+  const puedeAprobar   = user?.rol !== ROLES.SECRETARIA_COORDINACION
+  const puedePostular  = user?.rol !== ROLES.SECRETARIA_COORDINACION
+
+  const [busqueda,      setBusqueda]      = useState('')
+  const [filtroEstado,  setFiltroEstado]  = useState('')
   const [modalPostular, setModalPostular] = useState(null)
   const [modalRechazar, setModalRechazar] = useState(null)
 
@@ -47,13 +55,14 @@ export default function VacantesListadoPage() {
   return (
     <div className="flex flex-col gap-4">
 
-      {pendientes > 0 && (
+      {/* Aviso pendientes — solo si puede aprobar */}
+      {puedeAprobar && pendientes > 0 && (
         <div className="flex items-start gap-3 px-4 py-3 rounded-xl"
           style={{ background: '#fff8e6', border: '0.5px solid #f0d080' }}>
           <CheckCircle size={16} style={{ color: '#a07010', flexShrink: 0, marginTop: 1 }} />
           <div>
             <p className="text-xs font-semibold" style={{ color: '#a07010' }}>
-              {pendientes} vacante(s) esperando tu aprobación
+              {pendientes} vacante(s) esperando aprobación
             </p>
             <p className="text-[10px] mt-0.5" style={{ color: '#a07010' }}>
               Las vacantes deben ser aprobadas para que los estudiantes puedan postularse.
@@ -62,13 +71,14 @@ export default function VacantesListadoPage() {
         </div>
       )}
 
+      {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Pendientes aprobación', value: pendientes, color: '#a07010', bg: '#fff8e6' },
-          { label: 'Aprobadas',             value: aprobadas,  color: '#1a7a4a', bg: '#eaf7f0' },
-          { label: 'Total vacantes',        value: vacantes.length, color: '#023859', bg: '#fff' },
+          { label: 'Pendientes aprobación', value: pendientes,       color: '#a07010', bg: '#fff8e6' },
+          { label: 'Aprobadas',             value: aprobadas,        color: '#1a7a4a', bg: '#eaf7f0' },
+          { label: 'Total vacantes',        value: vacantes.length,  color: '#023859', bg: '#fff'    },
         ].map(c => (
-          <div key={c.label} className="bg-white rounded-xl p-4"
+          <div key={c.label} className="rounded-xl p-4"
             style={{ border: '0.5px solid #e2e8f0', background: c.bg }}>
             <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: c.color, opacity: 0.8 }}>
               {c.label}
@@ -78,6 +88,7 @@ export default function VacantesListadoPage() {
         ))}
       </div>
 
+      {/* Filtros */}
       <div className="flex gap-2 items-center">
         <div className="flex-1 relative">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#8a9bb0' }} />
@@ -102,14 +113,14 @@ export default function VacantesListadoPage() {
               className="h-9 px-3 rounded-lg text-xs font-semibold transition-all"
               style={filtroEstado === t.value
                 ? { background: '#023859', color: '#fff' }
-                : { background: '#f4f6f9', color: '#6b7a8d', border: '0.5px solid #e2e8f0' }
-              }>
+                : { background: '#f4f6f9', color: '#6b7a8d', border: '0.5px solid #e2e8f0' }}>
               {t.label}
             </button>
           ))}
         </div>
       </div>
 
+      {/* Lista */}
       <div className="flex flex-col gap-3">
         {filtradas.length === 0 ? (
           <div className="bg-white rounded-xl p-8 text-center" style={{ border: '0.5px solid #e2e8f0' }}>
@@ -117,6 +128,7 @@ export default function VacantesListadoPage() {
           </div>
         ) : filtradas.map(v => (
           <div key={v.id} className="bg-white rounded-xl p-5" style={{ border: '0.5px solid #e2e8f0' }}>
+
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -153,7 +165,8 @@ export default function VacantesListadoPage() {
                   style={{ background: '#f4f6f9', color: '#023859', border: '0.5px solid #e2e8f0' }}>
                   <Eye size={11} /> Ver detalle
                 </button>
-                {v.estado === 'APROBADA' && (
+                {/* Postular — solo COORDINADOR_PRACTICA y ADMINISTRADOR */}
+                {puedePostular && v.estado === 'APROBADA' && (
                   <button onClick={() => setModalPostular(v)}
                     className="flex items-center gap-1 h-7 px-3 rounded-lg text-[10px] font-semibold text-white"
                     style={{ background: '#0B416B' }}>
@@ -169,7 +182,8 @@ export default function VacantesListadoPage() {
               </div>
             )}
 
-            {v.estado === 'PENDIENTE' && (
+            {/* Aprobar/Rechazar — solo COORDINADOR_PRACTICA y ADMINISTRADOR */}
+            {puedeAprobar && v.estado === 'PENDIENTE' && (
               <div className="flex gap-2 pt-3" style={{ borderTop: '0.5px solid #f0f2f5' }}>
                 <button
                   onClick={() => aprobarMutation.mutate(v.id)}
@@ -187,8 +201,19 @@ export default function VacantesListadoPage() {
               </div>
             )}
 
+            {/* Vacante pendiente — secretaría solo ve el estado */}
+            {!puedeAprobar && v.estado === 'PENDIENTE' && (
+              <div className="pt-3" style={{ borderTop: '0.5px solid #f0f2f5' }}>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-full"
+                  style={{ background: '#fff8e6', color: '#a07010' }}>
+                  Pendiente de aprobación por coordinación
+                </span>
+              </div>
+            )}
+
             {v.estado === 'RECHAZADA' && v.motivoRechazo && (
-              <div className="mt-2 p-2 rounded-lg" style={{ background: '#fef0f0', border: '0.5px solid #f7c1c1' }}>
+              <div className="mt-2 p-2 rounded-lg"
+                style={{ background: '#fef0f0', border: '0.5px solid #f7c1c1' }}>
                 <p className="text-[10px]" style={{ color: '#c0392b' }}>
                   <strong>Motivo:</strong> {v.motivoRechazo}
                 </p>
@@ -231,7 +256,8 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-3">
       {[1,2,3].map(i => (
-        <div key={i} className="bg-white rounded-xl p-5 animate-pulse h-28" style={{ border: '0.5px solid #e2e8f0' }} />
+        <div key={i} className="bg-white rounded-xl p-5 animate-pulse h-28"
+          style={{ border: '0.5px solid #e2e8f0' }} />
       ))}
     </div>
   )

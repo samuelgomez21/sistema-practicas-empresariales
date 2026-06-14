@@ -29,27 +29,27 @@ public class EncuestaController {
     // ── Plantillas ─────────────────────────────────────────────────
 
     @GetMapping("/plantillas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EncuestaPlantillaDto>> listarPlantillas() {
         return ResponseEntity.ok(encuestaService.listarPlantillas());
     }
 
     @GetMapping("/plantillas/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<EncuestaPlantillaDto> obtenerPlantillaPorId(
             @PathVariable Long id) {
         return ResponseEntity.ok(encuestaService.obtenerPlantillaPorId(id));
     }
 
     @GetMapping("/plantilla/{tipo}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','ESTUDIANTE','TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','ESTUDIANTE','TUTOR_EMPRESARIAL','SECRETARIA_COORDINACION')")
     public ResponseEntity<EncuestaPlantillaDto> obtenerPlantilla(
             @PathVariable TipoEncuesta tipo) {
         return ResponseEntity.ok(encuestaService.obtenerPlantilla(tipo));
     }
 
     @PostMapping("/plantillas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<EncuestaPlantillaDto> crearPlantilla(
             @RequestBody @Valid CrearPlantillaRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -57,7 +57,7 @@ public class EncuestaController {
     }
 
     @PatchMapping("/plantillas/{id}/toggle")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<Void> togglePlantilla(@PathVariable Long id) {
         encuestaService.togglePlantilla(id);
         return ResponseEntity.noContent().build();
@@ -66,13 +66,13 @@ public class EncuestaController {
     // ── Secciones ──────────────────────────────────────────────────
 
     @GetMapping("/secciones/{seccionId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<SeccionDto> obtenerSeccion(@PathVariable Long seccionId) {
         return ResponseEntity.ok(encuestaService.obtenerSeccion(seccionId));
     }
 
     @PostMapping("/secciones")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<SeccionDto> crearSeccion(
             @RequestBody @Valid CrearSeccionRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -80,7 +80,7 @@ public class EncuestaController {
     }
 
     @DeleteMapping("/secciones/{seccionId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<Void> eliminarSeccion(@PathVariable Long seccionId) {
         encuestaService.eliminarSeccion(seccionId);
         return ResponseEntity.noContent().build();
@@ -89,7 +89,7 @@ public class EncuestaController {
     // ── Preguntas ──────────────────────────────────────────────────
 
     @PostMapping("/secciones/{seccionId}/preguntas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<PreguntaDto> agregarPregunta(
             @PathVariable Long seccionId,
             @RequestBody @Valid CrearPreguntaRequest req) {
@@ -98,7 +98,7 @@ public class EncuestaController {
     }
 
     @PutMapping("/preguntas/{preguntaId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<PreguntaDto> editarPregunta(
             @PathVariable Long preguntaId,
             @RequestBody @Valid CrearPreguntaRequest req) {
@@ -106,7 +106,7 @@ public class EncuestaController {
     }
 
     @DeleteMapping("/preguntas/{preguntaId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<Void> desactivarPregunta(@PathVariable Long preguntaId) {
         encuestaService.desactivarPregunta(preguntaId);
         return ResponseEntity.noContent().build();
@@ -115,7 +115,7 @@ public class EncuestaController {
     // ── Respuestas ─────────────────────────────────────────────────
 
     @PostMapping("/practica/{practicaId}/tipo/{tipo}")
-    @PreAuthorize("hasAnyRole('ESTUDIANTE','TUTOR_EMPRESARIAL','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE','TUTOR_EMPRESARIAL','ADMINISTRADOR','SECRETARIA_COORDINACION')")
     public ResponseEntity<EncuestaRespuestaDto> enviar(
             @PathVariable Long practicaId,
             @PathVariable TipoEncuesta tipo,
@@ -127,7 +127,7 @@ public class EncuestaController {
     }
 
     @GetMapping("/practica/{practicaId}/tipo/{tipo}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR','SECRETARIA_COORDINACION')")
     public ResponseEntity<EncuestaRespuestaDto> obtenerRespuesta(
             @PathVariable Long practicaId,
             @PathVariable TipoEncuesta tipo) {
@@ -147,7 +147,7 @@ public class EncuestaController {
      * Lista todas las respuestas de encuestas — para el coordinador.
      */
     @GetMapping("/respuestas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EncuestaRespuestaDto>> listarTodasLasRespuestas() {
         return ResponseEntity.ok(encuestaService.listarTodasLasRespuestas());
     }
@@ -156,7 +156,7 @@ public class EncuestaController {
      * Lista respuestas filtradas por tipo.
      */
     @GetMapping("/respuestas/tipo/{tipo}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EncuestaRespuestaDto>> listarRespuestasPorTipo(
             @PathVariable TipoEncuesta tipo) {
         return ResponseEntity.ok(encuestaService.listarRespuestasPorTipo(tipo));

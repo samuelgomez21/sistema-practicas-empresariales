@@ -345,7 +345,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/estudiantes',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <SeguimientoEstudiantesPage />
           </ProtectedRoute>
         ),
@@ -353,7 +353,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/documentos-empresas',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <DocumentosEmpresasPage />
           </ProtectedRoute>
         ),
@@ -361,7 +361,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/estudiantes/:id',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <PerfilEstudianteHistorialPage />
           </ProtectedRoute>
         ),
@@ -369,7 +369,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/contratos',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <ContratosPage />
           </ProtectedRoute>
         ),
@@ -377,7 +377,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/practicas',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <PracticasActivasPage />
           </ProtectedRoute>
         ),
@@ -385,7 +385,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/historial',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <HistorialPracticasCoordPage />
           </ProtectedRoute>
         ),
@@ -393,7 +393,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/visitas',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <VisitasPage />
           </ProtectedRoute>
         ),
@@ -401,7 +401,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/paz-salvo',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <PazYSalvoCoordPage />
           </ProtectedRoute>
         ),
@@ -409,7 +409,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/mis-estudiantes',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <EstudiantesCoordPage />
           </ProtectedRoute>
         ),
@@ -417,7 +417,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/encuestas',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <EncuestasCoordPage />
           </ProtectedRoute>
         ),
@@ -425,7 +425,7 @@ const router = createBrowserRouter([
       {
         path: '/coordinacion-empresarial/reportes',
         element: (
-          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR, ROLES.SECRETARIA_COORDINACION]}>
             <ReportesPage />
           </ProtectedRoute>
         ),

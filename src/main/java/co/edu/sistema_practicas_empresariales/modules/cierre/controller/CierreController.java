@@ -23,7 +23,7 @@ public class CierreController {
      * El coordinador puede consultar esto antes de ejecutar.
      */
     @GetMapping("/practica/{practicaId}/verificar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA', 'ESTUDIANTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION', 'ESTUDIANTE')")
     public ResponseEntity<CierreDto> verificar(@PathVariable Long practicaId) {
         return ResponseEntity.ok(cierreService.verificarEstadoCierre(practicaId));
     }
@@ -35,7 +35,7 @@ public class CierreController {
      * y el detalle de qué falta — no lanza excepción.
      */
     @PostMapping("/practica/{practicaId}/ejecutar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<CierreDto> ejecutar(@PathVariable Long practicaId) {
         return ResponseEntity.ok(cierreService.ejecutarCierre(practicaId));
     }

@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Search, Eye, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { coordEmpresarialApi, ESTADO_POSTULACION_LABEL } from '../api/coordEmpresarialApi'
-import { vacantesApi } from '@/features/vacantes/api/vacantesApi'
 import ModalPostularEstudiante from '../components/ModalPostularEstudiante'
+import { useAuthStore } from '@/store/authStore'
+import { ROLES } from '@/lib/roles'
 
 const APTITUD_STYLE = {
   APTO:        { bg: '#eaf7f0', color: '#1a7a4a', label: 'Apto'        },
@@ -16,9 +17,14 @@ const APTITUD_STYLE = {
 
 export default function EstudiantesCoordPage() {
   const navigate  = useNavigate()
-  const [busqueda, setBusqueda]       = useState('')
+  const { user }  = useAuthStore()
+
+  // Secretaría NO puede postular estudiantes
+  const puedePostular = user?.rol !== ROLES.SECRETARIA_COORDINACION
+
+  const [busqueda,       setBusqueda]       = useState('')
   const [filtroPrograma, setFiltroPrograma] = useState('')
-  const [modalPostular, setModalPostular]   = useState(null) // estudiante seleccionado
+  const [modalPostular,  setModalPostular]  = useState(null)
 
   const { data: estudiantes = [], isLoading } = useQuery({
     queryKey: ['estudiantes-coordinador'],
@@ -98,7 +104,7 @@ export default function EstudiantesCoordPage() {
           </thead>
           <tbody>
             {filtrados.map(e => {
-              const apt = APTITUD_STYLE[e.estadoAptitud] ?? APTITUD_STYLE.SIN_EVALUAR
+              const apt   = APTITUD_STYLE[e.estadoAptitud] ?? APTITUD_STYLE.SIN_EVALUAR
               const posts = postulacionesPorEstudiante(e.id)
               return (
                 <tr key={e.id} style={{ borderBottom: '0.5px solid #f7f9fb' }}
@@ -136,7 +142,8 @@ export default function EstudiantesCoordPage() {
                         {posts.slice(0, 2).map(p => {
                           const cfg = ESTADO_POSTULACION_LABEL[p.estado] ?? ESTADO_POSTULACION_LABEL.POSTULADO
                           return (
-                            <span key={p.id} className="text-[9px] font-bold px-2 py-0.5 rounded-full inline-block w-fit"
+                            <span key={p.id}
+                              className="text-[9px] font-bold px-2 py-0.5 rounded-full inline-block w-fit"
                               style={{ background: cfg.bg, color: cfg.color }}>
                               {cfg.label}
                             </span>
@@ -159,7 +166,8 @@ export default function EstudiantesCoordPage() {
                         title="Ver historial">
                         <Eye size={13} />
                       </button>
-                      {e.estadoAptitud === 'APTO' && (
+                      {/* Postular — solo COORDINADOR_PRACTICA y ADMINISTRADOR */}
+                      {puedePostular && e.estadoAptitud === 'APTO' && (
                         <button
                           onClick={() => setModalPostular(e)}
                           className="w-7 h-7 rounded-lg flex items-center justify-center"

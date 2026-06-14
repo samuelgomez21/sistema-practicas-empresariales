@@ -54,7 +54,7 @@ public class VacanteController {
      * @return Lista de vacantes de la empresa.
      */
     @GetMapping("/empresa/{empresaId}")
-    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<VacanteResponse>> listarVacantesPorEmpresa(@PathVariable Long empresaId) {
         return ResponseEntity.ok(vacanteFacade.listarVacantesPorEmpresa(empresaId));
     }
@@ -65,7 +65,7 @@ public class VacanteController {
      * @return Lista de vacantes pendientes de aprobación.
      */
     @GetMapping("/pendientes")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<VacanteResponse>> listarVacantesPendientes() {
         return ResponseEntity.ok(vacanteFacade.listarVacantesPendientes());
     }
@@ -77,7 +77,7 @@ public class VacanteController {
      * @return VacanteResponse con el nuevo estado APROBADA.
      */
     @PutMapping("/{vacanteId}/aprobar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<VacanteResponse> aprobarVacante(@PathVariable Long vacanteId) {
         return ResponseEntity.ok(vacanteFacade.aprobarVacante(vacanteId));
     }
@@ -90,7 +90,7 @@ public class VacanteController {
      * @return VacanteResponse con el nuevo estado RECHAZADA.
      */
     @PutMapping("/{vacanteId}/rechazar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<VacanteResponse> rechazarVacante(
             @PathVariable Long vacanteId,
             @RequestBody Map<String, String> body) {
@@ -107,19 +107,19 @@ public class VacanteController {
      * @return VacanteResponse con el nuevo estado CERRADA.
      */
     @PutMapping("/{vacanteId}/cerrar")
-    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<VacanteResponse> cerrarVacante(@PathVariable Long vacanteId) {
         return ResponseEntity.ok(vacanteFacade.cerrarVacante(vacanteId));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<VacanteResponse>> listarTodas() {
         return ResponseEntity.ok(vacanteFacade.listarTodas());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA', 'ESTUDIANTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA', 'ESTUDIANTE','SECRETARIA_COORDINACION')")
     public ResponseEntity<VacanteResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(vacanteFacade.obtenerPorId(id));
     }

@@ -76,26 +76,20 @@ export const estudianteApi = {
   // ── Avances ────────────────────────────────────────────────────────────────
   getAvances: async () => {
     try {
-      // 1. Obtener práctica activa para sacar el ID
       const { data: practicaRaw } = await api.get('/estudiantes/mi-practica-activa')
       if (!practicaRaw?.id) return []
 
-      // 2. Obtener avances de esa práctica
       const { data: resp } = await api.get(`/practicas/${practicaRaw.id}/avances`)
-
-      // 3. El backend devuelve ApiResponse: { success, message, data: [...] }
       const lista = resp?.data ?? resp ?? []
 
       return lista.map(a => ({
         id:                a.id,
         titulo:            a.titulo,
-        fechaCarga: a.createdAt,
         descripcion:       a.descripcion,
         estado:            a.estado,
-        archivoUrl:        a.archivoUrl     ?? a.urlArchivo ?? null,
-        fechaEntrega:      a.fechaCreacion  ?? a.fechaEntrega ?? null,
-        corteNumero:       a.corteNumero    ?? a.corte?.numero ?? 1,
-        comentarioDocente: a.comentarioDocente ?? null,
+        archivoUrl:        a.archivoUrl     ?? null,
+        fechaEntrega:      a.createdAt      ?? a.fechaEntrega ?? null,
+        comentarioDocente: a.comentarioDocente ?? null,  // ← asegurar que se mapea
       }))
     } catch {
       return []

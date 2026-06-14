@@ -69,6 +69,14 @@ public class PracticaController {
         return ResponseEntity.ok(practicaFacade.obtenerDetalle(id));
     }
 
+    @GetMapping("/mis-practicas")
+    @PreAuthorize("hasRole('DOCENTE_ASESOR')")
+    public ResponseEntity<List<PracticaResumenDto>> misPracticas(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(practicaFacade.listarMisPracticasDocente(userDetails.getUsername()));
+    }
+
     // ── Creación automática ─────────────────────────────────────────
 
     @PostMapping("/crear-automatica")

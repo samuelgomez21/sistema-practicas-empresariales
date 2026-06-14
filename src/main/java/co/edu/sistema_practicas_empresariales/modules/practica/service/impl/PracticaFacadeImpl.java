@@ -84,6 +84,14 @@ public class PracticaFacadeImpl implements PracticaFacade {
                 .map(this::toResumen).toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PracticaResumenDto> listarMisPracticasDocente(String email) {
+        Usuario docente = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Docente no encontrado"));
+        return listarPorDocente(docente.getId());
+    }
+
     @Transactional(readOnly = true)
     public PracticaDetalleDto obtenerDetalle(Long id) {
         return toDetalle(buscar(id));

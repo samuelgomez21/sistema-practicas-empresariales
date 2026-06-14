@@ -254,5 +254,12 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         docente.setMaxEstudiantes(max);
         usuarioRepository.save(docente);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public UsuarioDto obtenerPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        return mapToDto(usuario);
+    }
 
 }

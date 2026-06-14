@@ -34,9 +34,14 @@ public interface PracticaRepository extends JpaRepository<Practica, Long> {
     @Query("""
                 SELECT p FROM Practica p
                 WHERE p.docenteAsesor.id = :docenteId
-                AND p.estado = 'EN_PRACTICA'
             """)
     List<Practica> findPracticasActivasByDocente(@Param("docenteId") Long docenteId);
+/*
+    @Query("""
+                SELECT p FROM Practica p
+                WHERE p.docenteAsesor.id = :docenteId
+                AND p.estado = 'EN_PRACTICA'
+            """)*/
 
     // Buscar si el estudiante tiene alguna práctica activa (en curso, asignada,
     // vinculación, etc.)

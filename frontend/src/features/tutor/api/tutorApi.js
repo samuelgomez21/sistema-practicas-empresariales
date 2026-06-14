@@ -19,30 +19,43 @@ export const tutorApi = {
   getPerfilTutor: async () => {
     try {
       const { data: usuario } = await api.get('/usuarios/mi-perfil')
-      // Buscar el tutor por correo para obtener cargo y empresa
+
       try {
         const { data: tutores } = await api.get('/empresas/tutores/todos')
+        // TutorEmpresarialResponse tiene: id, nombre, correo, telefono, cargo, empresaId
         const tutor = (tutores ?? []).find(
           t => t.correo?.toLowerCase() === usuario.email?.toLowerCase()
         )
+
+        if (!tutor) {
+          return {
+            id: null, nombre: usuario.nombre, correo: usuario.email,
+            cargo: '—', telefono: '—', empresaId: null, empresaNombre: '—',
+          }
+        }
+
+        // Obtener nombre de la empresa con empresaId
+        let empresaNombre = '—'
+        if (tutor.empresaId) {
+          try {
+            const { data: empresa } = await api.get(`/empresas/${tutor.empresaId}`)
+            empresaNombre = empresa?.razonSocial ?? '—'
+          } catch { /* sin empresa */ }
+        }
+
         return {
-          id:           tutor?.id        ?? null,
-          nombre:       tutor?.nombre    ?? usuario.nombre,
-          correo:       tutor?.correo    ?? usuario.email,
-          cargo:        tutor?.cargo     ?? '—',
-          telefono:     tutor?.telefono  ?? '—',
-          empresaId:    tutor?.empresaId ?? null,
-          empresaNombre: tutor?.empresaNombre ?? '—',
+          id:            tutor.id,
+          nombre:        tutor.nombre      ?? usuario.nombre,
+          correo:        tutor.correo      ?? usuario.email,
+          cargo:         tutor.cargo       ?? '—',
+          telefono:      tutor.telefono    ?? '—',
+          empresaId:     tutor.empresaId   ?? null,
+          empresaNombre,
         }
       } catch {
         return {
-          id:           null,
-          nombre:       usuario.nombre,
-          correo:       usuario.email,
-          cargo:        '—',
-          telefono:     '—',
-          empresaId:    null,
-          empresaNombre: '—',
+          id: null, nombre: usuario.nombre, correo: usuario.email,
+          cargo: '—', telefono: '—', empresaId: null, empresaNombre: '—',
         }
       }
     } catch {
@@ -58,18 +71,16 @@ export const tutorApi = {
   getMisEstudiantes: async () => {
     try {
       const perfil = await tutorApi.getPerfilTutor()
-      if (!perfil?.id) return []
+      if (!perfil?.empresaId) return []
 
-      // Obtener todas las prácticas de la empresa del tutor
       const { data } = await api.get(`/practicas/empresa/${perfil.empresaId}`)
       const lista    = Array.isArray(data) ? data : (data?.data ?? [])
 
-      // Filtrar solo las que tienen asignado este tutor
-      const misPracticas = lista.filter(
-        p => p.tutorId === perfil.id || p.tutorEmpresarialId === perfil.id
-      )
+      // PracticaResumenDto.tutorId — filtramos por el id del tutor
+      const misPracticas = perfil.id
+        ? lista.filter(p => p.tutorId === perfil.id)
+        : lista  // si no tenemos id de tutor, mostramos todas de la empresa
 
-      // Enriquecer con datos del estudiante
       return await Promise.all(misPracticas.map(async p => {
         let encuestaCompletada = false
         try {
@@ -86,20 +97,21 @@ export const tutorApi = {
         } catch { /* sin evaluación */ }
 
         return {
-          id:                 p.estudianteId,
-          nombre:             p.nombreEstudiante  ?? '—',
-          programa:           p.programa          ?? p.nombrePrograma ?? '—',
-          semestre:           p.semestre          ?? '—',
-          practicaId:         p.id,
-          numeroPractica:     p.numeroPractica,
-          estado:             p.estado,
-          fechaInicio:        p.fechaInicio        ?? null,
-          fechaFinEstimada:   p.fechaFin           ?? null,
-          correo:             p.emailEstudiante    ?? '—',
-          docenteNombre:      p.nombreDocente      ?? '—',
+          id:                p.estudianteId,
+          nombre:            p.nombreEstudiante  ?? '—',
+          programa:          p.programa          ?? p.nombrePrograma ?? '—',
+          semestre:          p.semestre          ?? '—',
+          practicaId:        p.id,
+          numeroPractica:    p.numeroPractica,
+          estado:            p.estado,
+          fechaInicio:       p.fechaInicio       ?? null,
+          fechaFinEstimada:  p.fechaFin          ?? null,
+          correo:            p.emailEstudiante   ?? '—',
+          docenteNombre:     p.nombreDocente     ?? '—',
+          empresaNombre:     p.nombreEmpresa     ?? '—',  // ← PracticaResumenDto usa nombreEmpresa
           encuestaCompletada,
-          notaTutor:          evaluacion?.notaTutor ?? null,
-          observacionesNota:  evaluacion?.observacionesTutor ?? null,
+          notaTutor:         evaluacion?.notaTutor        ?? null,
+          observacionesNota: evaluacion?.observacionesTutor ?? null,
         }
       }))
     } catch {

@@ -46,7 +46,7 @@ public class EmpresaController {
      * Lista todas las empresas activas en el sistema.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'ESTUDIANTE', 'COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'ESTUDIANTE', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR')")
     public ResponseEntity<List<EmpresaResponse>> listarTodas() {
         return ResponseEntity.ok(empresaFacade.listarTodas());
     }
@@ -148,7 +148,7 @@ public class EmpresaController {
      * Lista todos los tutores activos del sistema (todas las empresas).
      */
     @GetMapping("/tutores/todos")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA', 'TUTOR_EMPRESARIAL')")
     public ResponseEntity<List<TutorEmpresarialResponse>> listarTodosLosTutores() {
         return ResponseEntity.ok(empresaFacade.listarTodosLosTutores());
     }

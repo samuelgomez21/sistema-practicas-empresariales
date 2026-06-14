@@ -12,6 +12,7 @@ export const authApi = {
     try {
       const { data } = await api.post('/auth/login', { email, password })
       return {
+        id: data.id,
         token:  data.token,
         email:  data.email,
         nombre: data.nombre,

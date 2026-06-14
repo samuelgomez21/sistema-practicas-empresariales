@@ -99,6 +99,7 @@ import DocumentosEmpresasPage from '@/features/coordinacion-empresarial/pages/Do
 
 import ReportesPage from '@/features/coordinacion-empresarial/pages/ReportesPage'
 
+import VisitasPage from '@/features/coordinacion-empresarial/pages/VisitasPage'
 
 
 
@@ -334,6 +335,7 @@ const router = createBrowserRouter([
           { path: 'seguimientos',    element: <SeguimientosPage /> },
           { path: 'visitas',         element: <VisitasDocentePage /> },
           { path: 'perfil', element: <MiPerfilDocentePage /> },
+          {path: 'visitas', elemenet: <VisitasPage/>},
 
         ]
       },
@@ -381,7 +383,7 @@ const router = createBrowserRouter([
         path: '/coordinacion-empresarial/visitas',
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
-            <VisitasCoordinadoraPage />
+            <VisitasPage />
           </ProtectedRoute>
         ),
       },

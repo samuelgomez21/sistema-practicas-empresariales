@@ -1,6 +1,8 @@
 package co.edu.sistema_practicas_empresariales.modules.cierre.controller;
 
+import co.edu.sistema_practicas_empresariales.modules.cierre.dto.ChecklistResponse;
 import co.edu.sistema_practicas_empresariales.modules.cierre.dto.CierreDto;
+import co.edu.sistema_practicas_empresariales.modules.cierre.service.ChecklistCierreService;
 import co.edu.sistema_practicas_empresariales.modules.cierre.service.CierreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +15,15 @@ import org.springframework.web.bind.annotation.*;
 public class CierreController {
 
     private final CierreService cierreService;
+    private ChecklistCierreService checklistCierreService;
+
 
     /**
      * Verifica qué falta para poder cerrar — sin ejecutar el cierre.
      * El coordinador puede consultar esto antes de ejecutar.
      */
     @GetMapping("/practica/{practicaId}/verificar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA', 'ESTUDIANTE')")
     public ResponseEntity<CierreDto> verificar(@PathVariable Long practicaId) {
         return ResponseEntity.ok(cierreService.verificarEstadoCierre(practicaId));
     }
@@ -34,5 +38,18 @@ public class CierreController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
     public ResponseEntity<CierreDto> ejecutar(@PathVariable Long practicaId) {
         return ResponseEntity.ok(cierreService.ejecutarCierre(practicaId));
+    }
+
+    /**
+     * Checklist completo en tiempo real — para estudiante y coordinador.
+     * Calcula el estado directamente desde BD sin depender de eventos.
+     */
+    @GetMapping("/practica/{practicaId}/checklist-completo")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','DOCENTE_ASESOR'," +
+            "'SECRETARIA_COORDINACION','ESTUDIANTE')")
+    public ResponseEntity<ChecklistResponse> checklistCompleto(
+            @PathVariable Long practicaId) {
+        return ResponseEntity.ok(
+                checklistCierreService.obtenerChecklistCierre(practicaId));
     }
 }

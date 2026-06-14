@@ -24,6 +24,8 @@ export default function EncuestaTutorPage() {
   const { data: plantilla, isLoading: loadingPlantilla } = useQuery({
     queryKey: ['plantilla-encuesta-tutor'],
     queryFn:  tutorApi.getPlantillaEncuestaTutor,
+    retry:    false,   // ← no reintentar en 500
+    staleTime: 1000 * 60 * 5,  // cachear 5 min
   })
 
   const { data: respuestaExistente, isLoading: loadingResp } = useQuery({
@@ -72,7 +74,7 @@ export default function EncuestaTutorPage() {
     ),
   })
 
-  if (loadingEst || loadingPlantilla || loadingResp) return (
+  if (loadingEst || loadingResp) return (
     <div className="bg-white rounded-xl p-8 animate-pulse"
       style={{ border: '0.5px solid #e2e8f0' }}>
       <div className="h-6 w-48 bg-gray-100 rounded mb-3" />
@@ -135,9 +137,11 @@ export default function EncuestaTutorPage() {
                         })
                       : '—'}
                   </p>
-                  {/* Resumen de respuestas */}
                   <ResumenEncuesta respuesta={respuestaExistente} />
                 </>
+              ) : loadingPlantilla ? (
+                <div className="mt-3 h-9 w-48 rounded-lg animate-pulse"
+                  style={{ background: '#f0f2f5' }} />
               ) : !plantilla ? (
                 <div className="mt-3 p-3 rounded-lg text-xs"
                   style={{ background: '#fff8e6', border: '0.5px solid #f0d080', color: '#a07010' }}>

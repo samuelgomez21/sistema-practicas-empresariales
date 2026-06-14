@@ -33,6 +33,17 @@ export const coordEmpresarialApi = {
   // ── Seguimiento — compuesto desde el nuevo endpoint ─────────────
   getEstudiantesSeguimiento: async () => {
     try {
+
+      const { data: ck } = await api.get(`/cierre/practica/${p.id}/checklist-completo`)
+      checklist = [
+        { clave: 'nota_docente',         label: 'Nota docente',           completado: ck.notaDocenteRegistrada },
+        { clave: 'nota_tutor',           label: 'Nota tutor',             completado: ck.notaTutorRegistrada },
+        { clave: 'nota_final',           label: 'Nota final',             completado: ck.notaFinalRegistrada },
+        { clave: 'encuesta_estudiante',  label: 'Encuesta estudiante',    completado: ck.estadoEncuestaEstudiante === 'COMPLETADA' },
+        { clave: 'encuesta_tutor',       label: 'Encuesta tutor',         completado: ck.estadoEncuestaTutor    === 'COMPLETADA' },
+        { clave: 'documentos_aprobados', label: 'Documentos aprobados',   completado: ck.documentosAprobados },
+        { clave: 'informe_final',        label: 'Informe final aprobado', completado: ck.informeFinalAprobado },
+      ]
       // Obtener prácticas activas
       const { data } = await api.get('/coordinacion-empresarial/practicas-activas')
       const lista = data ?? []

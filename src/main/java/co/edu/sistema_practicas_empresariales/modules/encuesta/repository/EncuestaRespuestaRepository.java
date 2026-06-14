@@ -1,5 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.encuesta.repository;
 
+import co.edu.sistema_practicas_empresariales.modules.encuesta.model.Encuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.model.EncuestaRespuesta;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,6 @@ public interface EncuestaRespuestaRepository extends JpaRepository<EncuestaRespu
 
     List<EncuestaRespuesta> findByPracticaId(Long practicaId);
     List<EncuestaRespuesta> findByTipo(TipoEncuesta tipo);
+
 
 }

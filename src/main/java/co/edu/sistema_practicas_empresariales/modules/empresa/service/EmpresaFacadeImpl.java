@@ -3,7 +3,9 @@ package co.edu.sistema_practicas_empresariales.modules.empresa.service;
 import co.edu.sistema_practicas_empresariales.modules.empresa.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.empresa.event.EmpresaRegistradaEvent;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.Empresa;
+import co.edu.sistema_practicas_empresariales.modules.empresa.model.EmpresaDocumento;
 import co.edu.sistema_practicas_empresariales.modules.empresa.model.TutorEmpresarial;
+import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaDocumentoRepository;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.TutorEmpresarialRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,6 +35,8 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
+    private final EmpresaDocumentoRepository documentoRepository;
+
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -265,6 +270,51 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
                 .filter(TutorEmpresarial::isActivo)
                 .map(this::mapToTutorResponse)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmpresaDocumentoResponse> listarDocumentos(Long empresaId) {
+        return documentoRepository.findByEmpresaIdAndActivoTrue(empresaId).stream()
+                .map(this::mapToDocResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public EmpresaDocumentoResponse guardarDocumento(Long empresaId, EmpresaDocumentoRequest request) {
+        Empresa empresa = empresaRepository.findById(empresaId)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
+
+        // Si ya existe un documento de este tipo, lo desactiva (soft replace)
+        documentoRepository.findByEmpresaIdAndTipoAndActivoTrue(empresaId, request.getTipo())
+                .ifPresent(d -> {
+                    d.setActivo(false);
+                    documentoRepository.save(d);
+                });
+
+        EmpresaDocumento doc = EmpresaDocumento.builder()
+                .empresa(empresa)
+                .tipo(request.getTipo())
+                .url(request.getUrl())
+                .nombreArchivo(request.getNombreArchivo())
+                .fechaVigencia(request.getFechaVigencia())
+                .build();
+
+        doc = documentoRepository.save(doc);
+        return mapToDocResponse(doc);
+    }
+
+    private EmpresaDocumentoResponse mapToDocResponse(EmpresaDocumento d) {
+        return EmpresaDocumentoResponse.builder()
+                .id(d.getId())
+                .tipo(d.getTipo())
+                .url(d.getUrl())
+                .nombreArchivo(d.getNombreArchivo())
+                .fechaVigencia(d.getFechaVigencia())
+                .fechaCarga(d.getFechaCarga())
+                .build();
     }
 
 }

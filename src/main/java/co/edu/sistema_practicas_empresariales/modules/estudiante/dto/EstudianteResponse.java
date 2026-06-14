@@ -29,4 +29,5 @@ public class EstudianteResponse {
     private String estadoPractica;
     private boolean activo;
     private LocalDateTime fechaCreacion;
+    private String hojaVidaUrl;
 }

@@ -5,6 +5,7 @@ import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteR
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteResponse;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.dto.PracticaResponse;
 
+import co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaDetalleDto;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
@@ -41,5 +42,8 @@ public interface EstudianteFacade {
     EstudianteResponse actualizarAptitudManual(Long estudianteId, String estadoAptitud);
 
     List<EstudianteResponse> listarPorCoordinadorPractica(String email);
+    EstudianteResponse actualizarHojaVida(Long id, String url);
+    PracticaDetalleDto obtenerMiPracticaActiva(String email);
+    EstudianteResponse obtenerPorEmail(String email);
 
 }

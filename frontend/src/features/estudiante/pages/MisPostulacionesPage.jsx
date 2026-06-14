@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { vacantesApi, ESTADO_POSTULACION, MODALIDAD_LABEL } from '@/features/vacantes/api/vacantesApi'
+import { estudianteApi } from '../api/estudianteApi'
 
 // Mapea el estado de postulación a un número de paso (1-4)
 const PASO_MAP = {
@@ -78,7 +79,7 @@ function StepperPostulacion({ estado }) {
 export default function MisPostulacionesPage() {
   const { data: postulaciones = [], isLoading } = useQuery({
     queryKey: ['mis-postulaciones'],
-    queryFn:  vacantesApi.getMisPostulaciones,
+    queryFn:  estudianteApi.getMisPostulaciones,  // ← antes era vacantesApi.getMisPostulaciones
   })
 
   if (isLoading) return (

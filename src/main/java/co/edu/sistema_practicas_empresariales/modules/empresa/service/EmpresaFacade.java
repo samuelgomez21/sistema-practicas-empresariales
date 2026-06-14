@@ -1,9 +1,8 @@
 package co.edu.sistema_practicas_empresariales.modules.empresa.service;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.EmpresaRequest;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.EmpresaResponse;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialRequest;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialResponse;
+import co.edu.sistema_practicas_empresariales.modules.empresa.dto.*;
+
+import java.util.List;
 
 public interface EmpresaFacade {
     EmpresaResponse registrarEmpresa(EmpresaRequest request);
@@ -20,4 +19,6 @@ public interface EmpresaFacade {
     TutorEmpresarialResponse actualizarTutor(Long id, TutorEmpresarialRequest request);
     void activarTutor(Long id);
     java.util.List<TutorEmpresarialResponse> listarTodosLosTutores();
+    List<EmpresaDocumentoResponse> listarDocumentos(Long empresaId);
+    EmpresaDocumentoResponse guardarDocumento(Long empresaId, EmpresaDocumentoRequest request);
 }

@@ -25,6 +25,7 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
     private final VacanteRepository vacanteRepository;
     private final EstudianteRepository estudianteRepository;
 
+
     @Override
     @Transactional
     public PostulacionResponseDto crearPostulacion(PostulacionRequestDto dto) {
@@ -144,5 +145,14 @@ public class PostulacionFacadeImpl implements PostulacionFacade {
                 .fechaPostulacion(p.getFechaPostulacion())
                 .observaciones(p.getObservaciones())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PostulacionResponseDto> listarPorEstudianteEmail(String email) {
+        co.edu.sistema_practicas_empresariales.modules.estudiante.model.Estudiante est =
+                estudianteRepository.findByUsuario_Email(email)
+                        .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        return listarPorEstudiante(est.getId());
     }
 }

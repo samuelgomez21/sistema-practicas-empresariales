@@ -185,4 +185,38 @@ public class EstudianteController {
             org.springframework.security.core.userdetails.UserDetails userDetails) {
         return ResponseEntity.ok(estudianteFacade.listarPorCoordinadorPractica(userDetails.getUsername()));
     }
+
+    /**
+     * Actualiza la URL de la hoja de vida del estudiante (sube desde Firebase en el frontend).
+     */
+    @PatchMapping("/{id}/hoja-vida")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'ADMINISTRADOR', 'COORDINADOR_ACADEMICO')")
+    public ResponseEntity<EstudianteResponse> actualizarHojaVida(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> body) {
+        return ResponseEntity.ok(estudianteFacade.actualizarHojaVida(id, body.get("hojaVidaUrl")));
+    }
+
+    @GetMapping("/mi-practica-activa")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    public ResponseEntity<co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaDetalleDto> miPracticaActiva(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        try {
+            return ResponseEntity.ok(estudianteFacade.obtenerMiPracticaActiva(userDetails.getUsername()));
+        } catch (Exception e) {
+            return ResponseEntity.ok(null);
+        }
+    }
+
+    /**
+     * Perfil del estudiante autenticado — no necesita ID.
+     */
+    @GetMapping("/mi-perfil")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    public ResponseEntity<EstudianteResponse> miPerfil(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(estudianteFacade.obtenerPorEmail(userDetails.getUsername()));
+    }
 }

@@ -64,4 +64,13 @@ public class PostulacionController {
         postulacionFacade.eliminarPostulacion(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/mis-postulaciones")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    public ResponseEntity<List<PostulacionResponseDto>> misPostulaciones(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.userdetails.UserDetails userDetails) {
+        // Obtener estudianteId desde email del usuario autenticado
+        return ResponseEntity.ok(postulacionFacade.listarPorEstudianteEmail(userDetails.getUsername()));
+    }
 }

@@ -153,6 +153,7 @@ export default function LoginPage() {
                 <input
                   {...register('password')}
                   type={verPass ? 'text' : 'password'}
+                  autoComplete="current-password" 
                   placeholder="••••••••"
                   className="w-full h-11 pl-10 pr-11 rounded-lg text-sm outline-none transition-all"
                   style={{

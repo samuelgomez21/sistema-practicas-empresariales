@@ -25,7 +25,7 @@ public class ReporteController {
      * Filtros opcionales: programaId, facultadId, periodo, numeroPractica
      */
     @GetMapping("/estado-proceso")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO', 'DIRECCION')")
     public ResponseEntity<List<ReporteEstadoProcesoDto>> estadoProceso(
             @RequestParam(required = false) Long programaId,
             @RequestParam(required = false) Long facultadId,
@@ -41,7 +41,7 @@ public class ReporteController {
      * Filtros: programaId, periodo, docenteId, empresaId, resultado
      */
     @GetMapping("/notas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO', 'DIRECCION')")
     public ResponseEntity<List<ReporteNotasDto>> notas(
             @RequestParam(required = false) Long programaId,
             @RequestParam(required = false) String periodo,
@@ -58,7 +58,7 @@ public class ReporteController {
      * Filtros: sector, programaId, periodo
      */
     @GetMapping("/empresas-vacantes")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO', 'DIRECCION')")
     public ResponseEntity<List<ReporteEmpresaVacanteDto>> empresasVacantes(
             @RequestParam(required = false) String sector,
             @RequestParam(required = false) Long programaId,
@@ -73,7 +73,7 @@ public class ReporteController {
      * Filtros: programaId, periodo, tipo (ESTUDIANTE | TUTOR)
      */
     @GetMapping("/encuestas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','COORDINADOR_ACADEMICO', 'DIRECCION')")
     public ResponseEntity<ReporteEncuestasDto> encuestas(
             @RequestParam(required = false) Long programaId,
             @RequestParam(required = false) String periodo,

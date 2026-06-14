@@ -14,7 +14,7 @@ import java.util.List;
  * poblar selectores en el frontend (ej. crear usuario).
  */
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("api/roles")
 @RequiredArgsConstructor
 public class RolController {
 

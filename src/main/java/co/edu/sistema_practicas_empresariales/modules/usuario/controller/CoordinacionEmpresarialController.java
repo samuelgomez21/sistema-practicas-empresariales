@@ -30,7 +30,7 @@ public class CoordinacionEmpresarialController {
      * y checklist de paz y salvo. Compone datos de múltiples módulos.
      */
     @GetMapping("/seguimiento")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<Map<String, Object>>> getSeguimiento(
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -72,7 +72,7 @@ public class CoordinacionEmpresarialController {
      * Prácticas activas de los estudiantes del coordinador.
      */
     @GetMapping("/practicas-activas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<Map<String, Object>>> getPracticasActivas(
             @AuthenticationPrincipal UserDetails userDetails) {
 

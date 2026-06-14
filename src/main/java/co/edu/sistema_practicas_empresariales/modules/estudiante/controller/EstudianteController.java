@@ -69,7 +69,7 @@ public class EstudianteController {
      * Obtiene la información de un estudiante por su ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA', 'DOCENTE_ASESOR', 'EMPRESA_VINCULADA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','SECRETARIA_COORDINACION', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA', 'DOCENTE_ASESOR', 'EMPRESA_VINCULADA')")
     public ResponseEntity<EstudianteResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(estudianteFacade.obtenerPorId(id));
     }
@@ -87,7 +87,7 @@ public class EstudianteController {
      * Lista estudiantes filtrados por programa académico.
      */
     @GetMapping("/programa/{programaId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_ACADEMICO', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EstudianteResponse>> listarPorPrograma(@PathVariable Long programaId) {
         return ResponseEntity.ok(estudianteFacade.listarPorPrograma(programaId));
     }
@@ -96,7 +96,7 @@ public class EstudianteController {
      * Lista todos los estudiantes cuyo estado de aptitud sea APTO.
      */
     @GetMapping("/aptos")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'TUTOR_EMPRESARIAL','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EstudianteResponse>> listarAptos() {
         return ResponseEntity.ok(estudianteFacade.listarAptos());
     }
@@ -128,7 +128,7 @@ public class EstudianteController {
      * determinar si el estudiante cumple los requisitos del programa para iniciar práctica.
      */
     @PostMapping("/{estudianteId}/evaluar-aptitud/{numeroPractica}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO','SECRETARIA_COORDINACION')")
     public ResponseEntity<EstudianteResponse> evaluarAptitud(
             @PathVariable Long estudianteId,
             @PathVariable int numeroPractica) {
@@ -139,7 +139,7 @@ public class EstudianteController {
      * Obtiene el historial de prácticas (anteriores y actuales) de un estudiante.
      */
     @GetMapping("/{estudianteId}/practicas")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR','ESTUDIANTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'COORDINADOR_ACADEMICO', 'DOCENTE_ASESOR','ESTUDIANTE','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<PracticaResponse>> obtenerHistorialPracticas(@PathVariable Long estudianteId) {
         return ResponseEntity.ok(estudianteFacade.obtenerHistorialPracticas(estudianteId));
     }
@@ -179,7 +179,7 @@ public class EstudianteController {
      * Incluye solo APTOS o EN_PRACTICA (ya clasificados por el coordinador).
      */
     @GetMapping("/por-coordinador")
-    @PreAuthorize("hasAnyRole('COORDINADOR_PRACTICA', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COORDINADOR_PRACTICA', 'ADMINISTRADOR','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<EstudianteResponse>> listarPorCoordinador(
             @org.springframework.security.core.annotation.AuthenticationPrincipal
             org.springframework.security.core.userdetails.UserDetails userDetails) {

@@ -20,13 +20,13 @@ public class PostulacionController {
     private final PostulacionFacade postulacionFacade;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('COORDINADOR_PRACTICA', 'ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COORDINADOR_PRACTICA', 'ADMINISTRADOR','SECRETARIA_COORDINACION')")
     public ResponseEntity<PostulacionResponseDto> crearPostulacion(@RequestBody PostulacionRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(postulacionFacade.crearPostulacion(dto));
     }
 
     @PutMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<PostulacionResponseDto> actualizarEstado(
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
@@ -35,25 +35,25 @@ public class PostulacionController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<PostulacionResponseDto> obtenerPostulacion(@PathVariable Long id) {
         return ResponseEntity.ok(postulacionFacade.obtenerPostulacion(id));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<PostulacionResponseDto>> listarTodas() {
         return ResponseEntity.ok(postulacionFacade.listarTodas());
     }
 
     @GetMapping("/vacante/{vacanteId}")
-    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('EMPRESA_VINCULADA', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<PostulacionResponseDto>> listarPorVacante(@PathVariable Long vacanteId) {
         return ResponseEntity.ok(postulacionFacade.listarPorVacante(vacanteId));
     }
 
     @GetMapping("/estudiante/{estudianteId}")
-    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'ADMINISTRADOR', 'COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<PostulacionResponseDto>> listarPorEstudiante(@PathVariable Long estudianteId) {
         return ResponseEntity.ok(postulacionFacade.listarPorEstudiante(estudianteId));
     }

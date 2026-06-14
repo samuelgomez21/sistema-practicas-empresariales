@@ -18,19 +18,19 @@ public class ContratoController {
     private final ContratoService contratoService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<ContratoResponse>> listarTodos() {
         return ResponseEntity.ok(contratoService.listarTodos());
     }
 
     @PostMapping("/generar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<ContratoResponse> generar(@RequestBody ContratoRequest request) {
         return ResponseEntity.ok(contratoService.generarContrato(request));
     }
 
     @GetMapping("/empresas-disponibles")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','SECRETARIA_COORDINACION')")
     public ResponseEntity<List<Map<String, Object>>> empresasConSeleccionados() {
         return ResponseEntity.ok(contratoService.getEmpresasConSeleccionados());
     }

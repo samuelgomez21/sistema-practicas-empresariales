@@ -102,18 +102,25 @@ export const MENU_POR_ROL = {
   [ROLES.SECRETARIA_COORDINACION]: [
     { section: 'Principal',
       items: [
-        { label: 'Dashboard',    icon: 'layout-dashboard', path: '/dashboard/secretaria' },
-        { label: 'Empresas',     icon: 'building',         path: '/empresas/listado' },
-        { label: 'Vacantes',     icon: 'briefcase',        path: '/vacantes/listado' },
-        { label: 'Estudiantes',  icon: 'users',            path: '/secretaria/estudiantes' },
-        { label: 'Asignaciones', icon: 'transfer',         path: '/secretaria/asignaciones' },
-        { label: 'Visitas',      icon: 'map-pin',          path: '/empresas/visitas' },
+        { label: 'Dashboard',   icon: 'layout-dashboard', path: '/dashboard/secretaria'                  },
+        { label: 'Empresas',    icon: 'building',         path: '/empresas/listado'                      },
+        { label: 'Vacantes',    icon: 'briefcase',        path: '/vacantes/listado'                      },
+        { label: 'Estudiantes', icon: 'graduation-cap',   path: '/coordinacion-empresarial/mis-estudiantes' },
       ],
     },
     { section: 'Seguimiento',
       items: [
-        { label: 'Prácticas activas', icon: 'clipboard-list', path: '/secretaria/activas' },
-
+        { label: 'Prácticas activas',   icon: 'clipboard-list', path: '/coordinacion-empresarial/practicas'  },
+        { label: 'Seguimiento',         icon: 'users',          path: '/coordinacion-empresarial/estudiantes' },
+        { label: 'Reportes',            icon: 'chart-bar',      path: '/coordinacion-empresarial/reportes'   },
+        { label: 'Paz y Salvo',         icon: 'award',          path: '/coordinacion-empresarial/paz-salvo'  },
+        { label: 'Historial prácticas', icon: 'book-open',      path: '/coordinacion-empresarial/historial'  },
+      ],
+    },
+    { section: 'Gestión',
+      items: [
+        { label: 'Contratos',  icon: 'file-text',  path: '/coordinacion-empresarial/contratos' },
+        { label: 'Encuestas',  icon: 'forms',      path: '/coordinacion-empresarial/encuestas' },
       ],
     },
   ],

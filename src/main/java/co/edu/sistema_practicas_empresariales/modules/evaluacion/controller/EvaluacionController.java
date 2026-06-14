@@ -38,7 +38,7 @@ public class EvaluacionController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA', 'DOCENTE_ASESOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA', 'DOCENTE_ASESOR','SECRETARIA_COORDINACION')")
     @PostMapping("/coordinador/practica/{practicaId}")
     public ResponseEntity<EvaluacionResponse> registrarNotaFinal(
             @PathVariable Long practicaId,

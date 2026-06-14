@@ -30,7 +30,7 @@ public class PracticaDetalleDto {
     private Long estudianteId;
     private String nombreEstudiante;
     private Long empresaId;
-    private String nombreEmpresa;
+    private String empresaNombre;
     private Long docenteId;
     private String nombreDocente;
     private Long tutorId;

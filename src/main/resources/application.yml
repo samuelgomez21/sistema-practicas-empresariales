@@ -48,7 +48,7 @@ app:
 
   firebase:
     config-path: ${FIREBASE_CONFIG:classpath:firebase-service-account.json}
-    storage-bucket: ${FIREBASE_BUCKET:practicas-uah.appspot.com}
+
 
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}

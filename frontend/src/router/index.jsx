@@ -95,6 +95,9 @@ import EstudiantesCoordPage    from '@/features/coordinacion-empresarial/pages/E
 import EncuestasCoordPage      from '@/features/coordinacion-empresarial/pages/EncuestasCoordPage'
 import PracticasActivasPage from '@/features/coordinacion-empresarial/pages/PracticasActivasPage'
 
+import DocumentosEmpresasPage from '@/features/coordinacion-empresarial/pages/DocumentosEmpresasPage'
+
+
 
 // Redirige al dashboard del rol activo
 function RootRedirect() {
@@ -336,6 +339,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
             <SeguimientoEstudiantesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/coordinacion-empresarial/documentos-empresas',
+        element: (
+          <ProtectedRoute roles={[ROLES.COORDINADOR_PRACTICA, ROLES.ADMINISTRADOR]}>
+            <DocumentosEmpresasPage />
           </ProtectedRoute>
         ),
       },

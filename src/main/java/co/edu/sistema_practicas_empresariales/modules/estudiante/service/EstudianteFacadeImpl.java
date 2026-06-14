@@ -17,6 +17,7 @@ import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.D
 import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.PracticaAnteriorHandler;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.PromedioHandler;
 import co.edu.sistema_practicas_empresariales.modules.estudiante.service.chain.ValidadorAptitudHandler;
+import co.edu.sistema_practicas_empresariales.modules.practica.dto.PracticaDetalleDto;
 import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol;
@@ -62,6 +63,8 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     private final ApplicationEventPublisher eventPublisher;
     private final EmailService emailService;
     private final CoordinadorProgramaRepository coordinadorProgramaRepository;
+    private final @org.springframework.context.annotation.Lazy
+    co.edu.sistema_practicas_empresariales.modules.practica.service.PracticaFacade practicaFacade;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -355,6 +358,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                 .semestre(e.getSemestre())
                 .creditosAprobados(e.getCreditosAprobados())
                 .promedioAcumulado(e.getPromedioAcumulado())
+                .hojaVidaUrl(e.getDocumentoHojaVidaUrl())
                 .estadoAptitud(e.getEstadoAptitud().name())
                 .estadoPractica(e.getEstadoPractica())
                 .activo(e.isActivo())
@@ -461,5 +465,30 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
                         || e.getEstadoPractica() != null)
                 .map(this::mapToResponse)
                 .toList();
+    }
+    @Override
+    @Transactional
+    public EstudianteResponse actualizarHojaVida(Long id, String url) {
+        Estudiante estudiante = estudianteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(ESTUDIANTE_NO_ENCONTRADO_MSG + id));
+        estudiante.setDocumentoHojaVidaUrl(url);
+        estudiante = estudianteRepository.save(estudiante);
+        return mapToResponse(estudiante);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PracticaDetalleDto obtenerMiPracticaActiva(String email) {
+        Estudiante estudiante = estudianteRepository.findByUsuario_Email(email)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        return practicaFacade.obtenerPracticaActivaEstudiante(estudiante.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EstudianteResponse obtenerPorEmail(String email) {
+        Estudiante estudiante = estudianteRepository.findByUsuario_Email(email)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado para el email: " + email));
+        return mapToResponse(estudiante);
     }
 }

@@ -1,9 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.empresa.controller;
 
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.EmpresaRequest;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.EmpresaResponse;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialRequest;
-import co.edu.sistema_practicas_empresariales.modules.empresa.dto.TutorEmpresarialResponse;
+import co.edu.sistema_practicas_empresariales.modules.empresa.dto.*;
 import co.edu.sistema_practicas_empresariales.modules.empresa.service.EmpresaFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -154,5 +151,35 @@ public class EmpresaController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR_PRACTICA', 'EMPRESA_VINCULADA')")
     public ResponseEntity<List<TutorEmpresarialResponse>> listarTodosLosTutores() {
         return ResponseEntity.ok(empresaFacade.listarTodosLosTutores());
+    }
+
+    /**
+     * Lista los documentos de una empresa.
+     */
+    @GetMapping("/{empresaId}/documentos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','EMPRESA_VINCULADA')")
+    public ResponseEntity<List<EmpresaDocumentoResponse>> listarDocumentos(
+            @PathVariable Long empresaId) {
+        return ResponseEntity.ok(empresaFacade.listarDocumentos(empresaId));
+    }
+
+    /**
+     * Guarda o reemplaza un documento de empresa (la URL viene del frontend tras subir a Cloudinary).
+     */
+    @PostMapping("/{empresaId}/documentos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA','EMPRESA_VINCULADA')")
+    public ResponseEntity<EmpresaDocumentoResponse> guardarDocumento(
+            @PathVariable Long empresaId,
+            @RequestBody EmpresaDocumentoRequest request) {
+        return ResponseEntity.ok(empresaFacade.guardarDocumento(empresaId, request));
+    }
+
+    /**
+     * Lista todos los documentos de todas las empresas — para coordinador.
+     */
+    @GetMapping("/documentos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','COORDINADOR_PRACTICA')")
+    public ResponseEntity<List<EmpresaDocumentoResponse>> listarTodosLosDocumentos() {
+        return ResponseEntity.ok(empresaFacade.listarTodosLosDocumentos());
     }
 }

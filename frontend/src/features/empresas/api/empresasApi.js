@@ -65,6 +65,40 @@ export const empresasApi = {
     return data
   },
 
+  // Documentos
+
+  // Agregar a empresasApi:
+
+  getTodosLosDocumentos: async () => {
+    try {
+      const { data } = await api.get('/empresas/documentos')
+      return data ?? []
+    } catch {
+      return []
+    }
+  },
+
+  getDocumentosEmpresa: async (empresaId) => {
+    const { data } = await api.get(`/empresas/${empresaId}/documentos`)
+    return data
+    // [{ id, tipo, url, nombreArchivo, fechaVigencia, fechaCarga }]
+  },
+  
+  subirDocumentoEmpresa: async (empresaId, tipo, archivo, fechaVigencia = null) => {
+    // 1. Subir a Cloudinary
+    const { subirArchivo } = await import('@/lib/cloudinary')
+    const url = await subirArchivo(archivo, `empresas/${empresaId}`)
+
+    // 2. Guardar URL en el backend
+    const { data } = await api.post(`/empresas/${empresaId}/documentos`, {
+      tipo,
+      url,
+      nombreArchivo: archivo.name,
+      fechaVigencia: fechaVigencia ?? null,
+    })
+    return data
+  },
+
   crearTutor: async (empresaId, data) => {
     const { data: res } = await api.post(`/empresas/${empresaId}/tutores`, {
       nombre:   data.nombre,

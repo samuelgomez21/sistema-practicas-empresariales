@@ -80,6 +80,81 @@ export const coordEmpresarialApi = {
     const res = await api.get(`/postulaciones/estudiante/${estudianteId}`)
     return (res.data ?? []).map(mapPostulacion)
   },
+  getEmpresasConSeleccionados: async () => {
+    try {
+      // Intentar el endpoint real primero
+      const res = await api.get('/contratos/empresas-disponibles')
+      return res.data ?? []
+    } catch {
+      // Si no existe el endpoint, componemos desde postulaciones
+      try {
+        const [postulacionesRes, practicasRes] = await Promise.all([
+          api.get('/postulaciones'),           // todas las postulaciones
+          api.get('/coordinacion-empresarial/practicas-activas'), // prácticas activas
+        ])
+
+        const postulaciones = postulacionesRes.data ?? []
+        const practicas     = practicasRes.data ?? []
+
+        // IDs de estudiantes que ya tienen empresa asignada en su práctica
+        const estudiantesConEmpresa = new Set(
+          practicas
+            .filter(item => item.practica?.empresaNombre)
+            .map(item => item.estudiante?.id)
+            .filter(Boolean)
+        )
+
+        // Solo SELECCIONADOS que NO tienen empresa asignada aún
+        const seleccionados = postulaciones.filter(p =>
+          p.estado === 'SELECCIONADO' &&
+          !estudiantesConEmpresa.has(p.estudianteId)
+        )
+
+        if (seleccionados.length === 0) return []
+
+        // Agrupar por empresa
+        const porEmpresa = {}
+        for (const p of seleccionados) {
+          const [vacanteRes, estudianteRes] = await Promise.all([
+            api.get(`/vacantes/${p.vacanteId}`),
+            api.get(`/estudiantes/${p.estudianteId}`),
+          ])
+          const vacante    = vacanteRes.data
+          const estudiante = estudianteRes.data
+          const empresaId  = vacante.empresaId
+
+          if (!porEmpresa[empresaId]) {
+            const empresaRes = await api.get(`/empresas/${empresaId}`)
+            porEmpresa[empresaId] = {
+              empresaId,
+              razonSocial:    empresaRes.data.razonSocial,
+              nit:            empresaRes.data.nit,
+              nombreContacto: empresaRes.data.contactoPrincipalNombre,
+              cedulaContacto: '—',
+              municipio:      empresaRes.data.municipio,
+              seleccionados:  [],
+            }
+          }
+
+          porEmpresa[empresaId].seleccionados.push({
+            estudianteId:   estudiante.id,
+            nombre:         estudiante.nombre,
+            programa:       estudiante.nombrePrograma,
+            programaId:     estudiante.programaId,
+            semestre:       estudiante.semestre,
+            correo:         estudiante.email,
+            numeroPractica: 1,
+            vacanteTitulo:  vacante.titulo,
+            salarioVacante: vacante.salario,
+          })
+        }
+
+        return Object.values(porEmpresa)
+      } catch {
+        return []
+      }
+    }
+  },
 
   // ── Encuestas ─────────────────────────────────────────────────────
   getPlantillas: async () => {
@@ -148,7 +223,9 @@ export const coordEmpresarialApi = {
   generarContrato: async (data) => {
     const res = await api.post('/contratos/generar', {
       estudianteId:  data.estudianteId,
+      practicaId: data.practicaId,
       empresaNombre: data.empresaNombre,
+      empresaId: data.empresaId,
       tipoContrato:  data.tipoContrato,
       fechaInicio:   data.fechaInicio,
       fechaFin:      data.fechaFin,

@@ -40,6 +40,10 @@ public class Postulacion {
     @Builder.Default
     private LocalDateTime fechaPostulacion = LocalDateTime.now();
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean eliminado = false;
+
     @Column(columnDefinition = "TEXT")
     private String observaciones;
 

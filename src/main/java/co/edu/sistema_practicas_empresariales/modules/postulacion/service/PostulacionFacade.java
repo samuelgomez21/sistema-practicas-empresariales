@@ -13,4 +13,6 @@ public interface PostulacionFacade {
     List<PostulacionResponseDto> listarPorVacante(Long vacanteId);
     List<PostulacionResponseDto> listarPorEstudiante(Long estudianteId);
     void eliminarPostulacion(Long id);
+    List<PostulacionResponseDto> listarPorEstudianteEmail(String email);
+
 }

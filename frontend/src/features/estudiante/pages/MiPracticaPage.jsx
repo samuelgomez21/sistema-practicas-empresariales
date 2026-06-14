@@ -121,7 +121,7 @@ export default function EstudianteDashboardPage() {
             Hola, {user?.nombre?.split(' ')[0]} 👋
           </h2>
           <p className="text-xs mt-0.5" style={{ color: '#8a9bb0' }}>
-            {practica.programa} · {practica.nombrePractica} · Semestre 2025-2
+            {practica.programa} · {practica.nombrePractica} · Semestre 2026-1
           </p>
         </div>
         <BadgeEstadoPractica estado={practica.estado} />
@@ -133,6 +133,7 @@ export default function EstudianteDashboardPage() {
         {[
           { label: 'Empresa',       value: practica.empresa?.razonSocial ?? '—', color: '#023859' },
           { label: 'Docente asesor', value: practica.docente?.nombre ?? '—',     color: '#023859' },
+          { label: 'Tutor empresarial', value: practica.tutor?.nombre ?? '—', color: '#023859' },
           { label: 'Corte actual',   value: `${obtenerCorteActual(practica, avances)} / ${practica.cortes.length}`, color: '#0B416B' },
         ].map(c => (
           <div key={c.label} className="bg-white rounded-xl p-4"

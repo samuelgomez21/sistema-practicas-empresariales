@@ -27,4 +27,7 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
     boolean existsByIdentificacion(String identificacion);
     
     boolean existsByProgramaId(Long programaId);
+
+    Optional<Estudiante> findByUsuario_Email(String email);
+
 }

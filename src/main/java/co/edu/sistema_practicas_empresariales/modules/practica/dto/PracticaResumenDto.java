@@ -13,12 +13,17 @@ import java.time.LocalDate;
 @Builder
 public class PracticaResumenDto {
     private Long id;
+    private int numeroPractica;
+    private String emailEstudiante;
+    private int semestre;
     private String nombrePractica;
     private String materiaNucleo;
     private String programa;
     private String nombreEstudiante;
     private Long estudianteId;
     private String nombreEmpresa;
+    private Long tutorId;
+    private String nombreTutor;
     private Long empresaId;
     private String nombreDocente;
     private Long docenteId;

@@ -43,6 +43,9 @@ public class AuthFacadeImpl implements AuthFacade {
     @Value("${app.seed.coord.password:coord123}")
     private String coordPassword;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Override
     @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "LOGIN", modulo = "AUTENTICACION")
     public JwtResponse login(LoginRequest request) {
@@ -62,6 +65,7 @@ public class AuthFacadeImpl implements AuthFacade {
             throw new IllegalStateException("Principal no puede ser nulo");
         }
         return JwtResponse.builder()
+                .id(principal.getId())
                 .token(token)
                 .type("Bearer")
                 .email(principal.getEmail())
@@ -130,21 +134,24 @@ public class AuthFacadeImpl implements AuthFacade {
     }
 
     private void sendPasswordResetEmail(Usuario usuario, String token) {
-        String resetUrl = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        // La URL apunta al FRONTEND, que tiene la página /reset-password
+        // El frontend llama al backend con el token cuando el usuario llega ahí
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+
         String emailBody = String.format(
-            ConfiguracionGlobalSingleton.getInstance().getPlantillaCorreoBase(),
-            "<h3>Recuperación de Contraseña</h3>" +
-            "<p>Hola " + usuario.getNombre() + ",</p>" +
-            "<p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace:</p>" +
-            "<p><a href=\"" + resetUrl + "\">Restablecer Contraseña</a></p>" +
-            "<p>Este enlace expirará en 15 minutos.</p>"
+                ConfiguracionGlobalSingleton.getInstance().getPlantillaCorreoBase(),
+                "<h3>Recuperaci\u00f3n de Contrase\u00f1a</h3>" +
+                        "<p>Hola " + usuario.getNombre() + ",</p>" +
+                        "<p>Has solicitado restablecer tu contrase\u00f1a. Haz clic en el siguiente enlace:</p>" +
+                        "<p><a href=\"" + resetUrl + "\">Restablecer Contrase\u00f1a</a></p>" +
+                        "<p>Este enlace expirar\u00e1 en 1 hora.</p>"
         );
 
         CorreoInstitucional correo = new CorreoInstitucionalBuilder()
-            .destinatario(usuario.getEmail())
-            .asunto("Recuperación de Contraseña")
-            .cuerpoHtml(emailBody)
-            .build();
+                .destinatario(usuario.getEmail())
+                .asunto("Recuperaci\u00f3n de Contrase\u00f1a - Sistema de Pr\u00e1cticas UAH")
+                .cuerpoHtml(emailBody)
+                .build();
 
         emailPort.enviarCorreo(correo);
     }

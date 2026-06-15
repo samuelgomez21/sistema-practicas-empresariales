@@ -16,6 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Servicio de lógica de negocio para la gestión de Evaluacion.
+ * Implementa las operaciones principales, reglas de negocio y transacciones directamente relacionadas con la base de datos.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class EvaluacionServiceImpl implements EvaluacionService {

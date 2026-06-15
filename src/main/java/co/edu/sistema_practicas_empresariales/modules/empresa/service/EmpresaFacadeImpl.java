@@ -24,6 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Fachada (Facade) que orquesta múltiples servicios para cumplir casos de uso complejos de Empresa.
+ * Actúa como intermediario entre los controladores y los servicios subyacentes, ocultando la complejidad del sistema.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class EmpresaFacadeImpl implements EmpresaFacade {

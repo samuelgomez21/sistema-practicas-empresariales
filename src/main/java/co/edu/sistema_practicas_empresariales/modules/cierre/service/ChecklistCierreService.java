@@ -2,13 +2,10 @@ package co.edu.sistema_practicas_empresariales.modules.cierre.service;
 
 import co.edu.sistema_practicas_empresariales.modules.cierre.dto.ChecklistResponse;
 import co.edu.sistema_practicas_empresariales.modules.cierre.event.CierreFormalEvent;
-import co.edu.sistema_practicas_empresariales.modules.cierre.event.RecordatorioEncuestaEvent;
 import co.edu.sistema_practicas_empresariales.modules.cierre.service.chain.ValidadorNotaDocente;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.ProgramaParametro;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaParametroRepository;
 import co.edu.sistema_practicas_empresariales.modules.encuesta.enums.TipoEncuesta;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.model.Encuesta;
-import co.edu.sistema_practicas_empresariales.modules.encuesta.repository.EncuestaRepository;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.model.Evaluacion;
 import co.edu.sistema_practicas_empresariales.modules.evaluacion.repository.EvaluacionRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.exception.BusinessException;
@@ -22,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

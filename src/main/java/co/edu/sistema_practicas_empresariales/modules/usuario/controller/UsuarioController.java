@@ -5,7 +5,6 @@ import co.edu.sistema_practicas_empresariales.modules.configuracion.dto.Programa
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.MaxEstudiantesRequest;
 import co.edu.sistema_practicas_empresariales.modules.usuario.dto.UsuarioDto;
-import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.service.UsuarioFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controlador REST encargado de exponer los endpoints relacionados con la entidad Usuario.
+ * Maneja las peticiones HTTP y orquesta la respuesta delegando la lógica de negocio al servicio o facade correspondiente.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor

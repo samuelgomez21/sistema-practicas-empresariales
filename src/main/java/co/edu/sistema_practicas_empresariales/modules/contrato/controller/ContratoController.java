@@ -10,6 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador REST encargado de exponer los endpoints relacionados con la entidad Contrato.
+ * Maneja las peticiones HTTP y orquesta la respuesta delegando la lógica de negocio al servicio o facade correspondiente.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/api/contratos")
 @RequiredArgsConstructor

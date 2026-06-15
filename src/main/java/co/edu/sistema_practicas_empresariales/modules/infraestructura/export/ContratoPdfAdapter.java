@@ -36,7 +36,7 @@ public class ContratoPdfAdapter implements GeneradorDocumentoPlantilla {
         String cedulaTutor = getString(vars, "tutor_cedula", "Cédula Desconocida");
         String cedulaEstudiante = getString(vars, "estudiante_cedula", "Cédula Desconocida");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'del año' yyyy", new Locale("es", "ES"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'del año' yyyy", Locale.of("es", "ES"));
         String fechaActual = LocalDate.now().format(formatter);
 
         return "<html><body style='font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; text-align: justify; margin: 40px;'>" +

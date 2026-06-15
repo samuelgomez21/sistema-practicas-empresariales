@@ -10,7 +10,6 @@ import co.edu.sistema_practicas_empresariales.modules.estudiante.repository.Estu
 import co.edu.sistema_practicas_empresariales.modules.practica.state.EstadoPracticaTipo;
 import co.edu.sistema_practicas_empresariales.modules.vacante.model.Vacante;
 import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
-import co.edu.sistema_practicas_empresariales.modules.practica.model.Practica;
 import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Fachada (Facade) que orquesta múltiples servicios para cumplir casos de uso complejos de Postulacion.
+ * Actúa como intermediario entre los controladores y los servicios subyacentes, ocultando la complejidad del sistema.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

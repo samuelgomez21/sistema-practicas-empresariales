@@ -6,6 +6,7 @@ import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Catalo
 import co.edu.sistema_practicas_empresariales.modules.configuracion.model.Programa;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.CatalogoPracticaRepository;
 import co.edu.sistema_practicas_empresariales.modules.configuracion.repository.ProgramaRepository;
+import co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,13 +29,21 @@ public class ConfiguracionFacadeImplTest {
     @Mock
     private ProgramaRepository programaRepository;
 
+    @Mock
+    private PracticaRepository practicaRepository;
+
     @InjectMocks
     private ConfiguracionFacadeImpl configuracionFacade;
 
     @Test
     void listarCatalogosPorPrograma_ShouldReturnList() {
+        CatalogoPractica catalogo = new CatalogoPractica();
+        Programa p = new Programa();
+        p.setId(1L);
+        catalogo.setPrograma(p);
+
         when(catalogoRepository.findByProgramaIdAndActivoTrue(1L))
-                .thenReturn(List.of(new CatalogoPractica()));
+                .thenReturn(List.of(catalogo));
 
         List<CatalogoPracticaDto> result = configuracionFacade.listarCatalogosPorPrograma(1L);
 
@@ -71,6 +80,7 @@ public class ConfiguracionFacadeImplTest {
         catalogo.setActivo(true);
 
         when(catalogoRepository.findById(1L)).thenReturn(Optional.of(catalogo));
+        when(practicaRepository.countActivasByCatalogoPracticaId(1L)).thenReturn(0L);
 
         configuracionFacade.activarDesactivarCatalogo(1L, false);
 

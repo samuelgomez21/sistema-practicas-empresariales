@@ -24,6 +24,9 @@ public class DashboardFacadeImplTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private PostulacionRepository postulacionesRepository;
+
 
 
     @InjectMocks

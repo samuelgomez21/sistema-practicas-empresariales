@@ -18,15 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 /**
  * Implementación de la fachada del módulo de usuarios.
  * <p>
  * <b>Patrón de Diseño aplicado:</b> Facade.
- * Esta clase actúa como un intermediario simplificado entre el controlador REST y
- * los servicios de dominio de usuario. Centraliza la conversión entre Entidades (Usuario)
- * y DTOs (UsuarioDto), aislando al controlador de la complejidad del modelo de datos
+ * Esta clase actúa como un intermediario simplificado entre el controlador REST
+ * y
+ * los servicios de dominio de usuario. Centraliza la conversión entre Entidades
+ * (Usuario)
+ * y DTOs (UsuarioDto), aislando al controlador de la complejidad del modelo de
+ * datos
  * y las reglas de mapeo.
  *
  * @author Equipo de Desarrollo
@@ -35,7 +38,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@lombok.extern.slf4j.Slf4j
 public class UsuarioFacadeImpl implements UsuarioFacade {
+
+    private static final String USUARIO_NO_ENCONTRADO = "Usuario no encontrado";
+    private static final String USUARIO_NO_ENCONTRADO_ID = "Usuario no encontrado con id: ";
 
     private final CoordinadorProgramaRepository coordinadorProgramaRepository;
     private final ProgramaRepository programaRepository;
@@ -44,7 +51,6 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     private final co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
     private final EmailService emailService;
     private final co.edu.sistema_practicas_empresariales.modules.practica.repository.PracticaRepository practicaRepository;
-
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -82,11 +88,10 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         }
 
         if (dto.getRol() != null) {
-            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre rolNombre =
-                    co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.valueOf(dto.getRol());
-            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol rol =
-                    rolRepository.findByNombre(rolNombre)
-                            .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRol()));
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre rolNombre = co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre
+                    .valueOf(dto.getRol());
+            co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol rol = rolRepository.findByNombre(rolNombre)
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRol()));
             builder.rol(rol);
         }
 
@@ -99,14 +104,14 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         return usuarioRepository.findAllByEliminadoFalse()
                 .stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public UsuarioDto obtenerPorId(Long id) {
         Usuario usuario = usuarioRepository.findByIdAndEliminadoFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO_ID + id));
         return mapToDto(usuario);
     }
 
@@ -131,13 +136,13 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         usuario.setDebeCambiarPassword(true);
 
         Usuario guardado = usuarioRepository.save(usuario);
-        System.out.println("antes de el email");
+        log.info("antes de el email");
         emailService.sendEmail(
                 guardado.getEmail(),
                 "Bienvenido al Sistema de Prácticas UAH — Credenciales de acceso",
-                EmailTemplates.credencialesAcceso(guardado.getNombre(), guardado.getEmail(), passwordTemporal, frontendUrl)
-        );
-        System.out.println("despues de el email");
+                EmailTemplates.credencialesAcceso(guardado.getNombre(), guardado.getEmail(), passwordTemporal,
+                        frontendUrl));
+        log.info("despues de el email");
         return mapToDto(guardado);
     }
 
@@ -148,7 +153,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         Objects.requireNonNull(datosNuevos, "Usuario no puede ser null");
 
         Usuario existente = usuarioRepository.findByIdAndEliminadoFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO_ID + id));
 
         existente.setEmail(datosNuevos.getEmail());
         existente.setNombre(datosNuevos.getNombre());
@@ -174,7 +179,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     @Transactional
     public void activar(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO));
         usuario.setActivo(true);
         usuarioRepository.save(usuario);
     }
@@ -194,7 +199,7 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     @Transactional
     public void asignarProgramas(Long usuarioId, List<Long> programaIds) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO));
 
         // Elimina las asignaciones actuales
         List<CoordinadorPrograma> actuales = coordinadorProgramaRepository.findByUsuarioId(usuarioId);
@@ -219,22 +224,24 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     @Transactional(readOnly = true)
     public List<co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto> listarDocentesConCarga() {
         return usuarioRepository.findByRolNombreAndEliminadoFalse(
-                        co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.DOCENTE_ASESOR)
+                co.edu.sistema_practicas_empresariales.modules.usuario.model.Rol.Nombre.DOCENTE_ASESOR)
                 .stream()
                 .map(this::toDocenteCargaDto)
                 .toList();
     }
 
-    private co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto toDocenteCargaDto(Usuario docente) {
-        List<co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto> activos =
-                practicaRepository.findAsignadasActivasByDocente(docente.getId()).stream()
-                        .map(p -> co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto.builder()
-                                .id(p.getEstudiante().getId())
-                                .nombre(p.getEstudiante().getUsuario().getNombre())
-                                .programa(p.getEstudiante().getPrograma().getNombre())
-                                .semestre(p.getEstudiante().getSemestre())
-                                .build())
-                        .toList();
+    private co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto toDocenteCargaDto(
+            Usuario docente) {
+        List<co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto> activos = practicaRepository
+                .findAsignadasActivasByDocente(docente.getId()).stream()
+                .map(p -> co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.EstudianteAsignadoDto
+                        .builder()
+                        .id(p.getEstudiante().getId())
+                        .nombre(p.getEstudiante().getUsuario().getNombre())
+                        .programa(p.getEstudiante().getPrograma().getNombre())
+                        .semestre(p.getEstudiante().getSemestre())
+                        .build())
+                .toList();
 
         return co.edu.sistema_practicas_empresariales.modules.usuario.dto.DocenteCargaDto.builder()
                 .id(docente.getId())
@@ -254,11 +261,12 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
         docente.setMaxEstudiantes(max);
         usuarioRepository.save(docente);
     }
+
     @Override
     @Transactional(readOnly = true)
     public UsuarioDto obtenerPorEmail(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO));
         return mapToDto(usuario);
     }
 

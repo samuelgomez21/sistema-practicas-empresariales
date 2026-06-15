@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: practicas_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-2404}
+      MYSQL_DATABASE: practicas_uah
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - practicas_network
+
+  backend:
+    build: .
+    container_name: practicas_backend
+    ports:
+      - "8083:8082"
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/practicas_uah?useSSL=false&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASSWORD=${DB_PASSWORD:-2404}
+    depends_on:
+      - db
+    networks:
+      - practicas_network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Aquí puedes definir VITE_API_URL para que apunte al backend
+        - VITE_API_URL=http://localhost:8083
+    container_name: practicas_frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - practicas_network
+
+volumes:
+  mysql_data:
+
+networks:
+  practicas_network:
+    driver: bridge

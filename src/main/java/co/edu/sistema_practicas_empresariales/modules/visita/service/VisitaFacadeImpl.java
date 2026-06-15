@@ -2,7 +2,6 @@ package co.edu.sistema_practicas_empresariales.modules.visita.service;
 
 import co.edu.sistema_practicas_empresariales.modules.empresa.repository.EmpresaRepository;
 import co.edu.sistema_practicas_empresariales.modules.practica.exception.BusinessException;
-import co.edu.sistema_practicas_empresariales.modules.usuario.model.Usuario;
 import co.edu.sistema_practicas_empresariales.modules.usuario.repository.UsuarioRepository;
 import co.edu.sistema_practicas_empresariales.modules.visita.dto.VisitaDto;
 import co.edu.sistema_practicas_empresariales.modules.visita.model.Visita;
@@ -14,6 +13,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
+/**
+ * Fachada (Facade) que orquesta múltiples servicios para cumplir casos de uso complejos de Visita.
+ * Actúa como intermediario entre los controladores y los servicios subyacentes, ocultando la complejidad del sistema.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

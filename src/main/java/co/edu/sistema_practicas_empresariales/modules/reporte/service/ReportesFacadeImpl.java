@@ -22,6 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Fachada (Facade) que orquesta múltiples servicios para cumplir casos de uso complejos de Reportes.
+ * Actúa como intermediario entre los controladores y los servicios subyacentes, ocultando la complejidad del sistema.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

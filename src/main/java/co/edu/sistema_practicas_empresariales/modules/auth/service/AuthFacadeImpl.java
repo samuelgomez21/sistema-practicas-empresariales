@@ -25,6 +25,16 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 
+/**
+ * Fachada (Facade) que orquesta múltiples servicios para cumplir casos de uso complejos de Auth.
+ * Actúa como intermediario entre los controladores y los servicios subyacentes, ocultando la complejidad del sistema.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthFacadeImpl implements AuthFacade {

@@ -9,6 +9,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+/**
+ * Servicio de lógica de negocio para la gestión de ArchivoStorage.
+ * Implementa las operaciones principales, reglas de negocio y transacciones directamente relacionadas con la base de datos.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

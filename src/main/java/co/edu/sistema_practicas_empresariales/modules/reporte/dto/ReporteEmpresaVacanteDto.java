@@ -1,7 +1,6 @@
 package co.edu.sistema_practicas_empresariales.modules.reporte.dto;
 
 import lombok.*;
-import java.util.List;
 
 // ── Empresas y Vacantes ───────────────────────────────────────────────────────
 

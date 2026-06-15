@@ -16,7 +16,7 @@ import co.edu.sistema_practicas_empresariales.modules.practica.repository.Practi
 import co.edu.sistema_practicas_empresariales.modules.postulacion.model.Postulacion;
 import co.edu.sistema_practicas_empresariales.modules.postulacion.model.EstadoPostulacionTipo;
 import co.edu.sistema_practicas_empresariales.modules.postulacion.repository.PostulacionRepository;
-import co.edu.sistema_practicas_empresariales.modules.vacante.repository.VacanteRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,16 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio de lógica de negocio para la gestión de Contrato.
+ * Implementa las operaciones principales, reglas de negocio y transacciones directamente relacionadas con la base de datos.
+ * 
+ * <p>Esta clase ha sido documentada para proveer una comprensión clara
+ * de su responsabilidad dentro de la arquitectura del sistema de prácticas empresariales.</p>
+ * 
+ * @author Equipo de Desarrollo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,7 +47,7 @@ public class ContratoServiceImpl implements ContratoService {
     private final EmpresaRepository        empresaRepository;
     private final TutorEmpresarialRepository tutorRepository;
     private final PostulacionRepository    postulacionRepository;
-    private final VacanteRepository        vacanteRepository;
+
     private final GeneradorDocumentoPlantilla generador;
     private final ArchivoStorageService    archivoStorageService;
 
@@ -154,10 +164,6 @@ public class ContratoServiceImpl implements ContratoService {
             if (tieneContrato) continue;
 
             // Verificar si ya tiene empresa asignada en práctica
-            boolean tieneEmpresaEnPractica = practicaRepository
-                    .findPracticaActivaByEstudiante(est.getId())
-                    .map(p -> p.getEmpresaId() != null)
-                    .orElse(false);
 
             porEmpresa.computeIfAbsent(empId, k -> {
                 Map<String, Object> m = new LinkedHashMap<>();
@@ -189,8 +195,9 @@ public class ContratoServiceImpl implements ContratoService {
             seleccionado.put("practicaId",     practicaId);
             seleccionado.put("empresaId",      empId);
 
-            ((List<Map<String, Object>>) porEmpresa.get(empId).get("seleccionados"))
-                    .add(seleccionado);
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> seleccionados = (List<Map<String, Object>>) porEmpresa.get(empId).get("seleccionados");
+            seleccionados.add(seleccionado);
         }
 
         // Filtrar empresas que quedaron sin seleccionados

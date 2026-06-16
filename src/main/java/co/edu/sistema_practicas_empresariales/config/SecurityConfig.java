@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 DispatcherType.FORWARD
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/usuarios/test-email").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

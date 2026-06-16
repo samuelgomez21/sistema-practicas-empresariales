@@ -49,6 +49,9 @@ app:
   firebase:
     config-path: ${FIREBASE_CONFIG:classpath:firebase-service-account.json}
 
+  mail:
+    from: ${MAIL_USER:notificacionespracticas71@gmail.com}
+    from-name: "Sistema de Prácticas"
 
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}

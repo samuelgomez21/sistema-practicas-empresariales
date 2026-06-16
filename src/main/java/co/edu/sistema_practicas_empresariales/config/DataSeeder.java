@@ -30,9 +30,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (empresaRepository.count() > 0) {
-            return;
-        }
+        // Se removió el check if (empresaRepository.count() > 0) para que ejecute la inyección
 
         // Crear rol Estudiante y Empresa si no existen
         Rol rolEstudiante = rolRepository.findByNombre(Rol.Nombre.ESTUDIANTE)

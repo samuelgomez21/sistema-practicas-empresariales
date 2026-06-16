@@ -2,7 +2,9 @@ import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  // HARDCODED para produccion y evitar bugs de Vercel con variables de entorno
+  baseURL: 'https://sistema-practicas-empresariales.onrender.com/api',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',  // ← agregar esto
   },

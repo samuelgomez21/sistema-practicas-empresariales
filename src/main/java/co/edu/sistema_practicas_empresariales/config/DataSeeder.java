@@ -72,99 +72,104 @@ public class DataSeeder implements CommandLineRunner {
                     .build());
         }
 
-        // Crear Coordinador
-        if (usuarioRepository.findByEmail("coordinador@universidad.edu.co").isEmpty()) {
-            usuarioRepository.save(Usuario.builder()
-                    .email("coordinador@universidad.edu.co")
-                    .password(passwordEncoder.encode("coord123"))
-                    .nombre("Coordinador de Practicas")
-                    .rol(rolCoordinador)
-                    .build());
-        }
-
-        // Crear Docente
-        if (usuarioRepository.findByEmail("docente@universidad.edu.co").isEmpty()) {
-            usuarioRepository.save(Usuario.builder()
-                    .email("docente@universidad.edu.co")
-                    .password(passwordEncoder.encode("docente123"))
-                    .nombre("Docente Asesor")
-                    .rol(rolDocente)
-                    .build());
-        }
-
-        // Crear un usuario para la empresa
-        Usuario usuarioEmpresa;
-        if (usuarioRepository.findByEmail("contacto@empresa.com").isEmpty()) {
-            usuarioEmpresa = Usuario.builder()
-                    .email("contacto@empresa.com")
-                    .password(passwordEncoder.encode("12345"))
-                    .nombre("Contacto Empresa")
-                    .rol(rolEmpresa)
-                    .build();
-            usuarioEmpresa = usuarioRepository.save(usuarioEmpresa);
-        } else {
-            usuarioEmpresa = usuarioRepository.findByEmail("contacto@empresa.com").get();
-        }
-
-        // Crear una empresa de prueba
-        Empresa empresa = Empresa.builder()
-                .usuario(usuarioEmpresa)
-                .nit("900123456-7")
-                .razonSocial("Empresa Tech S.A.")
-                .contactoPrincipalEmail("contacto@empresa.com")
-                .build();
-        empresa = empresaRepository.save(empresa);
-
-        // Crear un estudiante de prueba
-        Usuario estudiante;
-        if (usuarioRepository.findByEmail("estudiante@universidad.edu.co").isEmpty()) {
-            estudiante = Usuario.builder()
-                    .email("estudiante@universidad.edu.co")
-                    .password(passwordEncoder.encode("12345"))
-                    .nombre("Estudiante de Prueba")
-                    .rol(rolEstudiante)
-                    .build();
-            estudiante = usuarioRepository.save(estudiante);
-        } else {
-            estudiante = usuarioRepository.findByEmail("estudiante@universidad.edu.co").get();
-        }
-
-        // Crear una vacante de prueba
-        Vacante vacante = Vacante.builder()
-                .empresa(empresa)
-                .titulo("Desarrollador Junior Java")
-                .descripcion("Apoyo en el desarrollo de microservicios")
-                .perfilRequerido("Estudiante de 8vo semestre en adelante")
-                .requisitos("Conocimientos en Java y Spring Boot")
-                .cuposTotales(3)
-                .cuposDisponibles(3)
-                .estado(EstadoVacanteTipo.PENDIENTE)
-                .build();
-        vacante = vacanteRepository.save(vacante);
-
-        // Sembrar datos dependientes de forma agnóstica a la base de datos
+        // LIMPIAR USUARIOS DE PRUEBA
         try {
-            Long empresaId = empresa.getId();
-            Long usuarioEmpresaId = usuarioEmpresa.getId();
-            Long estudianteId = estudiante.getId();
-            Long vacanteId = vacante.getId();
-
-            // Tutor Empresarial 
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM tutores_empresariales WHERE id = 1", Integer.class) == 0) {
-                jdbcTemplate.execute(String.format(
-                    "INSERT INTO tutores_empresariales (id, cargo, empresa_id, usuario_id, activo, fecha_creacion, correo, telefono, nombre_completo) VALUES (1, 'Tutor Principal', %d, %d, true, CURRENT_TIMESTAMP, 'tutor@empresa.com', '123456789', 'Juan Tutor')",
-                    empresaId, usuarioEmpresaId));
-            }
-            
-            // Postulacion 
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM postulaciones WHERE id = 1", Integer.class) == 0) {
-                jdbcTemplate.execute(String.format(
-                    "INSERT INTO postulaciones (id, estado, fecha_postulacion, usuario_id, vacante_id, eliminado) VALUES (1, 'PENDIENTE', CURRENT_TIMESTAMP, %d, %d, false)",
-                    estudianteId, vacanteId));
-            }
-            
+            jdbcTemplate.execute("UPDATE usuarios SET activo=false, eliminado=true WHERE email IN ('coordinador@universidad.edu.co', 'docente@universidad.edu.co', 'contacto@empresa.com', 'admin@sistema.com', 'coordinador_academico@universidad.edu.co', 'empresa@universidad.edu.co')");
+            jdbcTemplate.execute("UPDATE programas SET activo=false WHERE nombre LIKE '%Sistemas%'");
         } catch(Exception e) {
-            System.err.println("Error insertando dependencias (Tutor/Postulacion): " + e.getMessage());
+            System.err.println("Error limpiando datos de prueba: " + e.getMessage());
+        }
+
+        // FACULTADES
+        Long facIngId = 1L;
+        Long facAdmId = 2L;
+        Long facTurId = 3L;
+
+        try {
+            // Ingeniería ya existe (ID=1)
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM facultades WHERE id = 1", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO facultades (id, nombre, activo, fecha_creacion) VALUES (1, 'Facultad de Ingeniería', true, CURRENT_TIMESTAMP)");
+            }
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM facultades WHERE id = 2", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO facultades (id, nombre, activo, fecha_creacion) VALUES (2, 'Facultad de Ciencias Administrativas', true, CURRENT_TIMESTAMP)");
+            }
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM facultades WHERE id = 3", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO facultades (id, nombre, activo, fecha_creacion) VALUES (3, 'Facultad de Turismo', true, CURRENT_TIMESTAMP)");
+            }
+        } catch(Exception e) {
+            System.err.println("Error insertando Facultades: " + e.getMessage());
+        }
+
+        // PROGRAMAS DUALES
+        Long progIndId = 2L;
+        Long progSoftId = 3L;
+        Long progAdmId = 4L;
+        Long progTurId = 5L;
+
+        try {
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM programas WHERE id = 2", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO programas (id, nombre, facultad_id, activo, fecha_creacion) VALUES (2, 'Ingeniería Industrial (Dual)', 1, true, CURRENT_TIMESTAMP)");
+            }
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM programas WHERE id = 3", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO programas (id, nombre, facultad_id, activo, fecha_creacion) VALUES (3, 'Ingeniería de Software (Dual)', 1, true, CURRENT_TIMESTAMP)");
+            }
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM programas WHERE id = 4", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO programas (id, nombre, facultad_id, activo, fecha_creacion) VALUES (4, 'Administración de Empresas (Dual)', 2, true, CURRENT_TIMESTAMP)");
+            }
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM programas WHERE id = 5", Integer.class) == 0) {
+                jdbcTemplate.execute("INSERT INTO programas (id, nombre, facultad_id, activo, fecha_creacion) VALUES (5, 'Turismo (Dual)', 3, true, CURRENT_TIMESTAMP)");
+            }
+        } catch(Exception e) {
+            System.err.println("Error insertando Programas: " + e.getMessage());
+        }
+
+        // COORDINADORES DE PRACTICA (FACULTAD)
+        crearUsuarioConScope("coord.ingenieria@cue.edu.co", "CUE2026*", "Coordinador Prácticas Ingeniería", rolCoordinador, "FACULTAD", String.valueOf(facIngId));
+        crearUsuarioConScope("coord.administracion@cue.edu.co", "CUE2026*", "Coordinador Prácticas Administración", rolCoordinador, "FACULTAD", String.valueOf(facAdmId));
+        crearUsuarioConScope("coord.turismo@cue.edu.co", "CUE2026*", "Coordinador Prácticas Turismo", rolCoordinador, "FACULTAD", String.valueOf(facTurId));
+
+        // COORDINADORES ACADEMICOS (PROGRAMA)
+        Rol rolAcad = rolRepository.findByNombre(Rol.Nombre.COORDINADOR_ACADEMICO).orElseGet(() -> rolRepository.save(Rol.builder().nombre(Rol.Nombre.COORDINADOR_ACADEMICO).build()));
+        
+        Usuario uInd = crearUsuarioConScope("academico.industrial@cue.edu.co", "CUE2026*", "Coord. Académico Industrial", rolAcad, "PROGRAMA", String.valueOf(progIndId));
+        Usuario uSoft = crearUsuarioConScope("academico.software@cue.edu.co", "CUE2026*", "Coord. Académico Software", rolAcad, "PROGRAMA", String.valueOf(progSoftId));
+        Usuario uAdm = crearUsuarioConScope("academico.administracion@cue.edu.co", "CUE2026*", "Coord. Académico Administración", rolAcad, "PROGRAMA", String.valueOf(progAdmId));
+        Usuario uTur = crearUsuarioConScope("academico.turismo@cue.edu.co", "CUE2026*", "Coord. Académico Turismo", rolAcad, "PROGRAMA", String.valueOf(progTurId));
+
+        // ASIGNAR PROGRAMAS A COORDINADORES ACADEMICOS EN TABLA INTERMEDIA
+        asignarProgramaACoordinador(uInd.getId(), progIndId);
+        asignarProgramaACoordinador(uSoft.getId(), progSoftId);
+        asignarProgramaACoordinador(uAdm.getId(), progAdmId);
+        asignarProgramaACoordinador(uTur.getId(), progTurId);
+
+    }
+
+    private Usuario crearUsuarioConScope(String email, String password, String nombre, Rol rol, String scopeTipo, String scopeValorId) {
+        if (usuarioRepository.findByEmail(email).isEmpty()) {
+            Usuario u = Usuario.builder()
+                    .email(email)
+                    .password(passwordEncoder.encode(password))
+                    .nombre(nombre)
+                    .rol(rol)
+                    .build();
+            Usuario saved = usuarioRepository.save(u);
+            try {
+                jdbcTemplate.execute(String.format("UPDATE usuarios SET scope_tipo='%s', scope_valor_id='%s', debe_cambiar_password=true WHERE id=%d", scopeTipo, scopeValorId, saved.getId()));
+            } catch(Exception e) {
+                 System.err.println("Error actualizando scope: " + e.getMessage());
+            }
+            return saved;
+        }
+        return usuarioRepository.findByEmail(email).get();
+    }
+
+    private void asignarProgramaACoordinador(Long usuarioId, Long programaId) {
+        try {
+            if (jdbcTemplate.queryForObject(String.format("SELECT count(*) FROM coordinador_programas WHERE usuario_id=%d AND programa_id=%d", usuarioId, programaId), Integer.class) == 0) {
+                jdbcTemplate.execute(String.format("INSERT INTO coordinador_programas (usuario_id, programa_id) VALUES (%d, %d)", usuarioId, programaId));
+            }
+        } catch(Exception e) {
+             System.err.println("Error asignando programa a coordinador: " + e.getMessage());
         }
     }
 }

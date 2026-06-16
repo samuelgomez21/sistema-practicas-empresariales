@@ -22,22 +22,20 @@ public class SmtpEmailAdapter implements EmailService {
     @Override
     public void enviarCorreo(String destinatario, String asunto, String cuerpoHtml) {
         logger.info("Enviando correo a: {}, Asunto: {}", destinatario, asunto);
-        if (mailSender == null) {
-            logger.warn("JavaMailSender no está configurado. El correo se imprimirá únicamente en los registros.");
-            logger.info("Cuerpo del correo:\n{}", cuerpoHtml);
-            return;
-        }
+        // Eliminado chequeo de mailSender para forzar siempre el puente HTTP
+
 
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String url = "https://script.google.com/macros/s/AKfycbzCCShRG98o6L17kw_3cWp9mYNhIujJXKUZlPeZMCt57W2dZ4S_hVuEq8t9zfDYO1U3pQ/exec";
             
-            helper.setTo(destinatario);
-            helper.setSubject(asunto);
-            helper.setText(cuerpoHtml, true);
-            
-            mailSender.send(message);
-            logger.info("Correo enviado exitosamente a {}", destinatario);
+            java.util.Map<String, String> payload = new java.util.HashMap<>();
+            payload.put("to", destinatario);
+            payload.put("subject", asunto);
+            payload.put("htmlBody", cuerpoHtml);
+
+            org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
+            logger.info("Correo enviado a {} vía Google Apps Script HTTP bridge. Status: {}", destinatario, response.getStatusCode());
         } catch (Exception e) {
             logger.error("Error al enviar el correo a {}: {}", destinatario, e.getMessage(), e);
         }

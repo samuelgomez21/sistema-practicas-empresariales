@@ -21,13 +21,19 @@ public class EmailService {
     private String fromName;
 
     public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage mensaje = new SimpleMailMessage();
-        mensaje.setFrom(from);
-        mensaje.setTo(to);
-        mensaje.setSubject(subject);
-        mensaje.setText(body);
-        mailSender.send(mensaje);
+        try {
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String url = "https://script.google.com/macros/s/AKfycbzCCShRG98o6L17kw_3cWp9mYNhIujJXKUZlPeZMCt57W2dZ4S_hVuEq8t9zfDYO1U3pQ/exec";
+            
+            java.util.Map<String, String> payload = new java.util.HashMap<>();
+            payload.put("to", to);
+            payload.put("subject", subject);
+            payload.put("htmlBody", body);
 
-        log.info("Correo enviado correctamente a {}", to);
+            org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
+            log.info("Correo enviado a {} vía Google Apps Script HTTP bridge. Status: {}", to, response.getStatusCode());
+        } catch (Exception e) {
+            log.error("Error al enviar correo a {}: {}", to, e.getMessage(), e);
+        }
     }
 }

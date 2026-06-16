@@ -24,10 +24,10 @@ spring:
     baseline-on-migrate: true
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USER:notificacionespracticas71@gmail.com}
-    password: ${MAIL_PASS:kgxldwdiiouyquga}
+    host: smtp.gmail.com
+    port: 587
+    username: notificacionespracticas71@gmail.com
+    password: kgxldwdiiouyquga
     properties:
       mail:
         smtp:
@@ -50,8 +50,8 @@ app:
     config-path: ${FIREBASE_CONFIG:classpath:firebase-service-account.json}
 
   mail:
-    from: ${MAIL_USER:notificacionespracticas71@gmail.com}
-    from-name: "Sistema de Prácticas"
+    from: notificacionespracticas71@gmail.com
+    from-name: "Sistema de Practicas"
 
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}

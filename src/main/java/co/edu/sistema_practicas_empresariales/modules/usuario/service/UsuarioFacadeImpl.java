@@ -170,9 +170,13 @@ public class UsuarioFacadeImpl implements UsuarioFacade {
     }
 
     @Override
+    @Transactional
     @co.edu.sistema_practicas_empresariales.modules.bitacora.annotation.Auditable(accion = "ELIMINAR", modulo = "USUARIOS")
     public void eliminar(Long id) {
-        usuarioRepository.softDelete(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(USUARIO_NO_ENCONTRADO));
+        usuario.setActivo(false);
+        usuarioRepository.save(usuario);
     }
 
     @Override

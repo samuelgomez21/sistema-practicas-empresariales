@@ -170,7 +170,7 @@ public class EmpresaFacadeImpl implements EmpresaFacade {
     @Override
     @Transactional(readOnly = true)
     public java.util.List<EmpresaResponse> listarTodas() {
-        return empresaRepository.findByActivoTrue().stream()
+        return empresaRepository.findAll().stream()
                 .map(this::mapToEmpresaResponse)
                 .collect(java.util.stream.Collectors.toList());
     }

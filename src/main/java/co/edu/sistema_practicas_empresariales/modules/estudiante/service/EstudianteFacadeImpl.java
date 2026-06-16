@@ -207,7 +207,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     @Override
     @Transactional(readOnly = true)
     public List<EstudianteResponse> listarTodos() {
-        return estudianteRepository.findByActivoTrue().stream()
+        return estudianteRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -215,7 +215,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     @Override
     @Transactional(readOnly = true)
     public List<EstudianteResponse> listarPorPrograma(Long programaId) {
-        return estudianteRepository.findByProgramaIdAndActivoTrue(programaId).stream()
+        return estudianteRepository.findByProgramaId(programaId).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -406,7 +406,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
     @Override
     @Transactional(readOnly = true)
     public List<co.edu.sistema_practicas_empresariales.modules.estudiante.dto.EstudianteClasificacionDto> listarParaClasificacion() {
-        return estudianteRepository.findByActivoTrue().stream()
+        return estudianteRepository.findAll().stream()
                 .map(this::toClasificacionDto)
                 .toList();
     }
@@ -477,7 +477,7 @@ public class EstudianteFacadeImpl implements EstudianteFacade {
 
         if (programaIds.isEmpty()) return List.of();
 
-        return estudianteRepository.findByActivoTrue().stream()
+        return estudianteRepository.findAll().stream()
                 .filter(e -> programaIds.contains(e.getPrograma().getId()))
                 .filter(e -> e.getEstadoAptitud() == Estudiante.EstadoAptitud.APTO
                         || e.getEstadoPractica() != null)

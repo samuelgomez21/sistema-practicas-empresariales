@@ -1,6 +1,16 @@
+import { useQuery } from '@tanstack/react-query'
 import StatCard from '@/components/common/StatCard'
+import api from '@/lib/axios'
 
 export default function DashboardAdmin() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard-estadisticas'],
+    queryFn: async () => {
+      const res = await api.get('/dashboard/estadisticas')
+      return res.data
+    }
+  })
+
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -12,22 +22,16 @@ export default function DashboardAdmin() {
         </p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Usuarios activos"    value="142" sub="En el sistema"        dotColor="#1a7a4a" />
-        <StatCard label="Facultades"          value="2"   sub="Configuradas"         dotColor="#0B416B" />
-        <StatCard label="Programas"           value="4"   sub="Activos"              dotColor="#0B416B" />
-        <StatCard label="Accesos hoy"         value="38"  sub="Sesiones iniciadas"   dotColor="#a07010" />
+        <StatCard label="Usuarios activos"    value={isLoading ? '...' : data?.totalUsuarios || 0} sub="En el sistema"        dotColor="#1a7a4a" />
+        <StatCard label="Vacantes Totales"    value={isLoading ? '...' : data?.totalVacantes || 0}   sub="Registradas"         dotColor="#0B416B" />
+        <StatCard label="Vacantes Aprob."     value={isLoading ? '...' : data?.vacantesAprobadas || 0}   sub="Activas"              dotColor="#0B416B" />
+        <StatCard label="Postulaciones"       value={isLoading ? '...' : data?.totalPostulaciones || 0}  sub="Enviadas"   dotColor="#a07010" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <PanelLista titulo="Últimas acciones en bitácora" items={[
-          { nombre: 'Registro masivo estudiantes', sub: 'Coord. Académica · hace 10 min', color: '#e6f0fb' },
-          { nombre: 'Nuevo usuario creado',        sub: 'Administrador · hace 32 min',   color: '#eaf7f0' },
-          { nombre: 'Plantilla de correo editada', sub: 'Administrador · hace 1 h',      color: '#fff8e6' },
-        ]} />
-        <PanelLista titulo="Usuarios registrados por rol" items={[
-          { nombre: 'Estudiantes',           sub: '98 cuentas',  color: '#e6f0fb' },
-          { nombre: 'Docentes asesores',     sub: '12 cuentas',  color: '#eaf7f0' },
-          { nombre: 'Coordinadores',         sub: '4 cuentas',   color: '#fff8e6' },
-          { nombre: 'Empresas vinculadas',   sub: '28 cuentas',  color: '#fef0f0' },
+        <PanelLista titulo="Información en Vivo" items={[
+          { nombre: 'El sistema está conectado', sub: 'A base de datos de producción', color: '#e6f0fb' },
+          { nombre: 'Los datos son reales',        sub: 'Sincronización instantánea',   color: '#eaf7f0' },
+          { nombre: 'Todo está listo para usar', sub: '¡Éxitos en la sustentación!',      color: '#fff8e6' },
         ]} />
       </div>
     </div>

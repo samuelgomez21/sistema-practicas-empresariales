@@ -21,19 +21,13 @@ public class EmailService {
     private String fromName;
 
     public void sendEmail(String to, String subject, String body) {
-        try {
-            SimpleMailMessage mensaje = new SimpleMailMessage();
-            mensaje.setFrom(from);
-            mensaje.setTo(to);
-            mensaje.setSubject(subject);
-            mensaje.setText(body);
-            mailSender.send(mensaje);
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setFrom(from);
+        mensaje.setTo(to);
+        mensaje.setSubject(subject);
+        mensaje.setText(body);
+        mailSender.send(mensaje);
 
-            log.info("Correo enviado correctamente a {}", to);
-        } catch (Exception e) {
-            // No relanzamos la excepción: el flujo principal (crear usuario,
-            // estudiante, empresa) no debe fallar si el correo no se pudo enviar.
-            log.error("Error al enviar correo a {}: {}", to, e.getMessage(), e);
-        }
+        log.info("Correo enviado correctamente a {}", to);
     }
 }

@@ -106,4 +106,19 @@ public class UsuarioController {
             org.springframework.security.core.userdetails.UserDetails userDetails) {
         return ResponseEntity.ok(usuarioFacade.obtenerPorEmail(userDetails.getUsername()));
     }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<String> testEmail(
+            @org.springframework.beans.factory.annotation.Autowired
+            co.edu.sistema_practicas_empresariales.shared.email.EmailService emailService) {
+        try {
+            emailService.sendEmail("notificacionespracticas71@gmail.com", "Test Render", "Probando desde Render");
+            return ResponseEntity.ok("Intento de envío ejecutado");
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity.status(500).body("Error: " + e.getMessage() + "\n\nStacktrace:\n" + sw.toString());
+        }
+    }
 }

@@ -36,8 +36,6 @@ public class SmtpEmailAdapter implements EmailService {
 
             org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
             logger.info("Correo enviado a {} vía Google Apps Script HTTP bridge. Status: {}", destinatario, response.getStatusCode());
-        } catch (org.springframework.web.client.HttpClientErrorException.Found e) {
-            logger.info("Correo enviado a {} (302 Redirect, Google Apps Script éxito).", destinatario);
         } catch (Exception e) {
             logger.error("Error al enviar el correo a {}: {}", destinatario, e.getMessage(), e);
         }

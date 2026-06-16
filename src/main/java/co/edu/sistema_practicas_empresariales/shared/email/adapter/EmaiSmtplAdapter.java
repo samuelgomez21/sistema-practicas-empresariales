@@ -17,16 +17,23 @@ public class EmaiSmtplAdapter implements EmailPort {
     @Override
     public void enviarCorreo(CorreoInstitucional correo) {
         log.info("==============================================");
-        log.info("[ADAPTER SMTP] Conectando a servidor de correo externo...");
+        log.info("[ADAPTER SMTP] Conectando a servidor de correo externo mediante puente HTTP...");
         log.info("Enviando correo Institucional...");
         log.info("Para: {}", correo.getDestinatario());
-        if (correo.getCopia() != null) {
-            log.info("CC: {}", correo.getCopia());
+        
+        try {
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String url = "https://script.google.com/macros/s/AKfycbzCCShRG98o6L17kw_3cWp9mYNhIujJXKUZlPeZMCt57W2dZ4S_hVuEq8t9zfDYO1U3pQ/exec";
+            
+            java.util.Map<String, String> payload = new java.util.HashMap<>();
+            payload.put("to", correo.getDestinatario());
+            payload.put("subject", correo.getAsunto());
+            payload.put("htmlBody", correo.getCuerpoHtml());
+
+            org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
+            log.info("Correo de restablecimiento enviado a {} vía Google Apps Script HTTP bridge. Status: {}", correo.getDestinatario(), response.getStatusCode());
+        } catch (Exception e) {
+            log.error("Error al enviar el correo a {}: {}", correo.getDestinatario(), e.getMessage(), e);
         }
-        log.info("Asunto: {}", correo.getAsunto());
-        log.info("Adjuntos: {}", correo.getAdjuntos().size());
-        log.info("Cuerpo (HTML):\n{}", correo.getCuerpoHtml());
-        log.info("==============================================");
-        // mailSender.send(message); -> Código real de conexión externa
     }
 }

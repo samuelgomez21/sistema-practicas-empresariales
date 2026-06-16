@@ -146,7 +146,14 @@ public class AuthFacadeImpl implements AuthFacade {
     private void sendPasswordResetEmail(Usuario usuario, String token) {
         // La URL apunta al FRONTEND, que tiene la página /reset-password
         // El frontend llama al backend con el token cuando el usuario llega ahí
-        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        String cleanFrontendUrl = frontendUrl.trim();
+        if (!cleanFrontendUrl.startsWith("http://") && !cleanFrontendUrl.startsWith("https://")) {
+            cleanFrontendUrl = "https://" + cleanFrontendUrl;
+        }
+        if (cleanFrontendUrl.endsWith("/")) {
+            cleanFrontendUrl = cleanFrontendUrl.substring(0, cleanFrontendUrl.length() - 1);
+        }
+        String resetUrl = cleanFrontendUrl + "/reset-password?token=" + token;
 
         String emailBody = String.format(
                 ConfiguracionGlobalSingleton.getInstance().getPlantillaCorreoBase(),

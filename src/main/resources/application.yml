@@ -54,7 +54,10 @@ app:
     from-name: "Sistema de Practicas"
 
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+    allowed-origins: ${CORS_ORIGINS:https://sistema-practicas-empresariales.vercel.app}
+
+  frontend:
+    url: ${APP_FRONTEND_URL:https://sistema-practicas-empresariales.vercel.app}
 
 server:
   port: 8080

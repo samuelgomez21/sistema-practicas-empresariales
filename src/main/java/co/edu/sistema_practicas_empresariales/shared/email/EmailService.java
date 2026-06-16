@@ -32,6 +32,8 @@ public class EmailService {
 
             org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
             log.info("Correo enviado a {} vía Google Apps Script HTTP bridge. Status: {}", to, response.getStatusCode());
+        } catch (org.springframework.web.client.HttpClientErrorException.Found e) {
+            log.info("Correo enviado a {} (302 Redirect, Google Apps Script éxito).", to);
         } catch (Exception e) {
             log.error("Error al enviar correo a {}: {}", to, e.getMessage(), e);
         }

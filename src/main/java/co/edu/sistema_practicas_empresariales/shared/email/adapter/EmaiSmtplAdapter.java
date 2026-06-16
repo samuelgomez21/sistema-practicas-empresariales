@@ -32,8 +32,11 @@ public class EmaiSmtplAdapter implements EmailPort {
 
             org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(url, payload, String.class);
             log.info("Correo de restablecimiento enviado a {} vía Google Apps Script HTTP bridge. Status: {}", correo.getDestinatario(), response.getStatusCode());
+        } catch (org.springframework.web.client.HttpClientErrorException.Found e) {
+            log.info("Correo de restablecimiento enviado a {} (302 Redirect, Google Apps Script éxito).", correo.getDestinatario());
         } catch (Exception e) {
             log.error("Error al enviar el correo a {}: {}", correo.getDestinatario(), e.getMessage(), e);
+            throw new RuntimeException("Error puente HTTP: " + e.getMessage(), e);
         }
     }
 }

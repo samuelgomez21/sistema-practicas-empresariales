@@ -17,9 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +36,15 @@ class AuthFacadeImplTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private co.edu.sistema_practicas_empresariales.shared.email.adapter.EmailPort emailPort;
+
+    @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    @Mock
+    private co.edu.sistema_practicas_empresariales.modules.usuario.repository.RolRepository rolRepository;
+
     @InjectMocks
     private AuthFacadeImpl authFacade;
 
@@ -47,7 +54,7 @@ class AuthFacadeImplTest {
     @BeforeEach
     void setUp() {
         Rol rolAdmin = new Rol(1L, Rol.Nombre.ADMINISTRADOR);
-        
+
         mockUsuario = Usuario.builder()
                 .id(1L)
                 .email("admin@test.com")
@@ -58,6 +65,8 @@ class AuthFacadeImplTest {
                 .build();
 
         loginRequest = new LoginRequest("admin@test.com", "password123");
+
+        org.springframework.test.util.ReflectionTestUtils.setField(authFacade, "frontendUrl", "http://localhost:5173");
     }
 
     @Test
@@ -82,7 +91,7 @@ class AuthFacadeImplTest {
         assertEquals("jwt.token.mock", response.getToken());
         assertEquals("admin@test.com", response.getEmail());
         assertEquals("Administrador de Prueba", response.getNombre());
-        
+
         // Verificamos que se llamó al repositorio y al generador de token
         verify(usuarioRepository, times(1)).findByEmail("admin@test.com");
         verify(tokenProvider, times(1)).generateToken(authentication);
@@ -118,5 +127,43 @@ class AuthFacadeImplTest {
 
         assertTrue(exception.getMessage().contains("DEBE_CAMBIAR_PASSWORD"));
         verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    @DisplayName("Test: Solicitar Recuperación de Contraseña Exitoso")
+    void testSolicitarRecuperacionPassword() {
+        // Arrange
+        co.edu.sistema_practicas_empresariales.modules.auth.dto.RecuperarPasswordDto dto = 
+            new co.edu.sistema_practicas_empresariales.modules.auth.dto.RecuperarPasswordDto();
+        dto.setEmail("admin@test.com");
+        
+        when(usuarioRepository.findByEmail("admin@test.com")).thenReturn(Optional.of(mockUsuario));
+
+        // Act
+        authFacade.solicitarRecuperacionPassword(dto);
+
+        // Assert
+        assertNotNull(mockUsuario.getResetPasswordToken());
+        assertNotNull(mockUsuario.getResetPasswordExpires());
+        verify(usuarioRepository, times(1)).save(mockUsuario);
+    }
+
+    @Test
+    @DisplayName("Test: Solicitar Recuperación de Contraseña con email no existente")
+    void testSolicitarRecuperacionPasswordEmailInvalido() {
+        // Arrange
+        co.edu.sistema_practicas_empresariales.modules.auth.dto.RecuperarPasswordDto dto = 
+            new co.edu.sistema_practicas_empresariales.modules.auth.dto.RecuperarPasswordDto();
+        dto.setEmail("noexiste@test.com");
+        
+        when(usuarioRepository.findByEmail("noexiste@test.com")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            authFacade.solicitarRecuperacionPassword(dto);
+        });
+        
+        assertEquals("Usuario no encontrado con ese email.", exception.getMessage());
+        verify(usuarioRepository, never()).save(any());
     }
 }
